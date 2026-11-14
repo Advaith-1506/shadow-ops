@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -443,4 +441,768 @@ canvas {
   .ops-form-row {
     gap: 8px;
   }
+}
+
+/* Party Mode: one shared world, four handheld controllers. */
+.game-root {
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+  background: #080f15;
+  color: #e5f0f5;
+}
+.game-canvas-shell {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.game-canvas-shell canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: auto;
+}
+.rotate-hint {
+  position: absolute;
+  z-index: 40;
+  left: 50%;
+  top: max(12px, env(safe-area-inset-top));
+  transform: translateX(-50%);
+  background: #2f251ef2;
+  border: 1px solid #6b5442;
+  color: #ffcf6e;
+  padding: 8px 14px;
+  font: 11px monospace;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+.game-toolbar {
+  position: absolute;
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 6px;
+  z-index: 35;
+}
+.game-toolbar button,
+.controller-footer button {
+  background: #0b1c29e8;
+  border: 1px solid #426475;
+  color: #d2e8f4;
+  padding: 10px 12px;
+  font: 10px monospace;
+  border-radius: 6px;
+  min-height: 40px;
+}
+.pause-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+}
+.party-lobby {
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  max-width: 760px;
+}
+.host-lobby {
+  max-width: 1180px;
+}
+.party-host-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 32px;
+}
+.party-qr {
+  width: min(100%, 320px);
+  aspect-ratio: 1;
+  display: block;
+  margin: 16px auto;
+  background: white;
+  border-radius: 12px;
+}
+.party-qr-placeholder {
+  padding: 40px;
+  background: #152f3c;
+  border: 1px solid #34596c;
+  border-radius: 12px;
+}
+.party-code {
+  font: bold 40px monospace;
+  letter-spacing: 7px;
+  color: #72f5b9;
+  text-align: center;
+  margin: 18px 0;
+}
+.party-invite-url {
+  display: block;
+  color: #a7d7ed;
+  font: 12px monospace;
+  overflow-wrap: anywhere;
+  user-select: text;
+  line-height: 1.6;
+}
+.party-invite .ops-actions {
+  margin: 14px 0;
+}
+.party-button {
+  border: 1px solid #436777;
+  background: #17313e;
+  color: #b5ebff;
+  padding: 15px 10px;
+  border-radius: 5px;
+  font: bold 10px monospace;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  text-align: center;
+}
+.party-invite label {
+  margin-top: 12px;
+}
+.party-roster {
+  margin: 16px 0;
+}
+.party-slot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 12px;
+  border: 1px solid #2c4a59;
+  border-radius: 8px;
+  margin: 10px 0;
+  min-height: 76px;
+  background: #0a1720;
+}
+.slot-number {
+  font: 18px monospace;
+  color: #4c8197;
+}
+.party-slot b {
+  display: block;
+  font: 14px monospace;
+}
+.party-slot small {
+  display: block;
+  color: #80a9ba;
+  font: 11px monospace;
+  margin-top: 7px;
+}
+.party-slot strong {
+  margin-left: auto;
+  font: 10px monospace;
+  color: #b1c1c9;
+}
+.party-slot strong.ops-live {
+  color: #62efae;
+}
+.party-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+}
+.ops-shell .role-card {
+  display: flex;
+  align-items: stretch;
+  text-align: left;
+  flex-direction: column;
+  gap: 8px;
+  font-family: inherit;
+  letter-spacing: 0;
+  font-weight: 400;
+  padding: 16px;
+  min-height: 156px;
+  border-left: 3px solid var(--role);
+}
+.role-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+.role-card b {
+  color: var(--role);
+  font-size: 15px;
+}
+.role-card strong {
+  font-size: 11px;
+  color: #e0f0f7;
+}
+.role-card span:not(.role-card-top) {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9fb8c4;
+}
+.role-card small {
+  font: 9px monospace;
+  color: #7596a5;
+}
+.ops-shell .role-card.chosen {
+  background: #19323b;
+  border-color: var(--role);
+  box-shadow: 0 0 0 1px var(--role);
+}
+.party-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0;
+}
+.party-mode-toggle button {
+  flex: 1;
+}
+.ops-shell .party-mode-toggle .selected {
+  border-color: #6beeb4;
+  color: #6beeb4;
+  background: #153b30;
+}
+.party-advanced {
+  margin: 20px 0;
+  color: #87abb9;
+  font: 12px monospace;
+}
+.party-advanced summary {
+  cursor: pointer;
+  padding: 12px 0;
+}
+.deploy-button {
+  width: 100%;
+  padding: 20px !important;
+  font-size: 14px !important;
+}
+.party-results {
+  margin: 12px 0;
+  max-height: 24dvh;
+  overflow: auto;
+  text-align: left;
+  font-size: 11px;
+  color: #a9c5d5;
+  padding: 12px;
+  background: #0c1922;
+  border: 1px solid #274959;
+  border-radius: 8px;
+}
+.party-results p {
+  padding: 8px 0;
+}
+.party-results b,
+.party-results span {
+  display: block;
+}
+.party-results span {
+  color: #79a3b7;
+  margin-top: 4px;
+}
+.phone-controller {
+  height: 100dvh;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding: max(12px, env(safe-area-inset-top))
+    max(18px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+    max(18px, env(safe-area-inset-left));
+  background:
+    radial-gradient(ellipse at 10% 80%, #123845 0, transparent 45%), #08141e;
+  color: #dfedf4;
+  font-family: Arial, sans-serif;
+}
+.controller-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #284756;
+  padding-bottom: 12px;
+}
+.controller-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+.controller-header h1 span {
+  font: 12px monospace;
+  color: var(--role-color);
+  display: inline-block;
+  margin-left: 12px;
+}
+.controller-header > span {
+  font: 10px monospace;
+  white-space: nowrap;
+}
+.controller-mission {
+  padding: 14px 0 0;
+}
+.controller-mission > b {
+  font-size: 14px;
+  line-height: 1.5;
+  display: block;
+  color: #a8e9d3;
+}
+.controller-mission > span {
+  font: 10px monospace;
+  color: #8faebb;
+  display: block;
+  margin: 7px 0;
+}
+.controller-alert {
+  height: 3px;
+  width: 100%;
+  background: #1f3947;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.controller-alert i {
+  height: 100%;
+  background: #fb8d86;
+  display: block;
+}
+.capture-warning {
+  padding: 10px;
+  background: #6b293666;
+  border: 1px solid #b45b68;
+  color: #ffc2c4;
+  font: 12px monospace;
+  margin-top: 8px;
+}
+.phone-controls {
+  flex: 1;
+  min-height: 230px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.joystick-area {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.joystick-area > small {
+  font: 9px monospace;
+  letter-spacing: 2px;
+  color: #75a6ba;
+}
+.phone-joystick {
+  width: clamp(150px, 25vw, 230px);
+  height: clamp(150px, 25vw, 230px);
+  border-radius: 50%;
+  background: radial-gradient(#193b4e 0, #0d2634 65%, #133b4b 66%, #0b202e 71%);
+  border: 2px solid #355d73;
+  position: relative;
+  touch-action: none;
+  box-shadow:
+    inset 0 0 30px #0006,
+    0 8px 28px #0005;
+}
+.phone-joystick.moving {
+  border-color: #68d4f2;
+  box-shadow: 0 0 28px #68d4f233;
+}
+.joystick-guides {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: pre;
+  font-size: 35px;
+  line-height: 1.8;
+  color: #4f849966;
+  pointer-events: none;
+}
+.joystick-knob {
+  position: absolute;
+  left: 32%;
+  top: 32%;
+  width: 36%;
+  height: 36%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4d91ae, #183d53);
+  border: 2px solid #73a9bd;
+  box-shadow: 0 8px 10px #0007;
+  pointer-events: none;
+}
+.phone-action-area {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.phone-action {
+  width: clamp(108px, 18vw, 165px);
+  height: clamp(108px, 18vw, 165px);
+  border-radius: 50%;
+  border: 2px solid #4eaa87;
+  color: #a7f8d4;
+  background: radial-gradient(#174634, #0b2520);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px;
+  touch-action: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 25px #0005;
+}
+.phone-action b {
+  font:
+    700 clamp(13px, 2.3vw, 22px) Arial,
+    sans-serif;
+}
+.phone-action small {
+  font: 9px monospace;
+  line-height: 1.4;
+  max-width: 100px;
+}
+.phone-action.ability {
+  border-color: var(--role-color, #65d7ff);
+  color: var(--role-color, #65d7ff);
+  background: radial-gradient(#1b334e, #102030);
+}
+.phone-action.pressed {
+  filter: brightness(1.7);
+  transform: scale(0.96);
+}
+.ability-charge {
+  position: absolute;
+  bottom: 12%;
+  height: 3px;
+  background: currentColor;
+  max-width: 60%;
+  border-radius: 3px;
+  pointer-events: none;
+}
+.controls-disabled {
+  opacity: 0.45;
+}
+.controller-footer {
+  font-size: 11px;
+  color: #7fabbc;
+}
+.controller-footer > p {
+  max-width: 700px;
+  margin: 0 auto 12px;
+  text-align: center;
+  line-height: 1.5;
+}
+.controller-footer > div {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.controller-footer details {
+  padding: 10px 0;
+  max-width: 700px;
+  margin: auto;
+}
+.controller-footer summary {
+  cursor: pointer;
+  padding: 6px;
+}
+.objective-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font: 11px monospace;
+  line-height: 1.5;
+  padding: 10px 0;
+}
+.objective-list .active {
+  color: #97efce;
+}
+.objective-list .complete {
+  color: #68cfa3;
+}
+.objective-list .blocked {
+  color: #69889b;
+}
+.mission-overlay {
+  position: absolute;
+  top: 130px;
+  left: 12px;
+  z-index: 10;
+  max-width: min(320px, 65vw);
+  padding: 8px 12px;
+  background: #08151cdd;
+  border: 1px solid #2e4d58;
+  border-radius: 7px;
+  font: 10px monospace;
+  color: #9cd5df;
+}
+.mission-overlay summary {
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.mission-toast {
+  padding: 12px;
+  background: #154e3dee;
+  color: #8ff1c2;
+  line-height: 1.6;
+}
+.shared-objectives {
+  top: auto;
+  bottom: 60px;
+  background: #08151ce8;
+}
+.compact-controls {
+  position: absolute;
+  bottom: max(45px, env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  z-index: 20;
+  pointer-events: none;
+  min-height: 0;
+  justify-content: space-between;
+  padding: 12px 20px;
+  align-items: flex-end;
+}
+.compact-controls .joystick-area,
+.compact-controls .phone-action {
+  pointer-events: auto;
+}
+.compact-controls .phone-joystick {
+  width: 128px;
+  height: 128px;
+  opacity: 0.85;
+}
+.compact-controls .phone-action {
+  width: 84px;
+  height: 84px;
+  opacity: 0.88;
+}
+.compact-controls .phone-action-area {
+  gap: 10px;
+}
+.compact-controls .phone-action b {
+  font-size: 11px;
+}
+.compact-controls .phone-action small {
+  font-size: 7px;
+}
+.compact-controls .joystick-area > small {
+  display: none;
+}
+.compact-controls .ability-charge {
+  bottom: 8%;
+}
+@media (max-width: 760px) {
+  .party-host-grid {
+    grid-template-columns: 1fr;
+  }
+  .party-invite {
+    max-width: 350px;
+    margin: auto;
+  }
+  .party-lobby {
+    max-height: calc(100dvh - 24px);
+  }
+  .party-role-grid {
+    gap: 8px;
+  }
+  .ops-shell .role-card {
+    padding: 12px;
+    min-height: 170px;
+  }
+  .role-card-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .party-mode-toggle button {
+    padding: 14px 8px;
+  }
+  .phone-action-area {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .phone-joystick {
+    width: 165px;
+    height: 165px;
+  }
+  .phone-controls {
+    gap: 15px;
+  }
+  .controller-header h1 {
+    font-size: 18px;
+  }
+  .controller-header h1 span {
+    display: block;
+    margin: 5px 0 0;
+  }
+  .phone-action {
+    width: 115px;
+    height: 115px;
+  }
+  .phone-action b {
+    font-size: 13px;
+  }
+  .compact-controls .phone-action-area {
+    flex-direction: row;
+  }
+  .shared-objectives .objective-list {
+    font-size: 9px;
+  }
+  .ops-actions {
+    gap: 8px;
+  }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .phone-controller {
+    overflow: auto;
+    padding-top: max(7px, env(safe-area-inset-top));
+  }
+  .controller-header {
+    padding-bottom: 6px;
+  }
+  .controller-header h1 {
+    font-size: 17px;
+  }
+  .controller-header .ops-eyebrow {
+    font-size: 8px;
+  }
+  .controller-mission {
+    padding-top: 6px;
+  }
+  .controller-mission > b {
+    font-size: 12px;
+    display: inline;
+    margin-right: 20px;
+  }
+  .controller-mission > span {
+    display: inline;
+  }
+  .controller-alert {
+    margin-top: 6px;
+  }
+  .phone-controls {
+    min-height: 185px;
+    padding: 10px 0;
+    gap: 20px;
+  }
+  .phone-action-area {
+    flex-direction: row;
+    gap: 22px;
+  }
+  .phone-joystick {
+    width: 170px;
+    height: 170px;
+  }
+  .phone-action {
+    width: 125px;
+    height: 125px;
+  }
+  .controller-footer > p {
+    margin-bottom: 7px;
+    font-size: 10px;
+  }
+  .controller-footer button {
+    padding: 8px 10px;
+    min-height: 34px;
+  }
+  .controller-footer details {
+    display: none;
+  }
+  .controller-footer > div {
+    gap: 8px;
+  }
+  .compact-controls .phone-joystick {
+    width: 110px;
+    height: 110px;
+  }
+  .compact-controls .phone-action {
+    width: 78px;
+    height: 78px;
+  }
+  .compact-controls {
+    padding: 5px 12px;
+    min-height: 0;
+  }
+}
+
+.network-game-error {
+  position: absolute;
+  top: 180px;
+  left: 15%;
+  right: 15%;
+  z-index: 40;
+  background: #4d2534ed;
+  border: 1px solid #e68da2;
+  color: #ffd6e3;
+  padding: 14px;
+  font: 12px monospace;
+  text-align: center;
+  border-radius: 7px;
+}
+
+.local-player-choice {
+  font: 9px monospace;
+  letter-spacing: 1px;
+  color: #8fb2c0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.local-player-choice select {
+  background: #102431;
+  color: #d2f0ff;
+  border: 1px solid #345b6c;
+  border-radius: 5px;
+  padding: 12px;
+}
+
+/* Original Shadow Ops debrief artwork. No raster image or external download. */
+.ops-debrief {
+  --debrief-accent: #66efb3;
+  background: radial-gradient(
+    ellipse at 50% 28%,
+    #183b35 0,
+    #0c1c25 42%,
+    #060d14 100%
+  );
+  isolation: isolate;
+}
+.ops-debrief-failure {
+  --debrief-accent: #ff7e92;
+  background: radial-gradient(
+    ellipse at 50% 28%,
+    #3e1d30 0,
+    #151b29 42%,
+    #080e16 100%
+  );
+}
+.ops-debrief-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#79b7c714 1px, transparent 1px),
+    linear-gradient(90deg, #79b7c714 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, #000, transparent 85%);
+}
+.ops-debrief::after {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--debrief-accent) 20%, transparent);
+  border-radius: 20px;
+  pointer-events: none;
+}
+.ops-pause-panel {
+  position: relative;
+  background: linear-gradient(145deg, #122b38f5, #08131ef5);
+  border: 1px solid #4d8b9d;
+  box-shadow:
+    0 20px 90px #0009,
+    inset 0 3px 0 #6eefb5;
 }

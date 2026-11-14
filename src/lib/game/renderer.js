@@ -59,6 +59,7 @@ export function renderGame(ctx, state, tick, camera = { x: 0, y: 0 }, zoom = 1, 
   _renderCameras(ctx, state, tick);
   _renderCharacters(ctx, state, tick);
   _renderScan(ctx, state, tick);
+  _renderDistractions(ctx, state, tick, labelScale);
   _renderLabels(ctx, state, tick, stage, labelScale);
   _renderPrompts(ctx, state, labelScale);
 
@@ -751,8 +752,29 @@ function _renderLabels(ctx, state, tick, stage, scale) {
   for (const p of state.players) {
     const col = playerColor(p.id);
     const glyph = ROLE_GLYPH[p.role] || '';
-    const text = p.downed ? `P${p.id} DOWN ${Math.ceil(p.custodyTimer || 0)}s` : `P${p.id} ${glyph}`;
+    const who = p.nickname ? p.nickname : `P${p.id}`;
+    const text = p.downed
+      ? `${who} DOWN ${Math.ceil(p.custodyTimer || 0)}s`
+      : `${who} ${glyph}`;
     label(ctx, text, p.x, p.y - 25 * scale, p.downed ? '#ffb3b3' : col, scale * 0.9);
+  }
+}
+
+function _renderDistractions(ctx, state, tick, scale) {
+  for (const d of state.distractions || []) {
+    const pulse = 0.55 + 0.45 * Math.sin(tick * 8);
+    ctx.save();
+    ctx.strokeStyle = `rgba(209,162,255,${0.25 + 0.2 * pulse})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, 260, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(209,162,255,${0.18 + 0.12 * pulse})`;
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, 18 + 4 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    label(ctx, `NOISE ${Math.ceil(d.remaining)}s`, d.x, d.y - 28 * scale, '#d1a2ff', scale);
   }
 }
 

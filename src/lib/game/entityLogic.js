@@ -5,24 +5,61 @@
  */
 
 import {
-  GUARD_SPEED, GUARD_DETECT_R, GUARD_TOUCH_R,
-  GUARD_ALARM_RATE, GUARD_TOUCH_ALARM,
-  CAM_DETECT_R, CAM_ARC_DEG, CAM_SWEEP_RAD_S, CAM_ALARM_RATE,
-  LASER_ALARM_RATE, MAX_ALARM,
-  CANVAS_W, CANVAS_H,
-} from './constants.js';
+  GUARD_SPEED,
+  GUARD_DETECT_R,
+  GUARD_TOUCH_R,
+  GUARD_ALARM_RATE,
+  GUARD_TOUCH_ALARM,
+  CAM_DETECT_R,
+  CAM_ARC_DEG,
+  CAM_SWEEP_RAD_S,
+  CAM_ALARM_RATE,
+  LASER_ALARM_RATE,
+  MAX_ALARM,
+  CANVAS_W,
+  CANVAS_H,
+} from "./constants.js";
 import {
-  dist, pointInCone, rectsOverlap,
-  lineIntersectsCircle, circleOverlapsRect, moveCircleWithCollisions, moveRectWithCollisions, lineBlockedByRects,
-} from './collision.js';
-import { computeGuardPath } from './guardNav.js';
+  dist,
+  pointInCone,
+  rectsOverlap,
+  lineIntersectsCircle,
+  circleOverlapsRect,
+  moveCircleWithCollisions,
+  moveRectWithCollisions,
+  lineBlockedByRects,
+} from "./collision.js";
+import { computeGuardPath } from "./guardNav.js";
 
 // ─── Guards ───────────────────────────────────────────────────────────────────
 export function updateGuards(state, dt) {
   const solids = [...state.walls, ...state.doors.filter((d) => !d.open)];
   const blockers = [...solids, ...state.crates];
   for (const guard of state.guards) {
-    if (guard.stunned > 0) { guard.stunned = Math.max(0, guard.stunned - dt); continue; }
+    if (guard.stunned > 0) {
+      guard.stunned = Math.max(0, guard.stunned - dt);
+      continue;
+    }
+    if (state.mission && guard.mode !== "chase") {
+      const noise = (state.distractions || []).find(
+        (d) => d.remaining > 0 && dist(guard.x, guard.y, d.x, d.y) <= 260,
+      );
+      const current = (state.distractions || []).find(
+        (d) => d.id === guard.noiseId && d.remaining > 0,
+      );
+      if (noise && !current) {
+        guard.mode = "investigate";
+        guard.noiseId = noise.id;
+        guard.investigation = { x: noise.x, y: noise.y };
+        guard.path = null;
+      }
+      if (guard.mode === "investigate" && !noise && !current) {
+        guard.mode = "patrol";
+        guard.investigation = null;
+        guard.noiseId = null;
+        guard.path = null;
+      }
+    }
     _patrolGuard(guard, dt, solids, state.crates);
     _separateGuardFromCrates(guard, state.crates, solids);
     _guardDetection(guard, state, dt, blockers);
@@ -78,7 +115,13 @@ function _separateGuardFromCrates(guard, crates, solids) {
 
 function _pointBlocked(x, y, rects, pad = 10) {
   for (const r of rects) {
-    if (x > r.x - pad && x < r.x + r.w + pad && y > r.y - pad && y < r.y + r.h + pad) return true;
+    if (
+      x > r.x - pad &&
+      x < r.x + r.w + pad &&
+      y > r.y - pad &&
+      y < r.y + r.h + pad
+    )
+      return true;
   }
   return false;
 }
@@ -95,21 +138,32 @@ function _chooseNextPatrolIdx(guard, crates) {
 }
 
 function _patrolGuard(guard, dt, solids, crates) {
-  const target = guard.mode === 'chase' && guard.chaseTarget ? guard.chaseTarget : guard.patrol[guard.patrolIdx];
+  const target =
+    guard.mode === "investigate" && guard.investigation
+      ? guard.investigation
+      : guard.mode === "chase" && guard.chaseTarget
+        ? guard.chaseTarget
+        : guard.patrol[guard.patrolIdx];
   if (!target) return;
   guard.repathTimer = Math.max(0, (guard.repathTimer || 0) - dt);
-  const needRepath = !guard.path || guard.path.length < 2 || guard.repathTimer <= 0;
+  const needRepath =
+    !guard.path || guard.path.length < 2 || guard.repathTimer <= 0;
   if (needRepath) {
     guard.path = computeGuardPath(
       {
-        walls: solids.filter((s) => !s.id || !String(s.id).startsWith('door_')),
-        doors: solids.filter((s) => s.id && String(s.id).startsWith('door_')).map((d) => ({ ...d, open: false })),
+        walls: solids.filter((s) => !s.id || !String(s.id).startsWith("door_")),
+        doors: solids
+          .filter((s) => s.id && String(s.id).startsWith("door_"))
+          .map((d) => ({ ...d, open: false })),
         crates,
       },
-      guard.x, guard.y, target.x, target.y
+      guard.x,
+      guard.y,
+      target.x,
+      target.y,
     );
     guard.pathIdx = 1;
-    guard.repathTimer = guard.mode === 'chase' ? 0.35 : 0.9;
+    guard.repathTimer = guard.mode === "chase" ? 0.35 : 0.9;
   }
 
   const next = guard.path?.[guard.pathIdx] || target;
@@ -122,21 +176,26 @@ function _patrolGuard(guard, dt, solids, crates) {
       guard.pathIdx += 1;
       return;
     }
-    if (guard.mode === 'chase') {
-      guard.mode = 'patrol';
+    if (guard.mode === "investigate") return;
+    if (guard.mode === "chase") {
+      guard.mode = "patrol";
       guard.chaseTarget = null;
     }
     guard.patrolIdx = _chooseNextPatrolIdx(guard, crates);
   } else {
-    const speedMul = guard.mode === 'chase' ? 1.45 : 1;
+    const speedMul = guard.mode === "chase" ? 1.45 : 1;
     const step = GUARD_SPEED * speedMul * dt;
     const ang = Math.atan2(dy, dx);
     const prevX = guard.x;
     const prevY = guard.y;
     const moved = moveCircleWithCollisions(
-      prevX, prevY, 11,
-      Math.cos(ang) * step, Math.sin(ang) * step,
-      solids, [],
+      prevX,
+      prevY,
+      11,
+      Math.cos(ang) * step,
+      Math.sin(ang) * step,
+      solids,
+      [],
     );
     guard.x = moved.x;
     guard.y = moved.y;
@@ -146,8 +205,14 @@ function _patrolGuard(guard, dt, solids, crates) {
     if (movedDist < 0.2) {
       guard.stuckTimer = (guard.stuckTimer || 0) + dt;
       if (guard.stuckTimer > 0.15) {
-        if (guard.mode === 'chase') {
-          guard.mode = 'patrol';
+        if (guard.mode === "investigate") {
+          guard.path = null;
+          guard.repathTimer = 0;
+          guard.stuckTimer = 0;
+          return;
+        }
+        if (guard.mode === "chase") {
+          guard.mode = "patrol";
           guard.chaseTarget = null;
         }
         guard.patrolIdx = _chooseNextPatrolIdx(guard, crates);
@@ -182,14 +247,20 @@ function _guardDetection(guard, state, dt, blockers) {
     } else if (
       d < dynamicDetectR &&
       !lineBlockedByRects(guard.x, guard.y, player.x, player.y, blockers) &&
-      (
-        d <= closeNoticeR ||
-        pointInCone(player.x, player.y, guard.x, guard.y, facing, guardArcDeg, dynamicDetectR)
-      )
+      (d <= closeNoticeR ||
+        pointInCone(
+          player.x,
+          player.y,
+          guard.x,
+          guard.y,
+          facing,
+          guardArcDeg,
+          dynamicDetectR,
+        ))
     ) {
       // In sight radius → gradual alarm
       state.alarm = Math.min(MAX_ALARM, state.alarm + GUARD_ALARM_RATE * dt);
-      player.detected  = 0.4;
+      player.detected = 0.4;
       guard.alertTimer = 0.5;
       if (d < bestDist) {
         bestDist = d;
@@ -199,10 +270,13 @@ function _guardDetection(guard, state, dt, blockers) {
   }
 
   if (bestVisible) {
-    guard.mode = 'chase';
+    if (guard.mode !== "chase") guard.path = null;
+    guard.investigation = null;
+    guard.noiseId = null;
+    guard.mode = "chase";
     guard.chaseTarget = { x: bestVisible.x, y: bestVisible.y };
-  } else if (guard.mode === 'chase' && guard.alertTimer <= 0) {
-    guard.mode = 'patrol';
+  } else if (guard.mode === "chase" && guard.alertTimer <= 0) {
+    guard.mode = "patrol";
     guard.chaseTarget = null;
   }
 }
@@ -211,7 +285,10 @@ function _guardDetection(guard, state, dt, blockers) {
 export function updateCameras(state, dt) {
   if (state.mission?.securityOff) return;
   for (const cam of state.cameras) {
-    if (cam.disabled > 0) { cam.disabled = Math.max(0, cam.disabled - dt); continue; }
+    if (cam.disabled > 0) {
+      cam.disabled = Math.max(0, cam.disabled - dt);
+      continue;
+    }
     _sweepCamera(cam, dt);
     _cameraDetection(cam, state, dt);
   }
@@ -219,14 +296,30 @@ export function updateCameras(state, dt) {
 
 function _sweepCamera(cam, dt) {
   cam.angle += cam.dir * CAM_SWEEP_RAD_S * dt;
-  if (cam.angle >= cam.sweepB) { cam.angle = cam.sweepB; cam.dir = -1; }
-  if (cam.angle <= cam.sweepA) { cam.angle = cam.sweepA; cam.dir  =  1; }
+  if (cam.angle >= cam.sweepB) {
+    cam.angle = cam.sweepB;
+    cam.dir = -1;
+  }
+  if (cam.angle <= cam.sweepA) {
+    cam.angle = cam.sweepA;
+    cam.dir = 1;
+  }
 }
 
 function _cameraDetection(cam, state, dt) {
   for (const player of state.players) {
     if (player.downed) continue;
-    if (pointInCone(player.x, player.y, cam.x, cam.y, cam.angle, CAM_ARC_DEG, CAM_DETECT_R)) {
+    if (
+      pointInCone(
+        player.x,
+        player.y,
+        cam.x,
+        cam.y,
+        cam.angle,
+        CAM_ARC_DEG,
+        CAM_DETECT_R,
+      )
+    ) {
       state.alarm = Math.min(MAX_ALARM, state.alarm + CAM_ALARM_RATE * dt);
       player.detected = 0.4;
     }
@@ -235,23 +328,40 @@ function _cameraDetection(cam, state, dt) {
 
 // ─── Lasers ───────────────────────────────────────────────────────────────────
 export function updateLasers(state, dt) {
-  if (state.mission?.securityOff) { for (const l of state.lasers) l.active = false; return; }
+  if (state.mission?.securityOff) {
+    for (const l of state.lasers) l.active = false;
+    return;
+  }
   const singlePlayer = (state.players?.length || 0) <= 1;
   for (const laser of state.lasers) {
-    if (singlePlayer && state.vaultUnlocked && laser.disabledBy === 'plate_vault') {
+    if (
+      singlePlayer &&
+      state.vaultUnlocked &&
+      laser.disabledBy === "plate_vault"
+    ) {
       laser.active = false;
       continue;
     }
     // A single pressure plate with matching id disables this laser
     if (laser.disabledBy) {
-      const plate = state.pressurePlates.find(p => p.id === laser.disabledBy);
+      const plate = state.pressurePlates.find((p) => p.id === laser.disabledBy);
       laser.active = !(plate && plate.activated);
     }
     if (!laser.active) continue;
 
     for (const player of state.players) {
       if (player.downed) continue;
-      if (lineIntersectsCircle(laser.x1, laser.y1, laser.x2, laser.y2, player.x, player.y, player.r)) {
+      if (
+        lineIntersectsCircle(
+          laser.x1,
+          laser.y1,
+          laser.x2,
+          laser.y2,
+          player.x,
+          player.y,
+          player.r,
+        )
+      ) {
         state.alarm = Math.min(MAX_ALARM, state.alarm + LASER_ALARM_RATE * dt);
         player.detected = 0.4;
       }
@@ -267,7 +377,12 @@ export function updatePressurePlates(state) {
 
   // Players
   for (const player of state.players) {
-    const pr = { x: player.x - player.r, y: player.y - player.r, w: player.r*2, h: player.r*2 };
+    const pr = {
+      x: player.x - player.r,
+      y: player.y - player.r,
+      w: player.r * 2,
+      h: player.r * 2,
+    };
     for (const plate of state.pressurePlates) {
       if (rectsOverlap(pr, plate)) plate.activated = true;
     }
@@ -283,20 +398,23 @@ export function updatePressurePlates(state) {
   // Group logic: named groups → open door when ALL plates in group active
   const groups = {};
   for (const plate of state.pressurePlates) {
-    if (!plate.group || plate.group === 'single') continue;
+    if (!plate.group || plate.group === "single") continue;
     if (!groups[plate.group]) groups[plate.group] = [];
     groups[plate.group].push(plate);
   }
   for (const [groupId, plates] of Object.entries(groups)) {
-    const allOn = plates.every(p => p.activated);
-    const door  = state.doors.find(d => d.requiredBy === groupId);
+    const allOn = plates.every((p) => p.activated);
+    const door = state.doors.find((d) => d.requiredBy === groupId);
     if (door) door.open = allOn;
   }
 
   // Vault plate (group:'single') → also opens the vault door directly
-  const vaultPlate = state.pressurePlates.find(p => p.id === 'plate_vault');
-  const vaultDoor  = state.doors.find(d => d.id === 'door_vault');
-  if (state.mission) { if (vaultDoor) vaultDoor.open = !!state.vaultUnlocked; return; }
+  const vaultPlate = state.pressurePlates.find((p) => p.id === "plate_vault");
+  const vaultDoor = state.doors.find((d) => d.id === "door_vault");
+  if (state.mission) {
+    if (vaultDoor) vaultDoor.open = !!state.vaultUnlocked;
+    return;
+  }
   if (vaultPlate && vaultDoor) {
     if (singlePlayer) {
       if (vaultPlate.activated) state.vaultUnlocked = true;
@@ -310,13 +428,24 @@ export function updatePressurePlates(state) {
 
 // ─── Crates (Strong Thief / P2 only) ─────────────────────────────────────────
 export function updateCrates(state, dt) {
-  const strong = state.players.find(p => p.role === 'strong');
+  const strong = state.players.find((p) => p.role === "strong");
   if (!strong) return;
 
   const mapSolids = [...state.walls, ...state.doors.filter((d) => !d.open)];
   for (const crate of state.crates) {
     // Test if strong player is touching crate
-    if (!circleOverlapsRect(strong.x, strong.y, strong.r + 3, crate.x, crate.y, crate.w, crate.h)) continue;
+    if (
+      !circleOverlapsRect(
+        strong.x,
+        strong.y,
+        strong.r + 3,
+        crate.x,
+        crate.y,
+        crate.w,
+        crate.h,
+      )
+    )
+      continue;
 
     // Push direction = from player centre toward crate centre
     const cx = crate.x + crate.w / 2;

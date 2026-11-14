@@ -25,5 +25,11 @@ jobs:
         run: npm run test:run
 
 
+      - name: Asset reference audit
+        run: npm run assets:audit
+
+      - name: Lint
+        run: npm run lint
+
       - name: Production build
         run: npm run build

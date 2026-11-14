@@ -17,7 +17,7 @@ const MUTED = 'rgba(244,234,216,0.62)';
 const PANEL_BG = '#231b16';
 const CARD_BG = '#2f251e';
 
-const ABILITY = { Assassin: 'STUN', Hacker: 'HACK', Scout: 'SCAN' };
+const ABILITY = { Assassin: 'STUN', Hacker: 'HACK', Scout: 'SCAN', Decoy: 'NOISE' };
 const LOCAL_KEYS = {
   1: 'WASD · E · Q',
   2: 'ARROWS · ENTER · /',

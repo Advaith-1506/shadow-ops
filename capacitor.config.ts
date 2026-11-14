@@ -1,13 +1,12 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.museumbreak.app',
-  appName: 'Museum Break',
-  webDir: 'dist',
+  appId: "com.museumbreak.app",
+  appName: "Shadow Ops",
+  webDir: "dist",
   server: {
-    androidScheme: 'https',
+    androidScheme: "https",
   },
 };
 
 export default config;
-

@@ -6,7 +6,14 @@ export const PLAYER_COLORS = {
   4: '#b57cf2',
 };
 
-export const ROLE_GLYPH = { Hacker: 'H', Assassin: 'A', Scout: 'S', fast: 'F', strong: 'S' };
+export const ROLE_GLYPH = {
+  Hacker: 'H',
+  Assassin: 'A',
+  Scout: 'S',
+  Decoy: 'D',
+  fast: 'F',
+  strong: 'S',
+};
 
 export const OBJECTIVE_COLORS = {
   key: '#4be08a',

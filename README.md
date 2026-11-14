@@ -1,10 +1,16 @@
 # Shadow Ops
 
-A cooperative stealth operation for **2–4 players**, customized for a **Theta Tau hackathon**. Inspired by the top-down stealth of Hunter Assassin: infiltrate Maple Row Safehouse, recover the Diamond, and extract the entire team.
+**Enter unseen. Leave together.** Shadow Ops is a cooperative multiplayer stealth game built for a **Theta Tau hackathon**. Assemble a team of **2–4 operatives**, combine four distinct abilities, infiltrate **Maple Row Safehouse**, recover the Diamond, and extract everyone before the facility locks down.
 
-## Run locally
+## The demo: Party Mode
 
-Use **Node.js 22+** and npm. From a fresh clone:
+One laptop becomes the shared mission screen. Up to four players scan its QR code and use their phones as controllers—no installation, accounts, webcam access, or Internet QR service required. The host screen uses **zero player slots**. A separate authorized display can mirror the same mission on another monitor.
+
+A player can switch between **Controller Mode** and **Play on This Phone** during the mission while keeping their identity, role, and player slot. Desktop keyboard players and phone players can cooperate in the same room. Local keyboard co-op supports two, three or four players; the menu defaults to four.
+
+## Start the game
+
+Install **Node.js 22+** and npm, then:
 
 ```bash
 git clone https://github.com/Advaith-1506/shadow-ops.git
@@ -13,33 +19,42 @@ npm ci
 npm run lan:host
 ```
 
-Open **http://localhost:5173**. The helper starts Vite on port 5173 and the WebSocket game server on port 8787. The terminal prints the server's available LAN address. No environment file or account is required to play.
+Open **http://localhost:5173** on the laptop. The helper starts the frontend on **5173** and the authoritative WebSocket server on **8787**, and prints available LAN website addresses. No `.env` file is needed. If 5173 is already occupied, stop the other frontend first; the port is fixed so invites stay correct.
 
-Choose **Local Co-op** for two players on one keyboard, or **Assemble Squad** for network play. Local play uses the same mission and simulation with a Hacker and Assassin.
+## Party Mode walkthrough
 
-## LAN multiplayer
+1. Connect the laptop and phones to the **same Wi-Fi or hotspot**.
+2. On the laptop run `npm run lan:host`, open the website, and select **Host Game → Create Party Room**.
+3. Check the **advertised laptop address**. The app prefers an ordinary LAN interface and offers detected addresses plus a manual correction field. A detected interface is a candidate, not proof that another device can reach it.
+4. Show the large **QR code**, six-character room code, and full connection URL on the shared screen.
+5. Each phone scans the QR with its normal camera app, opens the website, enters a nickname, chooses a role, and joins. The WebSocket endpoint derives automatically from the scanned hostname; phones do not connect to their own localhost.
+6. Each player taps **Ready Up**. For a four-player demo, try one of each role. Duplicates are allowed; every mission needs a Hacker and at least one different role.
+7. The laptop host selects **Deploy Squad**. Move with the phone joystick, use **Interact**, and activate **Ability**. The laptop shows the entire Maple Row Safehouse and shared mission state.
+8. The host can open **Shared Display** in another tab/window for an authorized, read-only view. That link has display-only access, never host privileges. Keep the host tab for lobby/start controls.
+9. After success or failure, the host selects **Return to Lobby / Play Again**. The same connected players and roles remain; everyone readies again.
 
-1. Connect all laptops to the same Wi-Fi network. On the hosting laptop run `npm run lan:host`.
-2. Other laptops open `http://HOST_LAN_IP:5173` in a browser. Substitute the hosting laptop's Wi-Fi IPv4 address; do not use `localhost` on joining devices. If a VPN address is printed, use the Wi-Fi address instead.
-3. In **Assemble Squad**, use `ws://HOST_LAN_IP:8787` as the server address. Hosting via localhost is also supported. The default address uses the website's hostname.
-4. Host creates a room and shares its six-character code or invite URL. Other players join using that code.
-5. Each player chooses **Assassin**, **Hacker**, or **Scout**, then selects **Ready Up**. Changing roles revokes ready status.
-6. The host selects **Deploy Squad** after everyone is ready. A Hacker and at least one different role are required. Four-player teams can duplicate roles.
+For a laptop keyboard player hosting instead, expand **Host and play with this keyboard instead**. That mode occupies one player slot, leaving room for three phone players.
 
-The room finder lists rooms **on the entered server**, not all computers on the network. The invite link uses the entered server hostname: if the host used localhost, replace localhost with its Wi-Fi address before sharing. Allow inbound TCP ports **5173 and 8787** in the host firewall. Guest-network/client isolation can prevent connections.
+## Full mobile gameplay
 
-Both servers bind to all interfaces. Use a trusted LAN; this is not an Internet hosting configuration. The frontend alone does not run network matches. For production frontend verification:
+Select **Play on This Phone** in the lobby or **View Game on Phone** on the controller. The phone displays the fixed whole-level view, touch controls, alert/time/objective HUD, role cooldowns, and capture status. Use **Phone Controller** to return to the gamepad screen. Switching views clears active controls and uses the same socket and server-side actor.
 
-```bash
-npm run build
-npm run preview -- --port 5173
-# In a second terminal:
-npm run lan:server
-```
+Portrait remains usable; landscape provides a wider gamepad layout. Touch surfaces use pointer capture, independent pointers for movement/interact/ability, safe-area padding, and optional haptics where supported. Controller Mode skips Canvas rendering and receives UI updates at a reduced rate. Input is bounded to roughly 30 updates/second with idle heartbeats; stale input expires server-side after 250ms.
 
-## Mission
+## Four roles
 
-The first level is **Maple Row Safehouse**, a compact L-shaped residence shown as a roofless top-down interior. The entire building stays visible during play.
+| Role         | Ability                                                                                                         | Duration / cooldown             | Cooperation                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------ |
+| **Assassin** | Silent Takedown: stun a guard within 62px and clear line of sight                                               | 5s / 12s                        | Create a safe window for the team          |
+| **Hacker**   | System Override: disable a camera within 100px or unlock a side door within 65px                                | Camera 10s; door persists / 16s | Operate the main security terminal         |
+| **Scout**    | Recon Pulse: highlight nearby guards, cameras and laser hazards within 360px                                    | 6s / 18s                        | Reveal threats around teammates            |
+| **Decoy**    | Noise Maker: place noise at your current valid position; nearby guards within 260px investigate via pathfinding | 5s / 16s                        | Draw patrols away, then move out of danger |
+
+A noise does not override an active chase. Guards return to patrol when it expires, and detection can turn investigation into a chase. Abilities have role-colored feedback. No four-role requirement is imposed on two- or three-player teams. The Hacker's side-door ability cannot bypass the main vault objective. Terminal interactions use **Interact**, not the ability button.
+
+## Mission and teamwork
+
+The first level is **Maple Row Safehouse**, a compact L-shaped residence shown as a roofless top-down interior. The entire building stays visible during play (fixed whole-level camera).
 
 1. Enter from the front yard and pass through the Garage into the Living Room.
 2. Collect **ALPHA** in the Kitchen and **BRAVO** in the Study. Any role can collect either key; collection is shared.
@@ -48,83 +63,87 @@ The first level is **Maple Row Safehouse**, a compact L-shaped residence shown a
 5. Collect the **Diamond** inside.
 6. Bring **every player and the artifact** to the extraction van in the front yard. Carrying the artifact or depositing it at the van satisfies the artifact requirement.
 
-The HUD shows mission progress, the alert meter, remaining time, role cooldowns, and player status around the full-level view. Keys are green, terminal blue, vault gold, and extraction white. Furniture and walls block enemy vision. Detection and laser contact increase alert. Guards can capture players; hold interact nearby to revive them before their 20-second custody timer expires. A ten-minute deadline or 100% alert causes lockdown.
+Objectives distinguish active, blocked and complete tasks. The support pad reports occupancy, and completed objectives produce shared notifications. The HUD locates keys, terminal, vault, teammates and extraction. Role-colored overhead names identify each operative.
 
-## Roles and controls
+Guards patrol, investigate, chase and capture. Use cover, coordinate abilities and hold Interact nearby to revive a captured teammate before the **20-second custody timer** expires. At **100% alert** or the **10-minute deadline**, the mission fails. Results show the shared score, elapsed time and actually recorded objective/ability contributions.
 
-| Role     | Ability                                                                               | Duration                             | Cooldown   |
-| -------- | ------------------------------------------------------------------------------------- | ------------------------------------ | ---------- |
-| Assassin | Incapacitate a guard within 62 world pixels, with clear line of sight                 | 5 seconds                            | 12 seconds |
-| Hacker   | Disable a camera within 100 pixels, or unlock a designated side door within 65 pixels | Camera: 10 seconds; door: persistent | 16 seconds |
-| Scout    | Highlight nearby guards, cameras, and active laser origins within 360 pixels          | 6 seconds                            | 18 seconds |
+## Controls and sessions
 
-Abilities share a per-player cooldown; a Hacker can affect a nearby camera and side door in the same activation. Failed out-of-range activations consume no cooldown. Main terminal interactions use **E**, not the ability key. The vault cannot be bypassed by a Hacker ability.
+| Mode               | Move             | Interact / revive | Ability        |
+| ------------------ | ---------------- | ----------------- | -------------- |
+| Phone              | Virtual joystick | Interact button   | Ability button |
+| Desktop LAN player | WASD or arrows   | E / Enter / Space | Q              |
+| Local P1: Hacker   | WASD             | E                 | Q              |
+| Local P2: Assassin | Arrows           | Enter / Space     | `/`            |
 
-| Mode               | Movement           | Interact / revive  | Ability |
-| ------------------ | ------------------ | ------------------ | ------- |
-| LAN: each player   | WASD or arrow keys | E, Enter, or Space | Q       |
-| Local P1: Hacker   | WASD               | E                  | Q       |
-| Local P2: Assassin | Arrows             | Enter or Space     | `/`     |
+Escape pauses local play only. Network matches are governed by the server. Blur, hidden pages, cancellation, disconnect and view changes release active controls. Short taps are latched until the next input tick.
 
-Touch devices have a joystick, ACT, and Q button. **Escape** pauses local play only. LAN simulation continues while tabs are unfocused; stale movement inputs expire after 250ms. A lost connection freezes the entire mission for a **30-second reconnect window**. Automatic reconnection works while the page remains open. Reloading loses the in-memory private reconnect token. A teammate leaving deliberately, or exceeding the reconnect window, fails the operation. Restart from the menu to create a new room.
+Accidental refresh/disconnect reserves a player's slot for **30 seconds** and freezes an active mission until the player returns. Private reconnect credentials rotate on successful resume and live in **sessionStorage** for the active browsing session; they never appear in player QR invites or broadcasts. Active duplicate tabs cannot take over a player's socket. Explicit **Leave** releases membership and fails an active mission; it is separate from refresh. A missing player exceeding the grace period fails the operation. Closing the host explicitly closes its Party Mode room.
 
-## Architecture and retained systems
+## Networking and deliberate security
 
-- **React 18 + Vite 6**: menu, lobby, briefing, results, and runtime hooks.
-- **Canvas 2D**: existing tile and sprite assets, camera, world renderer, tactical HUD.
-- **Custom simulation**: original top-down movement, collision resolution, guard patrol/chase AI, line-of-sight cones, cameras, lasers, pressure plates, doors, revive/custody, and map geometry.
-- **Pathfinding**: existing A\* guard navigation.
-- **Node.js + ws**: existing WebSocket transport, upgraded from host input replay to a **server-authoritative fixed 30Hz simulation**. Clients send buttons and receive complete state snapshots. Guards, abilities, mission state, players, and final scores come from one simulation, avoiding replay drift.
-- **Vitest**: original regression suites plus mission and actual socket integration tests.
-- **Electron / Capacitor**: inherited desktop and mobile scaffolding. Electron uses the shared room server. Installers and native mobile builds are not validated in this customization.
+The game uses **React, Vite, Canvas 2D, Node.js and ws** with one **30Hz authoritative simulation per room**. Clients submit normalized button actions; the server owns movement, collisions, guard AI, cooldowns, role authorization, objective prerequisites, capture/revive, scoring and victory/defeat. Shared displays and mobile/desktop players receive the same authoritative snapshots.
 
-Key modules:
+Player, host-management and read-only display connections have distinct permissions. Public room codes identify rooms; they do not grant administrative rights. Display access requires a separate host-issued read-only capability. Strict message schemas, 2KiB message limits, rate limits, room/player/display caps, distance checks and rotating 256-bit credentials reject malformed messages, forged identity/coordinates/speed/score, and victory manipulation.
 
-| Path                                          | Responsibility                                                    |
-| --------------------------------------------- | ----------------------------------------------------------------- |
-| `src/lib/game/mission.js`                     | Role rules, shared objectives, interactions and cooldowns         |
-| `src/lib/game/gameLoop.js`                    | Original simulation orchestration and win/loss checks             |
-| `src/lib/game/playerLogic.js`, `collision.js` | Server-owned speed and collision resolution                       |
-| `src/lib/game/entityLogic.js`, `guardNav.js`  | Guard AI, camera/laser detection, pathfinding                     |
-| `src/lib/game/mapData.js`                     | Active level adapter (Maple Row Safehouse geometry and entities)  |
-| `src/lib/game/levels/safehouse.js`            | Level definition: rooms, solids, spawns, mission placements       |
-| `src/lib/game/input.js`                       | Keyboard/touch input and future input-provider adapter            |
-| `src/hooks/useLanMultiplayer.js`              | Lobby protocol and private in-memory reconnection                 |
-| `src/hooks/useGameRuntime.js`                 | Rendering and local/server runtime routing                        |
-| `server/roomServer.js`                        | Validated room/session protocol, server simulation, rate limiting |
-| `server/lan-server.js`                        | LAN server entry point                                            |
+Default **HTTP/ws LAN traffic is unencrypted**. The server operator controls the simulation; protections do not defend against a malicious host. This is a trusted-LAN demo, not hardened Internet hosting. See [SECURITY.md](SECURITY.md).
 
-## Deliberate security measure
+## LAN troubleshooting
 
-The authoritative server accepts only strict, validated input and lobby messages. It rejects client-supplied coordinates, speed, scores, player IDs, mission state, frame replays, and victory declarations. It enforces role restrictions, interaction distance and line of sight, objective prerequisites, cooldowns, connected ready rosters, host-only starts, room capacity, and one membership per socket. Input spam cannot advance simulation time. Each socket is limited to 80 messages/second and a 2KiB payload; room count is bounded. Private cryptographic 256-bit session tokens rotate on reconnection and never appear in roster/state broadcasts.
+- Use `http://LAPTOP_WIFI_IP:5173/join/ROOMCODE`, not localhost, on phones. After scanning, no manual WebSocket entry is necessary.
+- A manual code still needs the laptop website/server. It does not discover every laptop on Wi-Fi.
+- Correct the advertised interface if a VPN or virtual adapter is selected. Disable a conflicting VPN for the demo if appropriate for your setup.
+- Allow inbound **TCP 5173 and 8787** through the laptop firewall. Keep both processes running.
+- Campus/guest networks can isolate clients. Put the laptop and all phones on the same personal/travel hotspot instead; confirm device-to-device access is allowed. The laptop must be reachable from the phones.
+- Scanning a QR uses the phone's normal camera app; the website requests no camera permission. Clipboard/haptics depend on browser support; the visible URL is always a fallback.
+- An expired/full room or unavailable host produces an error. Return to the join screen and use a fresh host invitation.
 
-See [SECURITY.md](SECURITY.md) for the trust boundary, threat model, and limitations. The server operator controls the simulation; this does **not** protect against a malicious host.
-
-## Validation
+Manual process startup and production frontend checks:
 
 ```bash
-npm run test:run   # Original + mission + real WebSocket tests, with coverage
-npm run build     # Production frontend
+npm run dev           # frontend, port 5173
+npm run lan:server    # separate terminal, port 8787
+npm run build
+npm run preview -- --port 5173  # use alongside lan:server
 ```
 
-Socket tests need permission to bind ephemeral loopback ports. The suite covers room creation/joining/capacity, duplicate joins, roles/ready/start permissions, movement limits, mission progression, role cooperation, collision/interaction restrictions, cooldowns, win/loss, guard behavior, malformed/forged actions, spam limits, snapshot synchronization, token privacy, and reconnection. Two browser clients were also exercised for lobby, ready-up, deployment, movement, guard capture, and synchronized loss. Full manual mission completion and two-physical-laptop LAN testing remain unverified. See [QA.md](QA.md).
+## Architecture and development
 
-## Future OpenCV / MediaPipe input
+| Module                                        | Responsibility                                                                          |
+| --------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `server/roomServer.js`                        | Rooms, host/display/player permissions, rotating sessions, rate limits, 30Hz simulation |
+| `server/lanAddresses.js`                      | LAN interface candidates and preference                                                 |
+| `src/lib/game/levels/safehouse.js`            | Maple Row Safehouse geometry, rooms, spawns and mission placements                      |
+| `src/lib/game/mapData.js`                     | Active level adapter used by simulation and rendering                                   |
+| `src/lib/game/mission.js`, `roles.js`         | Role abilities, mission rules, progress and measured contributions                      |
+| `src/lib/game/entityLogic.js`, `guardNav.js`  | Guard patrol/chase/investigation, camera and laser behavior                             |
+| `src/lib/game/playerLogic.js`, `collision.js` | Authoritative movement and collisions                                                   |
+| `src/hooks/useLanMultiplayer.js`              | Session recovery, lobby protocol, input pump, view switching                            |
+| `src/hooks/useGameRuntime.js`                 | Local simulation, fixed whole-level camera and rendering                                |
+| `src/lib/party/`                              | Invite validation, session storage and independent multitouch input model               |
+| `src/components/game/`                        | Party QR lobby, role cards, dedicated controller, HUD overlays and results              |
 
-Keyboard input is processed in `src/lib/game/input.js`. A future optional webcam bridge can register a provider returning boolean actions:
-
-```js
-import { registerInputProvider } from "./src/lib/game/input.js";
-const removeProvider = registerInputProvider("webcam", () => ({
-  up: false,
-  down: false,
-  left: false,
-  right: false,
-  interact: false,
-  ability: false,
-}));
-// Later: removeProvider();
+```bash
+npm run test:run
+npm run lint
+npm run assets:audit
+npm run build
 ```
 
-Providers merge with existing keyboard and touch input. They cannot provide coordinates, scores, or mission state; LAN actions still pass server validation. No camera access, OpenCV runtime, or MediaPipe dependency is required or requested today.
+Tests include the original regressions plus QR/endpoint validation, controller input/release, four-player capacity, unique/duplicate roles, Decoy pathfinding, full mission progression, private player/host resume, unauthorized display actions, and shared snapshot consistency. CI runs tests, lint and build. See [QA.md](QA.md) for evidence, limitations and the physical-phone checklist.
 
+Web builds use root-relative assets so `/join/ROOM` and `/display/ROOM` work on refresh. `npm run build:native` retains relative assets for file-based native packaging; desktop/mobile packaging scripts select that mode.
+
+Electron and Capacitor scaffolding remains in the repository with Shadow Ops display names. Desktop packaging uses the shared server, but native releases are not validated in this upgrade. Party Mode phone joining requires a reachable web frontend, even when an Electron process hosts the socket server.
+
+## Future gesture controls
+
+`src/lib/game/input.js` provides `registerInputProvider(name, provider)` for optional boolean movement/interact/ability events. Keyboard and touch remain available, and all LAN actions still pass server validation. No OpenCV, MediaPipe or webcam permission is required today.
+
+## Resource inventory and original artwork
+
+Unused imported resources have been removed, and the pause and result screens use original CSS tactical artwork. Used gameplay sprites and required native resources remain intact. [ASSET_AUDIT.md](docs/ASSET_AUDIT.md) documents every disposition, retained-resource replacement opportunities and size measurements; `npm run assets:audit` checks import/manifest integrity. Required upstream notices remain below.
+
+## License and notices
+
+Distributed under the **MIT License**. Required copyright notices are preserved in [LICENSE](LICENSE); imported code, assets and dependency acknowledgments are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Published history is retained. GitHub may show an older commit beside files that have not changed since that commit; cosmetic history rewrites are not used to hide provenance.
