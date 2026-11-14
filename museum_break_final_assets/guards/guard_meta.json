@@ -1,0 +1,70 @@
+{
+  "animations": {
+    "idle": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 8,
+      "fps": 8,
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    },
+    "walk": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 8,
+      "fps": 10,
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    },
+    "alert": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 6,
+      "fps": 10,
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    },
+    "turn": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 6,
+      "fps": 8,
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    }
+  },
+  "facingOffsets": {
+    "up": {
+      "x": 0,
+      "y": -10
+    },
+    "down": {
+      "x": 0,
+      "y": 8
+    },
+    "left": {
+      "x": -9,
+      "y": 0
+    },
+    "right": {
+      "x": 9,
+      "y": 0
+    }
+  }
+}

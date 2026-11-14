@@ -1,0 +1,86 @@
+{
+  "image": "atlas.png",
+  "size": [
+    1024,
+    1024
+  ],
+  "sprites": {
+    "floor_base": {
+      "x": 4,
+      "y": 4,
+      "w": 64,
+      "h": 64,
+      "rotated": false
+    },
+    "floor_alt": {
+      "x": 72,
+      "y": 4,
+      "w": 64,
+      "h": 64,
+      "rotated": false
+    },
+    "wall_brick": {
+      "x": 140,
+      "y": 4,
+      "w": 64,
+      "h": 64,
+      "rotated": false
+    },
+    "wall_top_edge": {
+      "x": 208,
+      "y": 4,
+      "w": 64,
+      "h": 16,
+      "rotated": false
+    },
+    "door_closed_h": {
+      "x": 276,
+      "y": 4,
+      "w": 64,
+      "h": 16,
+      "rotated": false
+    },
+    "door_open_h": {
+      "x": 344,
+      "y": 4,
+      "w": 64,
+      "h": 16,
+      "rotated": false
+    },
+    "door_closed_v": {
+      "x": 412,
+      "y": 4,
+      "w": 16,
+      "h": 64,
+      "rotated": false
+    },
+    "door_open_v": {
+      "x": 432,
+      "y": 4,
+      "w": 16,
+      "h": 64,
+      "rotated": false
+    },
+    "floor_marble": {
+      "x": 452,
+      "y": 4,
+      "w": 64,
+      "h": 64,
+      "rotated": false
+    },
+    "floor_carpet_red": {
+      "x": 520,
+      "y": 4,
+      "w": 64,
+      "h": 64,
+      "rotated": false
+    },
+    "wall_dark": {
+      "x": 588,
+      "y": 4,
+      "w": 64,
+      "h": 64,
+      "rotated": false
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Museum Break</string>
+    <string name="title_activity_main">Museum Break</string>
+    <string name="package_name">com.museumbreak.app</string>
+    <string name="custom_url_scheme">com.museumbreak.app</string>
+</resources>

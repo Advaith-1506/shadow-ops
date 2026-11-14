@@ -1,0 +1,94 @@
+{
+  "animations": {
+    "idle": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 8,
+      "fps": 8,
+      "durationsMs": [
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125
+      ],
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    },
+    "walk": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 8,
+      "fps": 12,
+      "durationsMs": [
+        83,
+        83,
+        83,
+        83,
+        83,
+        83,
+        83,
+        83
+      ],
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    },
+    "interact": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 6,
+      "fps": 10,
+      "durationsMs": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    },
+    "hurt": {
+      "frameSize": [
+        32,
+        32
+      ],
+      "frames": 4,
+      "fps": 8,
+      "durationsMs": [
+        125,
+        125,
+        125,
+        125
+      ],
+      "pivot": {
+        "x": 16,
+        "y": 24
+      }
+    }
+  },
+  "players": {
+    "p1": {
+      "colorway": "blue jacket"
+    },
+    "p2": {
+      "colorway": "magenta jacket"
+    }
+  }
+}

@@ -1,0 +1,1106 @@
+{
+  "schemaVersion": 1,
+  "game": "Museum Break",
+  "colorProfile": "sRGB-compatible RGBA PNG",
+  "exportRules": {
+    "resampling": "nearest-neighbor for sprites, lossless PNG for all assets",
+    "compressionArtifacts": false,
+    "transparentBackgroundWhereNeeded": true
+  },
+  "assets": {
+    "bg.parallax_far": {
+      "path": "bg/parallax_far.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540,
+      "tags": [
+        "seamless"
+      ]
+    },
+    "bg.parallax_mid": {
+      "path": "bg/parallax_mid.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540,
+      "tags": [
+        "seamless"
+      ]
+    },
+    "bg.vignette_overlay": {
+      "path": "bg/vignette_overlay.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540,
+      "tags": [
+        "alpha"
+      ]
+    },
+    "tiles.atlas": {
+      "path": "tiles/atlas.png",
+      "frameSize": [
+        1024,
+        1024
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 512,
+      "originY": 512,
+      "tags": [
+        "atlas"
+      ]
+    },
+    "tiles.atlas_map": {
+      "path": "tiles/atlas.json",
+      "type": "atlas_rect_map",
+      "image": "tiles/atlas.png"
+    },
+    "props.atlas": {
+      "path": "props/atlas.png",
+      "frameSize": [
+        1024,
+        1024
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 512,
+      "originY": 512,
+      "tags": [
+        "atlas"
+      ]
+    },
+    "props.atlas_map": {
+      "path": "props/atlas.json",
+      "type": "atlas_rect_map",
+      "image": "props/atlas.png"
+    },
+    "fx.light_cone_soft": {
+      "path": "fx/light_cone_soft.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 128,
+      "originY": 128,
+      "tags": [
+        "alpha"
+      ]
+    },
+    "fx.detection_ring": {
+      "path": "fx/detection_ring.png",
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 64,
+      "originY": 64,
+      "tags": [
+        "alpha"
+      ]
+    },
+    "fx.alarm_flash": {
+      "path": "fx/alarm_flash.png",
+      "frameSize": [
+        512,
+        512
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 256,
+      "originY": 256,
+      "tags": [
+        "alpha",
+        "tileable"
+      ]
+    },
+    "players.p1.idle": {
+      "path": "players/p1_idle_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 8,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24
+    },
+    "players.p1.walk": {
+      "path": "players/p1_walk_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 8,
+      "fps": 12,
+      "originX": 16,
+      "originY": 24,
+      "directionalVariants": [
+        "down"
+      ]
+    },
+    "players.p1.interact": {
+      "path": "players/p1_interact_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 6,
+      "fps": 10,
+      "originX": 16,
+      "originY": 24
+    },
+    "players.p1.hurt": {
+      "path": "players/p1_hurt_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 4,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24
+    },
+    "players.p2.idle": {
+      "path": "players/p2_idle_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 8,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24
+    },
+    "players.p2.walk": {
+      "path": "players/p2_walk_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 8,
+      "fps": 12,
+      "originX": 16,
+      "originY": 24,
+      "directionalVariants": [
+        "down"
+      ]
+    },
+    "players.p2.interact": {
+      "path": "players/p2_interact_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 6,
+      "fps": 10,
+      "originX": 16,
+      "originY": 24
+    },
+    "players.p2.hurt": {
+      "path": "players/p2_hurt_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 4,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24
+    },
+    "players.meta": {
+      "path": "players/player_meta.json",
+      "type": "animation_metadata"
+    },
+    "guards.guard.idle": {
+      "path": "guards/guard_idle_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 8,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24
+    },
+    "guards.guard.walk": {
+      "path": "guards/guard_walk_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 8,
+      "fps": 10,
+      "originX": 16,
+      "originY": 24,
+      "directionalVariants": [
+        "down"
+      ]
+    },
+    "guards.guard.alert": {
+      "path": "guards/guard_alert_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 6,
+      "fps": 10,
+      "originX": 16,
+      "originY": 24
+    },
+    "guards.guard.turn": {
+      "path": "guards/guard_turn_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 6,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24,
+      "directionalVariants": [
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    "guards.meta": {
+      "path": "guards/guard_meta.json",
+      "type": "animation_metadata"
+    },
+    "security.camera.idle": {
+      "path": "security/camera_idle_strip.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 4,
+      "fps": 6,
+      "originX": 12,
+      "originY": 12
+    },
+    "security.camera.alert": {
+      "path": "security/camera_alert_strip.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 4,
+      "fps": 8,
+      "originX": 12,
+      "originY": 12
+    },
+    "security.laser_beam_core": {
+      "path": "security/laser_beam_core.png",
+      "frameSize": [
+        8,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 4,
+      "originY": 32,
+      "tags": [
+        "stretchable"
+      ]
+    },
+    "security.laser_beam_glow": {
+      "path": "security/laser_beam_glow.png",
+      "frameSize": [
+        16,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 8,
+      "originY": 32,
+      "tags": [
+        "stretchable",
+        "alpha"
+      ]
+    },
+    "security.laser_emitter_on": {
+      "path": "security/laser_emitter_on.png",
+      "frameSize": [
+        8,
+        8
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 4,
+      "originY": 4
+    },
+    "security.laser_emitter_off": {
+      "path": "security/laser_emitter_off.png",
+      "frameSize": [
+        8,
+        8
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 4,
+      "originY": 4
+    },
+    "items.artifact_small.shimmer": {
+      "path": "items/artifact_small_strip.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 4,
+      "fps": 6,
+      "originX": 12,
+      "originY": 18
+    },
+    "items.artifact_heavy.shimmer": {
+      "path": "items/artifact_heavy_strip.png",
+      "frameSize": [
+        28,
+        28
+      ],
+      "frameCount": 4,
+      "fps": 6,
+      "originX": 14,
+      "originY": 21
+    },
+    "items.artifact_crown.shimmer": {
+      "path": "items/artifact_crown_strip.png",
+      "frameSize": [
+        28,
+        28
+      ],
+      "frameCount": 6,
+      "fps": 8,
+      "originX": 14,
+      "originY": 21
+    },
+    "items.crate.idle": {
+      "path": "items/crate_idle.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 16,
+      "originY": 24
+    },
+    "items.crate.push": {
+      "path": "items/crate_push_strip.png",
+      "frameSize": [
+        32,
+        32
+      ],
+      "frameCount": 4,
+      "fps": 8,
+      "originX": 16,
+      "originY": 24
+    },
+    "items.switch_off": {
+      "path": "items/switch_off.png",
+      "frameSize": [
+        20,
+        20
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 10,
+      "originY": 10
+    },
+    "items.switch_on": {
+      "path": "items/switch_on.png",
+      "frameSize": [
+        20,
+        20
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 10,
+      "originY": 10
+    },
+    "items.vent": {
+      "path": "items/vent.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 12,
+      "originY": 12
+    },
+    "items.display_case_closed": {
+      "path": "items/display_case_closed.png",
+      "frameSize": [
+        40,
+        40
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 20,
+      "originY": 30
+    },
+    "items.display_case_open": {
+      "path": "items/display_case_open.png",
+      "frameSize": [
+        40,
+        40
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 20,
+      "originY": 30
+    },
+    "ui.hud_bar_bg": {
+      "path": "ui/hud_bar_bg.png",
+      "frameSize": [
+        2048,
+        96
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 1024,
+      "originY": 48,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "ui.hud_panel_left": {
+      "path": "ui/hud_panel_left.png",
+      "frameSize": [
+        512,
+        96
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 0,
+      "originY": 48
+    },
+    "ui.hud_panel_right": {
+      "path": "ui/hud_panel_right.png",
+      "frameSize": [
+        512,
+        96
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 512,
+      "originY": 48
+    },
+    "ui.progress_alarm_fill": {
+      "path": "ui/progress_alarm_fill.png",
+      "frameSize": [
+        256,
+        16
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 0,
+      "originY": 8,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "ui.progress_alarm_mask": {
+      "path": "ui/progress_alarm_mask.png",
+      "frameSize": [
+        256,
+        16
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 0,
+      "originY": 8,
+      "tags": [
+        "alpha"
+      ]
+    },
+    "ui.icon_timer": {
+      "path": "ui/icon_timer.png",
+      "frameSize": [
+        20,
+        20
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 10,
+      "originY": 10
+    },
+    "ui.icon_alarm": {
+      "path": "ui/icon_alarm.png",
+      "frameSize": [
+        20,
+        20
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 10,
+      "originY": 10
+    },
+    "ui.icon_loot": {
+      "path": "ui/icon_loot.png",
+      "frameSize": [
+        20,
+        20
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 10,
+      "originY": 10
+    },
+    "ui.font_bitmap": {
+      "path": "ui/font_bitmap.png",
+      "frameSize": [
+        8,
+        8
+      ],
+      "frameCount": 41,
+      "fps": 0,
+      "originX": 0,
+      "originY": 0,
+      "tags": [
+        "bitmap_font"
+      ]
+    },
+    "ui.font_bitmap_fnt": {
+      "path": "ui/font_bitmap.fnt",
+      "type": "bitmap_font_map",
+      "image": "ui/font_bitmap.png"
+    },
+    "menu.bg": {
+      "path": "menu/menu_bg.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540
+    },
+    "menu.logo_museum": {
+      "path": "menu/logo_museum.png",
+      "frameSize": [
+        520,
+        140
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 260,
+      "originY": 70,
+      "tags": [
+        "transparent"
+      ]
+    },
+    "menu.logo_break": {
+      "path": "menu/logo_break.png",
+      "frameSize": [
+        420,
+        140
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 210,
+      "originY": 70,
+      "tags": [
+        "transparent"
+      ]
+    },
+    "menu.button_primary_idle": {
+      "path": "menu/button_primary_idle.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "menu.button_primary_hover": {
+      "path": "menu/button_primary_hover.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "menu.button_secondary_idle": {
+      "path": "menu/button_secondary_idle.png",
+      "frameSize": [
+        320,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "menu.button_secondary_hover": {
+      "path": "menu/button_secondary_hover.png",
+      "frameSize": [
+        320,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "menu.ambient_particles": {
+      "path": "menu/ambient_particles.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 128,
+      "originY": 128,
+      "tags": [
+        "tileable",
+        "alpha"
+      ]
+    },
+    "lobby.bg": {
+      "path": "lobby/lobby_bg.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540
+    },
+    "lobby.panel_card": {
+      "path": "lobby/panel_card.png",
+      "frameSize": [
+        720,
+        520
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 360,
+      "originY": 260,
+      "tags": [
+        "nine_slice"
+      ]
+    },
+    "lobby.input_bg": {
+      "path": "lobby/input_bg.png",
+      "frameSize": [
+        520,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 260,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.button_host_idle": {
+      "path": "lobby/button_host_idle.png",
+      "frameSize": [
+        260,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 130,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.button_host_hover": {
+      "path": "lobby/button_host_hover.png",
+      "frameSize": [
+        260,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 130,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.button_join_idle": {
+      "path": "lobby/button_join_idle.png",
+      "frameSize": [
+        260,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 130,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.button_join_hover": {
+      "path": "lobby/button_join_hover.png",
+      "frameSize": [
+        260,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 130,
+      "originY": 32,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.status_chip_idle": {
+      "path": "lobby/status_chip_idle.png",
+      "frameSize": [
+        200,
+        40
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 100,
+      "originY": 20,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.status_chip_ok": {
+      "path": "lobby/status_chip_ok.png",
+      "frameSize": [
+        200,
+        40
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 100,
+      "originY": 20,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "lobby.status_chip_err": {
+      "path": "lobby/status_chip_err.png",
+      "frameSize": [
+        200,
+        40
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 100,
+      "originY": 20,
+      "tags": [
+        "stretch_safe"
+      ]
+    },
+    "instructions.bg": {
+      "path": "instructions/bg.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540
+    },
+    "instructions.section_card": {
+      "path": "instructions/section_card.png",
+      "frameSize": [
+        760,
+        190
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 380,
+      "originY": 95,
+      "tags": [
+        "nine_slice"
+      ]
+    },
+    "instructions.icon_objective": {
+      "path": "instructions/icon_objective.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 12,
+      "originY": 12
+    },
+    "instructions.icon_player": {
+      "path": "instructions/icon_player.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 12,
+      "originY": 12
+    },
+    "instructions.icon_hazards": {
+      "path": "instructions/icon_hazards.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 12,
+      "originY": 12
+    },
+    "instructions.icon_score": {
+      "path": "instructions/icon_score.png",
+      "frameSize": [
+        24,
+        24
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 12,
+      "originY": 12
+    },
+    "instructions.back_button_idle": {
+      "path": "instructions/back_button_idle.png",
+      "frameSize": [
+        260,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 130,
+      "originY": 32
+    },
+    "instructions.back_button_hover": {
+      "path": "instructions/back_button_hover.png",
+      "frameSize": [
+        260,
+        64
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 130,
+      "originY": 32
+    },
+    "pause.overlay_blur_mask": {
+      "path": "pause/overlay_blur_mask.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540,
+      "tags": [
+        "alpha"
+      ]
+    },
+    "pause.panel": {
+      "path": "pause/panel.png",
+      "frameSize": [
+        640,
+        460
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 320,
+      "originY": 230,
+      "tags": [
+        "nine_slice"
+      ]
+    },
+    "pause.button_resume_idle": {
+      "path": "pause/button_resume_idle.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "pause.button_resume_hover": {
+      "path": "pause/button_resume_hover.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "pause.button_quit_idle": {
+      "path": "pause/button_quit_idle.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "pause.button_quit_hover": {
+      "path": "pause/button_quit_hover.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "result.win_bg": {
+      "path": "result/win_bg.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540
+    },
+    "result.loss_bg": {
+      "path": "result/loss_bg.png",
+      "frameSize": [
+        1920,
+        1080
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 960,
+      "originY": 540
+    },
+    "result.panel": {
+      "path": "result/panel.png",
+      "frameSize": [
+        760,
+        520
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 380,
+      "originY": 260,
+      "tags": [
+        "nine_slice"
+      ]
+    },
+    "result.badge_win": {
+      "path": "result/badge_win.png",
+      "frameSize": [
+        256,
+        128
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 128,
+      "originY": 64,
+      "tags": [
+        "transparent"
+      ]
+    },
+    "result.badge_loss": {
+      "path": "result/badge_loss.png",
+      "frameSize": [
+        256,
+        128
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 128,
+      "originY": 64,
+      "tags": [
+        "transparent"
+      ]
+    },
+    "result.button_playagain_idle": {
+      "path": "result/button_playagain_idle.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "result.button_playagain_hover": {
+      "path": "result/button_playagain_hover.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "result.button_menu_idle": {
+      "path": "result/button_menu_idle.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    },
+    "result.button_menu_hover": {
+      "path": "result/button_menu_hover.png",
+      "frameSize": [
+        320,
+        72
+      ],
+      "frameCount": 1,
+      "fps": 0,
+      "originX": 160,
+      "originY": 36
+    }
+  }
+}
