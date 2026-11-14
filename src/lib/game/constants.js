@@ -1,6 +1,8 @@
-// ─── Canvas ───────────────────────────────────────────────────────────────────
-export const CANVAS_W = 2240;
-export const CANVAS_H = 1560;
+import { ACTIVE_LEVEL } from './levels/index.js';
+
+// ─── World bounds (from the active level) ─────────────────────────────────────
+export const CANVAS_W = ACTIVE_LEVEL.bounds.w;
+export const CANVAS_H = ACTIVE_LEVEL.bounds.h;
 export const TILE = 32;
 
 // ─── Game rules ───────────────────────────────────────────────────────────────

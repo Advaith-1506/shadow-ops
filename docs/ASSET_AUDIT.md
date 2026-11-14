@@ -2,6 +2,8 @@
 
 Audit date: November 14, 2026. Baseline: `1ee69d1` (merged Party Mode main). This is a resource cleanup and presentation replacement; no gameplay, networking, player slots, collision geometry or Git history was rewritten.
 
+**Maple Row Safehouse note:** the active world renderer draws floors, walls, furniture and characters procedurally via `levelArt.js`. Retained pack sprites remain inventory-linked through `spriteAssets.js` (and `npm run assets:audit` accepts procedural world rendering when that import is present).
+
 ## Findings and changes
 
 Reviewed **181 files** across the two imported game packs, `Background_images/`, Android resources and iOS asset catalogs. The per-file inventory in [asset-audit.json](asset-audit.json) records each original path, baseline byte size/SHA-256, disposition, reason, and direct runtime consumer where applicable. Baseline hashes describe the pre-cleanup files, not the modified subset manifest.

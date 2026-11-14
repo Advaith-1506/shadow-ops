@@ -1,54 +1,48 @@
-import { CANVAS_W, CANVAS_H } from '@/lib/game/constants';
+/*
+ * CAMERA
+ * Fixed whole-level framing. The view never follows players: the entire level
+ * is fitted, uniformly scaled and centred inside the gameplay rectangle left
+ * free by the HUD. Identical for local and LAN play.
+ */
 
-function clamp(v, min, max) {
-  return Math.max(min, Math.min(max, v));
+import { LEVEL } from './mapData.js';
+import { computeHudLayout, fitBounds } from './viewLayout.js';
+
+/**
+ * Pure camera solve. Returns the world→screen transform for the renderer:
+ * screenDevicePx = (world - camera) * zoom, where zoom already includes dpr.
+ */
+export function computeLevelView({ cssW, cssH, dpr = 1, touch = false, playerCount = 2, bounds = LEVEL.bounds }) {
+  const layout = computeHudLayout(cssW, cssH, { touch, playerCount, bounds });
+  const fit = fitBounds(layout.play, bounds, dpr);
+  return {
+    layout,
+    zoomCss: fit.zoom,
+    zoom: fit.zoom * dpr,
+    dpr,
+    camera: {
+      x: bounds.x - fit.offsetX / fit.zoom,
+      y: bounds.y - fit.offsetY / fit.zoom,
+    },
+    world: { x: fit.offsetX, y: fit.offsetY, w: fit.drawW, h: fit.drawH },
+    // Visible world-space rectangle for the whole canvas.
+    w: cssW / fit.zoom,
+    h: cssH / fit.zoom,
+  };
 }
 
-export function updateCameraForState(state, canvas, cameraRef, viewRef) {
-  if (!canvas || !state?.players?.length) return;
-
-  const targetViewW = 620;
-  const targetViewH = 380;
-  let zoom = Math.max(1, Math.min(2.6, Math.max(canvas.width / targetViewW, canvas.height / targetViewH)));
-  if (state.players.length > 1) {
-    const spreadX = Math.max(...state.players.map(p => p.x)) - Math.min(...state.players.map(p => p.x));
-    const spreadY = Math.max(...state.players.map(p => p.y)) - Math.min(...state.players.map(p => p.y));
-    zoom = Math.min(zoom, canvas.width / (spreadX + 220), canvas.height / (spreadY + 300));
-  }
-  const viewW = canvas.width / zoom;
-  const viewH = canvas.height / zoom;
-  viewRef.current = { zoom, w: viewW, h: viewH };
-
-  const tracked = state.players.filter((p) => !p.downed);
-  const focus = tracked.length ? tracked : state.players;
-  if (!focus.length) return;
-
-  const cam = cameraRef.current;
-  if (focus.length === 1) {
-    const p = focus[0];
-    cam.x = p.x - viewW / 2;
-    cam.y = p.y - viewH / 2;
-  } else {
-    const marginX = viewW * 0.1;
-    const marginY = viewH * 0.1;
-    const safeRight = viewW - marginX;
-    const safeBottom = viewH - marginY;
-    const minPX = Math.min(...focus.map((p) => p.x));
-    const maxPX = Math.max(...focus.map((p) => p.x));
-    const minPY = Math.min(...focus.map((p) => p.y));
-    const maxPY = Math.max(...focus.map((p) => p.y));
-    const minCamX = maxPX - safeRight;
-    const maxCamX = minPX - marginX;
-    const minCamY = maxPY - safeBottom;
-    const maxCamY = minPY - marginY;
-
-    if (minCamX <= maxCamX) cam.x = clamp(cam.x, minCamX, maxCamX);
-    else cam.x = (minPX + maxPX) / 2 - viewW / 2;
-    if (minCamY <= maxCamY) cam.y = clamp(cam.y, minCamY, maxCamY);
-    else cam.y = (minPY + maxPY) / 2 - viewH / 2;
-  }
-
-  cam.x = clamp(cam.x, 0, Math.max(0, CANVAS_W - viewW));
-  cam.y = clamp(cam.y, 0, Math.max(0, CANVAS_H - viewH));
+export function updateCameraForState(state, canvas, cameraRef, viewRef, opts = {}) {
+  if (!canvas || !state) return;
+  const dpr = opts.dpr || 1;
+  const cssW = opts.cssW || canvas.width / dpr;
+  const cssH = opts.cssH || canvas.height / dpr;
+  const view = computeLevelView({
+    cssW,
+    cssH,
+    dpr,
+    touch: !!opts.touch,
+    playerCount: state.players?.length || 2,
+  });
+  cameraRef.current = view.camera;
+  viewRef.current = view;
 }
-

@@ -4,8 +4,9 @@ import { updateGame } from "@/lib/game/gameLoop";
 import { renderGame } from "@/lib/game/renderer";
 import { renderHUD } from "@/lib/game/hud";
 import { updateCameraForState } from "@/lib/game/cameraController";
-import { CANVAS_W, CANVAS_H } from "@/lib/game/constants";
+
 const DT = 1 / 30;
+
 export function useGameRuntime({
   canvasRef,
   containerRef,
@@ -17,10 +18,12 @@ export function useGameRuntime({
   viewRef,
   finalizeIfEnded,
   viewMode,
-  overview = false,
+  isTouchDevice = false,
 }) {
-  const last = useRef(null),
-    acc = useRef(0);
+  const last = useRef(null);
+  const acc = useRef(0);
+  const sizeRef = useRef({ cssW: 0, cssH: 0, dpr: 1 });
+
   useEffect(() => {
     initInput();
     return () => {
@@ -28,6 +31,7 @@ export function useGameRuntime({
       clearTouchInput();
     };
   }, []);
+
   useEffect(() => {
     const key = (e) => {
       if (e.code !== "Escape" || networkRef.current.mode === "server") return;
@@ -45,26 +49,60 @@ export function useGameRuntime({
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, [networkRef, screenRef, setScreen]);
+
   useEffect(() => {
+    // Backing store = CSS size × devicePixelRatio so layout math stays in CSS px.
     const resize = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      canvas.width = Math.max(
+      const shell = containerRef.current;
+      const cssW = Math.max(
         320,
-        containerRef.current?.clientWidth || window.innerWidth,
+        Math.round(shell?.clientWidth || window.innerWidth),
       );
-      canvas.height = Math.max(280, window.innerHeight);
+      const cssH = Math.max(280, Math.round(window.innerHeight));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      sizeRef.current = { cssW, cssH, dpr };
+      const bw = Math.round(cssW * dpr);
+      const bh = Math.round(cssH * dpr);
+      if (canvas.width !== bw) canvas.width = bw;
+      if (canvas.height !== bh) canvas.height = bh;
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
     };
     resize();
     window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    const observer =
+      typeof ResizeObserver !== "undefined" && containerRef.current
+        ? new ResizeObserver(resize)
+        : null;
+    if (observer && containerRef.current) observer.observe(containerRef.current);
+    let dprQuery = null;
+    const onDprChange = () => {
+      resize();
+      watchDpr();
+    };
+    const watchDpr = () => {
+      dprQuery?.removeEventListener?.("change", onDprChange);
+      dprQuery = window.matchMedia(
+        `(resolution: ${window.devicePixelRatio || 1}dppx)`,
+      );
+      dprQuery.addEventListener?.("change", onDprChange);
+    };
+    watchDpr();
+    return () => {
+      window.removeEventListener("resize", resize);
+      observer?.disconnect();
+      dprQuery?.removeEventListener?.("change", onDprChange);
+    };
   }, [canvasRef, containerRef, viewMode]);
+
   useEffect(() => {
     if (viewMode === "controller") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
     let raf;
     const loop = (ts) => {
       raf = requestAnimationFrame(loop);
@@ -89,44 +127,37 @@ export function useGameRuntime({
           }
         }
       }
-      if (viewMode === "display" || overview) {
-        const zoom = Math.min(
-          canvas.width / CANVAS_W,
-          (canvas.height - 130) / CANVAS_H,
-        );
-        const w = canvas.width / zoom,
-          h = canvas.height / zoom;
-        cameraRef.current = { x: -(w - CANVAS_W) / 2, y: -130 / zoom };
-        viewRef.current = { zoom, w, h };
-      } else {
-        const tracked =
-          net.mode === "server"
-            ? {
-                ...state,
-                players: state.players.filter((p) => p.id === net.myPlayerId),
-              }
-            : state;
-        updateCameraForState(tracked, canvas, cameraRef, viewRef);
-      }
-      renderGame(
-        ctx,
-        state,
-        ts / 1000,
-        cameraRef.current,
-        viewRef.current.zoom,
-        { w: viewRef.current.w, h: viewRef.current.h },
-      );
-      renderHUD(ctx, state);
+
+      const { cssW, cssH, dpr } = sizeRef.current;
+      if (!cssW || !cssH) return;
+      // Always fit the whole Maple Row Safehouse — never follow a single player.
+      updateCameraForState(state, canvas, cameraRef, viewRef, {
+        cssW,
+        cssH,
+        dpr,
+        touch: isTouchDevice,
+      });
+      const view = viewRef.current;
+      renderGame(ctx, state, ts / 1000, cameraRef.current, view.zoom, view);
+      renderHUD(ctx, state, {
+        layout: view.layout,
+        dpr,
+        net: {
+          paused: net.paused,
+          mode: net.mode,
+          myPlayerId: net.myPlayerId,
+        },
+      });
       if (net.paused) {
         ctx.fillStyle = "rgba(0,0,0,.85)";
-        ctx.fillRect(0, 120, canvas.width, 55);
+        ctx.fillRect(0, 120 * dpr, canvas.width, 55 * dpr);
         ctx.fillStyle = "#7fffc0";
-        ctx.font = "16px sans-serif";
+        ctx.font = `${16 * dpr}px sans-serif`;
         ctx.textAlign = "center";
         ctx.fillText(
           "Connection interrupted · mission paused · reconnecting",
           canvas.width / 2,
-          151,
+          151 * dpr,
         );
       }
     };
@@ -136,13 +167,14 @@ export function useGameRuntime({
     canvasRef,
     cameraRef,
     finalizeIfEnded,
+    isTouchDevice,
     networkRef,
     screenRef,
     stateRef,
     viewRef,
     viewMode,
-    overview,
   ]);
+
   return {
     resetFrameClock: () => {
       last.current = null;

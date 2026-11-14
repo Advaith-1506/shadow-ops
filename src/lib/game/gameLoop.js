@@ -1,5 +1,5 @@
 /*
- * GAME LOOP  –  Museum Break
+ * GAME LOOP
  * Called every animation frame while screen === 'playing'.
  * Orchestrates all system updates and checks win/loss conditions.
  */
@@ -28,13 +28,17 @@ export function updateGame(state, dt, inputByPlayer = null) {
   state.timer -= dt;
   if (state.timer <= 0) {
     state.timer = 0;
-    _endGame(state, "loss", "Time's up! The museum went into lockdown.");
+    _endGame(state, "loss", "Time's up! The safehouse went into lockdown.");
     return;
   }
 
   // ── Alarm limit ─────────────────────────────────────────────────────────────
   if (state.alarm >= MAX_ALARM) {
-    _endGame(state, "loss", "Alarm reached 100%! Security flooded the museum.");
+    _endGame(
+      state,
+      "loss",
+      "Alarm reached 100%! Security locked down the safehouse.",
+    );
     return;
   }
 

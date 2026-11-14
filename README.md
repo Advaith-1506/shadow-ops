@@ -1,6 +1,6 @@
 # Shadow Ops
 
-**Enter unseen. Leave together.** Shadow Ops is a cooperative multiplayer stealth game built for a **Theta Tau hackathon**. Assemble a team of **2–4 operatives**, combine four distinct abilities, recover the Crown Jewel, and extract everyone before the facility locks down.
+**Enter unseen. Leave together.** Shadow Ops is a cooperative multiplayer stealth game built for a **Theta Tau hackathon**. Assemble a team of **2–4 operatives**, combine four distinct abilities, infiltrate **Maple Row Safehouse**, recover the Diamond, and extract everyone before the facility locks down.
 
 ## The demo: Party Mode
 
@@ -21,8 +21,6 @@ npm run lan:host
 
 Open **http://localhost:5173** on the laptop. The helper starts the frontend on **5173** and the authoritative WebSocket server on **8787**, and prints available LAN website addresses. No `.env` file is needed. If 5173 is already occupied, stop the other frontend first; the port is fixed so invites stay correct.
 
-For the unmerged Party Mode upgrade, check out `feature/mobile-party-multiplayer` before installing. The working `main` version remains protected until its PR is reviewed and merged.
-
 ## Party Mode walkthrough
 
 1. Connect the laptop and phones to the **same Wi-Fi or hotspot**.
@@ -31,7 +29,7 @@ For the unmerged Party Mode upgrade, check out `feature/mobile-party-multiplayer
 4. Show the large **QR code**, six-character room code, and full connection URL on the shared screen.
 5. Each phone scans the QR with its normal camera app, opens the website, enters a nickname, chooses a role, and joins. The WebSocket endpoint derives automatically from the scanned hostname; phones do not connect to their own localhost.
 6. Each player taps **Ready Up**. For a four-player demo, try one of each role. Duplicates are allowed; every mission needs a Hacker and at least one different role.
-7. The laptop host selects **Deploy Squad**. Move with the phone joystick, use **Interact**, and activate **Ability**. The laptop shows the entire world and shared mission state.
+7. The laptop host selects **Deploy Squad**. Move with the phone joystick, use **Interact**, and activate **Ability**. The laptop shows the entire Maple Row Safehouse and shared mission state.
 8. The host can open **Shared Display** in another tab/window for an authorized, read-only view. That link has display-only access, never host privileges. Keep the host tab for lobby/start controls.
 9. After success or failure, the host selects **Return to Lobby / Play Again**. The same connected players and roles remain; everyone readies again.
 
@@ -39,7 +37,7 @@ For a laptop keyboard player hosting instead, expand **Host and play with this k
 
 ## Full mobile gameplay
 
-Select **Play on This Phone** in the lobby or **View Game on Phone** on the controller. The phone displays its player's nearby area, touch controls, alert/time/objective HUD, role cooldowns, capture status, and an optional overview. Use **Phone Controller** to return to the gamepad screen. Switching views clears active controls and uses the same socket and server-side actor.
+Select **Play on This Phone** in the lobby or **View Game on Phone** on the controller. The phone displays the fixed whole-level view, touch controls, alert/time/objective HUD, role cooldowns, and capture status. Use **Phone Controller** to return to the gamepad screen. Switching views clears active controls and uses the same socket and server-side actor.
 
 Portrait remains usable; landscape provides a wider gamepad layout. Touch surfaces use pointer capture, independent pointers for movement/interact/ability, safe-area padding, and optional haptics where supported. Controller Mode skips Canvas rendering and receives UI updates at a reduced rate. Input is bounded to roughly 30 updates/second with idle heartbeats; stale input expires server-side after 250ms.
 
@@ -56,13 +54,16 @@ A noise does not override an active chase. Guards return to patrol when it expir
 
 ## Mission and teamwork
 
-1. Infiltrate through the south courtyard and lobby.
-2. Collect the **ALPHA** key in Gallery A and **BRAVO** key in Gallery B.
-3. Bring a **Hacker** to the blue lobby terminal and a teammate of a **different role** onto the adjacent purple support pad. With both keys collected, interact at the terminal to disable cameras and lasers.
-4. Interact with the vault lock at its north entrance, then recover the **Crown Jewel**.
-5. Bring **every operative and the artifact** to the extraction van. Carrying the artifact or depositing it there satisfies the artifact requirement.
+The first level is **Maple Row Safehouse**, a compact L-shaped residence shown as a roofless top-down interior. The entire building stays visible during play (fixed whole-level camera).
 
-Objectives distinguish active, blocked and complete tasks. The support pad reports occupancy, and completed objectives produce shared notifications. The HUD/overview locates keys, terminal, vault, teammates and extraction. Role-colored overhead names identify each operative.
+1. Enter from the front yard and pass through the Garage into the Living Room.
+2. Collect **ALPHA** in the Kitchen and **BRAVO** in the Study. Any role can collect either key; collection is shared.
+3. A **Hacker** interacts with the blue terminal in the Security room while a teammate with a **different role** stands on the purple support pad. Both keys must already be collected. This permanently disables cameras and lasers.
+4. Interact with the vault lock in the Living Room to open the vault.
+5. Collect the **Diamond** inside.
+6. Bring **every player and the artifact** to the extraction van in the front yard. Carrying the artifact or depositing it at the van satisfies the artifact requirement.
+
+Objectives distinguish active, blocked and complete tasks. The support pad reports occupancy, and completed objectives produce shared notifications. The HUD locates keys, terminal, vault, teammates and extraction. Role-colored overhead names identify each operative.
 
 Guards patrol, investigate, chase and capture. Use cover, coordinate abilities and hold Interact nearby to revive a captured teammate before the **20-second custody timer** expires. At **100% alert** or the **10-minute deadline**, the mission fails. Results show the shared score, elapsed time and actually recorded objective/ability contributions.
 
@@ -112,11 +113,13 @@ npm run preview -- --port 5173  # use alongside lan:server
 | --------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `server/roomServer.js`                        | Rooms, host/display/player permissions, rotating sessions, rate limits, 30Hz simulation |
 | `server/lanAddresses.js`                      | LAN interface candidates and preference                                                 |
+| `src/lib/game/levels/safehouse.js`            | Maple Row Safehouse geometry, rooms, spawns and mission placements                      |
+| `src/lib/game/mapData.js`                     | Active level adapter used by simulation and rendering                                   |
 | `src/lib/game/mission.js`, `roles.js`         | Role abilities, mission rules, progress and measured contributions                      |
 | `src/lib/game/entityLogic.js`, `guardNav.js`  | Guard patrol/chase/investigation, camera and laser behavior                             |
 | `src/lib/game/playerLogic.js`, `collision.js` | Authoritative movement and collisions                                                   |
 | `src/hooks/useLanMultiplayer.js`              | Session recovery, lobby protocol, input pump, view switching                            |
-| `src/hooks/useGameRuntime.js`                 | Local simulation and player/shared-world rendering                                      |
+| `src/hooks/useGameRuntime.js`                 | Local simulation, fixed whole-level camera and rendering                                |
 | `src/lib/party/`                              | Invite validation, session storage and independent multitouch input model               |
 | `src/components/game/`                        | Party QR lobby, role cards, dedicated controller, HUD overlays and results              |
 

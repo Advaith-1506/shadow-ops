@@ -13,25 +13,29 @@ import ControllerScreen from "@/components/game/ControllerScreen";
 import MissionOverlay from "@/components/game/MissionOverlay";
 import { useLanMultiplayer } from "@/hooks/useLanMultiplayer";
 import { useGameRuntime } from "@/hooks/useGameRuntime";
+
 export default function Game() {
   const [localPlayers, setLocalPlayers] = useState(4);
   const initial = useRef(parseJoinLocation(window.location));
-  const [screen, setScreen] = useState(initial.current.kind ? "lobby" : "menu"),
-    [entry, setEntry] = useState("join"),
-    [isTouch, setIsTouch] = useState(false),
-    [overview, setOverview] = useState(false);
-  const canvasRef = useRef(null),
-    containerRef = useRef(null),
-    cameraRef = useRef({ x: 0, y: 0 }),
-    viewRef = useRef({ zoom: 1, w: CANVAS_W, h: CANVAS_H }),
-    stateRef = useRef(null),
-    endStateRef = useRef(null),
-    screenRef = useRef(screen);
+  const [screen, setScreen] = useState(initial.current.kind ? "lobby" : "menu");
+  const [entry, setEntry] = useState("join");
+  const [isTouch, setIsTouch] = useState(false);
+  const [rotateDismissed, setRotateDismissed] = useState(false);
+  const [isPortraitSmall, setIsPortraitSmall] = useState(false);
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+  const cameraRef = useRef({ x: 0, y: 0 });
+  const viewRef = useRef({ zoom: 1, w: CANVAS_W, h: CANVAS_H });
+  const stateRef = useRef(null);
+  const endStateRef = useRef(null);
+  const screenRef = useRef(screen);
   screenRef.current = screen;
+
   const transition = useCallback((next) => {
     setScreen(next);
     screenRef.current = next;
   }, []);
+
   const finalizeIfEnded = useCallback(
     (state) => {
       if (!["win", "loss"].includes(state.screen)) return;
@@ -40,6 +44,7 @@ export default function Game() {
     },
     [transition],
   );
+
   const net = useLanMultiplayer({
     onGameStart: (state) => {
       stateRef.current = state;
@@ -51,8 +56,10 @@ export default function Game() {
     onLobby: () => transition("lobby"),
     onEnd: finalizeIfEnded,
   });
+
   const viewMode =
     net.kind === "player" ? net.viewMode : net.kind ? "display" : "game";
+
   const { resetFrameClock } = useGameRuntime({
     canvasRef,
     containerRef,
@@ -64,11 +71,17 @@ export default function Game() {
     viewRef,
     finalizeIfEnded,
     viewMode,
-    overview,
+    isTouchDevice: isTouch,
   });
+
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
-    const apply = () => setIsTouch(mq.matches || window.innerWidth < 900);
+    const apply = () => {
+      setIsTouch(mq.matches || window.innerWidth < 900);
+      setIsPortraitSmall(
+        window.innerHeight > window.innerWidth && window.innerWidth < 900,
+      );
+    };
     apply();
     mq.addEventListener?.("change", apply);
     window.addEventListener("resize", apply);
@@ -77,12 +90,14 @@ export default function Game() {
       window.removeEventListener("resize", apply);
     };
   }, []);
+
   useEffect(() => {
     if (screen !== "playing") {
       clearKeys();
       clearTouchInput();
     }
   }, [screen]);
+
   const startLocal = () => {
     net.cleanupNetwork();
     net.resetLobbyUi();
@@ -97,6 +112,7 @@ export default function Game() {
     resetFrameClock();
     transition("playing");
   };
+
   const leave = () => {
     net.cleanupNetwork();
     net.resetLobbyUi();
@@ -107,10 +123,14 @@ export default function Game() {
     if (window.location.protocol.startsWith("http"))
       window.history.replaceState(null, "", "/");
   };
+
   const isHost =
     net.kind === "host" ||
     (net.kind === "player" && net.myPlayerId === net.hostId);
   const current = net.liveState || stateRef.current;
+  const showRotateHint =
+    isPortraitSmall && !rotateDismissed && screen === "playing";
+
   return (
     <div ref={containerRef} className="game-root">
       {screen === "menu" && (
@@ -176,18 +196,19 @@ export default function Game() {
           </p>
         )}
         <MissionOverlay state={current} shared={viewMode === "display"} />
+        {showRotateHint && (
+          <button
+            type="button"
+            className="rotate-hint"
+            onClick={() => setRotateDismissed(true)}
+          >
+            Rotate for a wider view · Dismiss
+          </button>
+        )}
         <nav className="game-toolbar">
           {net.kind === "player" && (
             <button onClick={() => net.changeViewMode("controller")}>
               PHONE CONTROLLER
-            </button>
-          )}
-          {viewMode !== "display" && (
-            <button
-              aria-pressed={overview}
-              onClick={() => setOverview(!overview)}
-            >
-              {overview ? "FOLLOW PLAYER" : "OVERVIEW"}
             </button>
           )}
           <button onClick={leave}>

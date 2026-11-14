@@ -1,5 +1,6 @@
 import { createGameState } from "./gameState.js";
 import { dist, lineBlockedByRects } from "./collision.js";
+import { missionLayout } from "./mapData.js";
 export const ROLES = ["Assassin", "Hacker", "Scout", "Decoy"];
 export const COOLDOWNS = { Assassin: 12, Hacker: 16, Scout: 18, Decoy: 16 };
 export function createShadowState(roster) {
@@ -31,13 +32,15 @@ export function createShadowState(roster) {
   s.eventSequence = 0;
   s.artifacts = s.artifacts.filter((a) => a.id === "art_crown");
   s.mission = {
-    keys: [
-      { id: "ALPHA", x: 320, y: 224, collected: false },
-      { id: "BRAVO", x: 960, y: 200, collected: false },
-    ],
-    terminal: { x: 1100, y: 1000 },
-    support: { x: 1200, y: 1000 },
-    lock: { x: 1020, y: 510 },
+    keys: missionLayout.keys.map((k) => ({
+      id: k.id,
+      x: k.x,
+      y: k.y,
+      collected: false,
+    })),
+    terminal: { x: missionLayout.terminal.x, y: missionLayout.terminal.y },
+    support: { x: missionLayout.support.x, y: missionLayout.support.y },
+    lock: { x: missionLayout.lock.x, y: missionLayout.lock.y },
     securityOff: false,
     message: "Collect ALPHA and BRAVO access keys",
   };
@@ -53,9 +56,9 @@ export function missionStage(s) {
   const m = s.mission;
   if (!m.keys.every((k) => k.collected)) return "Collect two access keys";
   if (!m.securityOff) return "Hacker: terminal + teammate: support pad";
-  if (!s.vaultUnlocked) return "Unlock vault at entrance";
+  if (!s.vaultUnlocked) return "Unlock the vault door";
   if (!s.artifacts[0].pickedUp && !s.loot.length)
-    return "Collect the Crown Jewel";
+    return "Collect the Diamond";
   return "Entire team: return to extraction van";
 }
 export function updateMissionPlayer(s, p, input, dt) {
@@ -173,13 +176,13 @@ export function updateMissionPlayer(s, p, input, dt) {
     !s.artifacts[0].pickedUp &&
     near(s, p, s.artifacts[0], 38)
   ) {
-    prompt = "Collect Crown Jewel";
+    prompt = "Collect Diamond";
     action = () => {
       s.artifacts[0].pickedUp = true;
       recordMissionEvent(
         s,
         p,
-        "Crown Jewel recovered — team to extraction",
+        "Diamond recovered — team to extraction",
         "artifact",
       );
       p.holding = { ...s.artifacts[0] };
@@ -253,7 +256,7 @@ export function objectiveSummary(s) {
     },
     {
       id: "artifact",
-      label: "Recover Crown Jewel",
+      label: "Recover Diamond",
       status: artifact ? "complete" : s.vaultUnlocked ? "active" : "blocked",
     },
     {

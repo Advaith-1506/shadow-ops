@@ -1,310 +1,282 @@
 /*
- * HUD  –  Museum Break
- * High-contrast segmented HUD for readability on large and small screens.
+ * HUD
+ * Screen-space status around the fixed level view: a top status bar
+ * (objective, alert, time, connection state) and a player panel (role,
+ * status, ability readiness). Never drawn over the gameplay rectangle.
  */
 
-import {
-  C,
-  MAX_ALARM,
-  REQUIRED_ARTIFACTS,
-  REQUIRED_HIGH_VALUE,
-} from "./constants.js";
+import { MAX_ALARM } from './constants.js';
+import { COOLDOWNS } from './mission.js';
+import { LEVEL } from './mapData.js';
+import { LEAVE_BUTTON_W } from './viewLayout.js';
+import { OBJECTIVE_COLORS, missionStageId, playerColor } from './palette.js';
 
-export function renderHUD(ctx, state) {
-  if (state.mission) return renderMissionHUD(ctx, state);
-  const viewW = ctx.canvas.width;
-  const compact = viewW < 1380;
-  const veryCompact = viewW < 1100;
-  const s = Math.max(0.72, Math.min(1.65, viewW / (compact ? 1550 : 1280)));
-  const U = (n) => Math.round(n * s);
-  const HUD = U(veryCompact ? 72 : compact ? 78 : 84);
+const FONT = '"Rajdhani", sans-serif';
+const INK = '#f4ead8';
+const MUTED = 'rgba(244,234,216,0.62)';
+const PANEL_BG = '#231b16';
+const CARD_BG = '#2f251e';
 
-  ctx.fillStyle = "rgba(6, 10, 18, 0.97)";
-  ctx.fillRect(0, 0, viewW, HUD);
-  ctx.fillStyle = "rgba(255,255,255,0.1)";
-  ctx.fillRect(0, HUD - 1, viewW, 1);
+const ABILITY = { Assassin: 'STUN', Hacker: 'HACK', Scout: 'SCAN', Decoy: 'NOISE' };
+const LOCAL_KEYS = {
+  1: 'WASD · E · Q',
+  2: 'ARROWS · ENTER · /',
+  3: 'TFGH · R · Y',
+  4: 'IJKL · O · P',
+};
 
-  const pad = U(14);
-  const gap = U(10);
-  const blockH = HUD - U(18);
-  const blockY = U(9);
+const STEPS = [
+  { id: 'keys', text: 'KEYS' },
+  { id: 'security', text: 'SECURITY' },
+  { id: 'vault', text: 'VAULT' },
+  { id: 'diamond', text: 'DIAMOND' },
+  { id: 'extract', text: 'EXTRACT' },
+];
 
-  const timerW = U(veryCompact ? 110 : compact ? 122 : 140);
-  const alarmW = U(veryCompact ? 185 : compact ? 220 : 260);
-  const objectiveW = U(veryCompact ? 210 : compact ? 260 : 330);
-  const playerW = U(veryCompact ? 135 : compact ? 165 : 210);
-
-  const p1x = Math.max(
-    pad + timerW + gap + alarmW + gap + objectiveW + gap,
-    viewW - pad - playerW * 2 - gap,
-  );
-  const p2x = p1x + playerW + gap;
-
-  _block(ctx, pad, blockY, timerW, blockH);
-  _block(ctx, pad + timerW + gap, blockY, alarmW, blockH);
-  _block(ctx, pad + timerW + gap + alarmW + gap, blockY, objectiveW, blockH);
-  _block(ctx, p1x, blockY, playerW, blockH);
-  _block(ctx, p2x, blockY, playerW, blockH);
-
-  _timer(ctx, state, pad, blockY, timerW, blockH, U, compact);
-  _alarm(ctx, state, pad + timerW + gap, blockY, alarmW, blockH, U, compact);
-  _objectives(
-    ctx,
-    state,
-    pad + timerW + gap + alarmW + gap,
-    blockY,
-    objectiveW,
-    blockH,
-    U,
-    compact,
-  );
-  _player(
-    ctx,
-    state.players[0],
-    p1x,
-    blockY,
-    playerW,
-    blockH,
-    C.p1,
-    U,
-    compact,
-  );
-  _player(
-    ctx,
-    state.players[1],
-    p2x,
-    blockY,
-    playerW,
-    blockH,
-    C.p2,
-    U,
-    compact,
-  );
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, Math.max(0, Math.min(r, w / 2, h / 2)));
 }
 
-function _block(ctx, x, y, w, h) {
-  ctx.fillStyle = "rgba(20, 28, 42, 0.72)";
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = "rgba(255,255,255,0.14)";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+function fitText(ctx, text, maxW) {
+  if (ctx.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(`${t}…`).width > maxW) t = t.slice(0, -1);
+  return `${t}…`;
 }
 
-function _timer(ctx, state, x, y, w, h, U, compact) {
-  const mins = Math.floor(state.timer / 60);
-  const secs = Math.floor(state.timer % 60);
-  const timeStr = `${mins}:${secs.toString().padStart(2, "0")}`;
-  const col =
-    state.timer < 30 ? "#ff4d4d" : state.timer < 60 ? "#ffcc4d" : "#f1f5ff";
+function objectiveText(s) {
+  const m = s.mission;
+  if (!m) return 'Reach the extraction zone';
+  const stage = missionStageId(s);
+  const missing = m.keys.filter((k) => !k.collected).map((k) => {
+    const def = LEVEL.mission.keys.find((d) => d.id === k.id);
+    return def ? `${k.id} (${def.room})` : k.id;
+  });
+  switch (stage) {
+    case 'keys': return `Collect access keys: ${missing.join(' · ')}`;
+    case 'security': return 'Security room: Hacker at terminal + teammate on support pad';
+    case 'vault': return 'Unlock the vault door from the living room';
+    case 'diamond': return 'Grab the Diamond from the vault';
+    default: return 'Whole team to the extraction zone with the Diamond';
+  }
+}
 
-  ctx.font = `600 ${U(11)}px "Rajdhani", sans-serif`;
-  ctx.fillStyle = "rgba(220,230,255,0.8)";
-  ctx.fillText("TIME", x + U(10), y + U(16));
+export function renderHUD(ctx, state, hud = {}) {
+  const dpr = hud.dpr || 1;
+  const layout = hud.layout;
+  if (!layout) return;
+  ctx.save();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.textBaseline = 'middle';
+  _topBar(ctx, state, layout, hud);
+  _playerPanel(ctx, state, layout, hud);
+  ctx.restore();
+}
 
-  ctx.font = `700 ${U(compact ? 24 : 30)}px "Rajdhani", sans-serif`;
+// ─── Top bar ──────────────────────────────────────────────────────────────────
+function _topBar(ctx, s, layout, hud) {
+  const { top, compact, tiny } = layout;
+  const H = top.h;
+  ctx.fillStyle = PANEL_BG;
+  ctx.fillRect(top.x, top.y, top.w, H);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(top.x, H - 2, top.w, 2);
+
+  const pad = tiny ? 8 : 12;
+  const right = top.w - LEAVE_BUTTON_W - pad;
+  let x = pad;
+
+  if (!tiny) {
+    ctx.font = `700 ${compact ? 13 : 15}px ${FONT}`;
+    ctx.fillStyle = '#ffcf6e';
+    ctx.textAlign = 'left';
+    ctx.fillText('SHADOW OPS', x, H * (compact ? 0.5 : 0.36));
+    if (!compact) {
+      ctx.font = `600 11px ${FONT}`;
+      ctx.fillStyle = MUTED;
+      ctx.fillText(LEVEL.name.toUpperCase(), x, H * 0.7);
+    }
+    x += compact ? 92 : 150;
+  }
+
+  // Time
+  const timeW = tiny ? 46 : 62;
+  const timeX = right - timeW;
+  const mins = Math.floor(Math.max(0, s.timer) / 60);
+  const secs = Math.floor(Math.max(0, s.timer) % 60);
+  ctx.textAlign = 'right';
+  ctx.font = `700 ${tiny ? 16 : compact ? 20 : 24}px ${FONT}`;
+  ctx.fillStyle = s.timer < 30 ? '#ff6b6b' : s.timer < 60 ? '#ffcf6e' : INK;
+  ctx.fillText(`${mins}:${String(secs).padStart(2, '0')}`, right, H / 2 + 1);
+
+  // Alert meter
+  const alertW = Math.round(Math.max(90, Math.min(220, top.w * 0.16)));
+  const ax = timeX - 14 - alertW;
+  const frac = Math.max(0, Math.min(1, s.alarm / MAX_ALARM));
+  const col = frac < 0.4 ? '#6fd38a' : frac < 0.7 ? '#ffb547' : '#ff5a5a';
+  ctx.textAlign = 'left';
+  ctx.font = `700 ${tiny ? 10 : 11}px ${FONT}`;
+  ctx.fillStyle = MUTED;
+  ctx.fillText('ALERT', ax, H * 0.3);
+  ctx.textAlign = 'right';
   ctx.fillStyle = col;
-  ctx.fillText(timeStr, x + U(10), y + U(48));
-}
-
-function _alarm(ctx, state, x, y, w, h, U, compact) {
-  const alarmFrac = Math.max(0, Math.min(1, state.alarm / MAX_ALARM));
-  const col =
-    alarmFrac < 0.5 ? "#66d17b" : alarmFrac < 0.75 ? "#ffb547" : "#ff4d4d";
-
-  ctx.font = `600 ${U(11)}px "Rajdhani", sans-serif`;
-  ctx.fillStyle = "rgba(220,230,255,0.8)";
-  ctx.fillText("ALARM", x + U(10), y + U(16));
-
-  const bx = x + U(10);
-  const by = y + U(24);
-  const bw = w - U(20);
-  const bh = U(compact ? 14 : 18);
-  ctx.fillStyle = "rgba(255,255,255,0.1)";
-  ctx.fillRect(bx, by, bw, bh);
+  ctx.fillText(`${Math.floor(s.alarm)}%`, ax + alertW, H * 0.3);
+  const barY = H * 0.52;
+  const barH = tiny ? 6 : 9;
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  rr(ctx, ax, barY, alertW, barH, barH / 2); ctx.fill();
   ctx.fillStyle = col;
-  ctx.fillRect(bx, by, Math.round(bw * alarmFrac), bh);
-  ctx.strokeStyle = "rgba(255,255,255,0.2)";
-  ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+  rr(ctx, ax, barY, Math.max(barH, alertW * frac), barH, barH / 2); ctx.fill();
 
-  ctx.font = `700 ${U(compact ? 15 : 18)}px "Rajdhani", sans-serif`;
-  ctx.fillStyle = "#fff";
-  ctx.fillText(`${Math.floor(state.alarm)}%`, x + U(10), y + U(58));
-}
-
-function _objectives(ctx, state, x, y, w, h, U, compact) {
-  const highCount = state.loot.filter((a) => a.type === "high_value").length;
-  const lootCount = state.loot.length;
-  const lootDone = lootCount >= REQUIRED_ARTIFACTS;
-  const highDone = highCount >= REQUIRED_HIGH_VALUE;
-  const allAtVan = state.players.every((p) => p.atVan);
-
-  ctx.font = `600 ${U(11)}px "Rajdhani", sans-serif`;
-  ctx.fillStyle = "rgba(220,230,255,0.8)";
-  ctx.fillText("OBJECTIVES", x + U(10), y + U(16));
-
-  ctx.font = `600 ${U(compact ? 12 : 15)}px "Rajdhani", sans-serif`;
-  ctx.fillStyle = lootDone ? "#66d17b" : "#ffd166";
-  ctx.fillText(
-    `Artifacts ${lootCount}/${REQUIRED_ARTIFACTS}`,
-    x + U(10),
-    y + U(compact ? 30 : 32),
-  );
-
-  ctx.fillStyle = highDone ? "#66d17b" : "#ffb547";
-  ctx.fillText(
-    `High-Value ${highCount}/${REQUIRED_HIGH_VALUE}`,
-    x + U(10),
-    y + U(compact ? 45 : 49),
-  );
-
-  ctx.fillStyle = allAtVan ? "#66d17b" : "rgba(220,230,255,0.75)";
-  const vanLine = compact
-    ? state.players.map((p) => `${p.atVan ? "R" : "W"}P${p.id}`).join(" ")
-    : state.players
-        .map((p) => `${p.atVan ? "Ready" : "Wait"} P${p.id}`)
-        .join("  ");
-  ctx.fillText(vanLine, x + U(10), y + U(compact ? 58 : 64));
-}
-
-function _player(ctx, player, x, y, w, h, col, U, compact) {
-  if (!player) return;
-  if (player.downed) {
-    ctx.font = `700 ${U(compact ? 12 : 14)}px "Rajdhani", sans-serif`;
-    ctx.fillStyle = "#ff8a8a";
-    ctx.fillText(`P${player.id}  DOWNED`, x + U(10), y + U(20));
-    ctx.font = `700 ${U(compact ? 12 : 16)}px "Rajdhani", sans-serif`;
-    ctx.fillStyle = "#ffd166";
-    ctx.fillText(
-      `Custody ${Math.ceil(player.custodyTimer || 0)}s`,
-      x + U(10),
-      y + U(42),
-    );
+  // Objective (or connection banner)
+  const objX = x;
+  const objW = ax - 18 - objX;
+  if (objW < 60) return;
+  if (hud.net?.paused) {
+    const blink = 0.6 + 0.4 * Math.sin(performance.now() / 200);
+    ctx.fillStyle = `rgba(200,50,50,${0.85})`;
+    rr(ctx, objX, 6, objW, H - 12, 6); ctx.fill();
+    ctx.fillStyle = `rgba(255,255,255,${blink})`;
+    ctx.beginPath(); ctx.arc(objX + 14, H / 2, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.textAlign = 'left';
+    ctx.font = `700 ${tiny ? 11 : 13}px ${FONT}`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText(fitText(ctx, 'CONNECTION LOST · MISSION PAUSED · RECONNECTING (30s window)', objW - 30), objX + 26, H / 2 + 1);
     return;
   }
-  ctx.font = `700 ${U(compact ? 12 : 14)}px "Rajdhani", sans-serif`;
-  ctx.fillStyle = col;
-  ctx.fillText(
-    `P${player.id}  ${player.role === "fast" ? "FAST" : "STRONG"}`,
-    x + U(10),
-    y + U(20),
-  );
 
-  ctx.font = `600 ${U(compact ? 11 : 14)}px "Rajdhani", sans-serif`;
-  if (player.holding) {
-    ctx.fillStyle = C.gold;
-    const item = compact
-      ? player.holding.name.slice(0, 12)
-      : player.holding.name;
-    ctx.fillText(`Carry: ${item}`, x + U(10), y + U(42));
-    if (!compact) {
-      ctx.fillStyle =
-        player.holding.type === "heavy" ? "#ff9a9a" : "rgba(220,230,255,0.85)";
-      ctx.fillText(
-        player.holding.type === "heavy" ? "Heavy load" : "Normal load",
-        x + U(10),
-        y + U(62),
-      );
+  const stage = missionStageId(s);
+  const stepIdx = Math.max(0, STEPS.findIndex((st) => st.id === stage));
+  const showSteps = !!s.mission && !compact && objW > 380;
+  let tx = objX;
+  if (showSteps) {
+    for (let i = 0; i < STEPS.length; i += 1) {
+      const done = i < stepIdx;
+      const cur = i === stepIdx;
+      ctx.fillStyle = done ? '#6fd38a' : cur ? '#ffcf6e' : 'rgba(255,255,255,0.18)';
+      ctx.beginPath(); ctx.arc(tx + 5, H * 0.32, 4.5, 0, Math.PI * 2); ctx.fill();
+      if (i < STEPS.length - 1) {
+        ctx.fillStyle = done ? '#6fd38a' : 'rgba(255,255,255,0.18)';
+        ctx.fillRect(tx + 11, H * 0.32 - 1, 14, 2);
+      }
+      tx += 30;
     }
-  } else {
-    ctx.fillStyle = "rgba(220,230,255,0.8)";
-    ctx.fillText(
-      compact ? "Carry: Empty" : "Carrying: Empty",
-      x + U(10),
-      y + U(42),
-    );
+    ctx.textAlign = 'left';
+    ctx.font = `700 11px ${FONT}`;
+    ctx.fillStyle = '#ffcf6e';
+    ctx.fillText(`STEP ${stepIdx + 1}/5 · ${STEPS[stepIdx].text}`, objX + STEPS.length * 30 + 6, H * 0.32);
+  }
+  ctx.textAlign = 'left';
+  ctx.font = `700 ${tiny ? 12 : compact ? 14 : 15}px ${FONT}`;
+  ctx.fillStyle = INK;
+  const keysDone = s.mission ? s.mission.keys.filter((k) => k.collected).length : 0;
+  const prefix = s.mission && !showSteps ? `${stepIdx + 1}/5 ` : '';
+  const text = `${prefix}${objectiveText(s)}${stage === 'keys' ? `  [${keysDone}/2]` : ''}`;
+  ctx.fillText(fitText(ctx, text, objW), objX, showSteps ? H * 0.7 : H / 2 + 1);
+}
+
+// ─── Player panel ─────────────────────────────────────────────────────────────
+function _status(p) {
+  if (p.downed) return { text: `CAPTURED · ${Math.ceil(p.custodyTimer || 0)}s TO REVIVE`, color: '#ff8a8a' };
+  if (p.holding) return { text: p.atVan ? 'AT EXTRACTION · DIAMOND' : 'CARRYING DIAMOND', color: OBJECTIVE_COLORS.diamond };
+  if (p.atVan) return { text: 'AT EXTRACTION', color: '#7dffb0' };
+  if (p.detected > 0) return { text: 'SPOTTED!', color: '#ff6b6b' };
+  return { text: 'ACTIVE', color: MUTED };
+}
+
+function _card(ctx, p, x, y, w, h, opts) {
+  const col = playerColor(p.id);
+  const small = h < 46;
+  ctx.fillStyle = CARD_BG;
+  rr(ctx, x, y, w, h, 6); ctx.fill();
+  if (opts.me) {
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    rr(ctx, x + 1, y + 1, w - 2, h - 2, 6); ctx.stroke();
+  }
+  ctx.fillStyle = col;
+  rr(ctx, x, y, 5, h, 3); ctx.fill();
+
+  const ix = x + 12;
+  const iw = w - 20;
+  const role = (p.role || '').toUpperCase();
+  ctx.textAlign = 'left';
+  ctx.font = `700 ${small ? 12 : 14}px ${FONT}`;
+  ctx.fillStyle = col;
+  ctx.fillText(`P${p.id}`, ix, y + (small ? h * 0.3 : 13));
+  ctx.fillStyle = INK;
+  ctx.fillText(fitText(ctx, `${role}${opts.me ? ' · YOU' : ''}`, iw - 26), ix + 24, y + (small ? h * 0.3 : 13));
+
+  const st = _status(p);
+  ctx.font = `700 ${small ? 10 : 11}px ${FONT}`;
+  ctx.fillStyle = st.color;
+  ctx.fillText(fitText(ctx, st.text, iw), ix, y + (small ? h * 0.72 : 29));
+
+  if (small || h < 52 || p.downed) return;
+  const cd = p.abilityCooldown || 0;
+  const total = COOLDOWNS[p.role] || 1;
+  const ready = cd <= 0;
+  const barY = y + 40;
+  const barW = iw;
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  rr(ctx, ix, barY, barW, 6, 3); ctx.fill();
+  ctx.fillStyle = ready ? '#6fd38a' : '#ffb547';
+  rr(ctx, ix, barY, Math.max(6, barW * (ready ? 1 : 1 - cd / total)), 6, 3); ctx.fill();
+  if (h >= 62) {
+    ctx.font = `700 10px ${FONT}`;
+    ctx.fillStyle = ready ? '#6fd38a' : '#ffcf6e';
+    const ab = ABILITY[p.role] ? `${ABILITY[p.role]} ` : '';
+    ctx.fillText(ready ? `${ab}READY` : `${ab}${Math.ceil(cd)}s`, ix, barY + 15);
+    if (opts.keys) {
+      ctx.textAlign = 'right';
+      ctx.fillStyle = MUTED;
+      ctx.fillText(opts.keys, ix + barW, barY + 15);
+    }
   }
 }
 
-function renderMissionHUD(ctx, s) {
-  const w = ctx.canvas.width;
-  ctx.save();
-  ctx.textAlign = "left";
-  ctx.fillStyle = "rgba(5,15,23,.96)";
-  ctx.fillRect(0, 0, w, 118);
-  ctx.font = "bold 13px monospace";
-  ctx.fillStyle = "#6cf0b0";
-  ctx.fillText("SHADOW OPS", 12, 20);
-  ctx.fillStyle = s.alarm > 65 ? "#ff6b80" : "#6bcfff";
-  ctx.fillText(
-    "ALERT " + Math.floor(s.alarm) + "%",
-    Math.max(130, w - 220),
-    20,
-  );
-  ctx.fillStyle = "#daeaf0";
-  ctx.fillText(
-    Math.floor(s.timer / 60) +
-      ":" +
-      String(Math.floor(s.timer % 60)).padStart(2, "0"),
-    w - 55,
-    20,
-  );
-  ctx.fillStyle = "#233942";
-  ctx.fillRect(12, 28, w - 24, 3);
-  ctx.fillStyle = s.alarm > 65 ? "#ff6b80" : "#6bcfff";
-  ctx.fillRect(12, 28, ((w - 24) * s.alarm) / 100, 3);
-  ctx.font = "12px monospace";
-  ctx.fillStyle = "#d5e9ee";
-  const m = s.mission;
-  ctx.fillText(
-    "KEYS " +
-      m.keys.filter((k) => k.collected).length +
-      "/2  • SECURITY " +
-      (m.securityOff ? "OFF" : "ON") +
-      "  • VAULT " +
-      (s.vaultUnlocked ? "OPEN" : "LOCKED"),
-    12,
-    49,
-  );
-  ctx.fillStyle = "#79d7c1";
-  ctx.font = "11px monospace";
-  ctx.fillText(m.message, 12, 68);
-  const col = (w - 24) / s.players.length;
-  for (let i = 0; i < s.players.length; i++) {
-    const p = s.players[i];
-    ctx.fillStyle = p.downed ? "#ff8693" : "#b8d5df";
-    ctx.font = "10px monospace";
-    ctx.fillText("P" + p.id + " " + p.role.toUpperCase(), 12 + i * col, 89);
-    ctx.fillStyle = "#65c9ef";
-    ctx.fillText(
-      p.downed
-        ? "REVIVE " + Math.ceil(p.custodyTimer) + "s"
-        : (p.abilityCooldown > 0
-            ? "Q " + Math.ceil(p.abilityCooldown) + "s"
-            : "Q READY") +
-            (p.atVan ? " / EXTRACT" : p.holding ? " / ARTIFACT" : ""),
-      12 + i * col,
-      106,
-    );
+function _playerPanel(ctx, s, layout, hud) {
+  const panel = layout.panel;
+  const players = s.players || [];
+  if (!panel || !players.length) return;
+  const net = hud.net || {};
+  const lan = net.mode === 'server';
+  const gap = layout.tiny ? 4 : 6;
+
+  if (panel.mode === 'side') {
+    const footerH = layout.touch ? 0 : 34;
+    const avail = panel.h - footerH;
+    const cardH = Math.max(28, Math.min(78, (avail - gap * (players.length - 1)) / players.length));
+    players.forEach((p, i) => {
+      _card(ctx, p, panel.x, panel.y + i * (cardH + gap), panel.w, cardH, {
+        me: lan && p.id === net.myPlayerId,
+        keys: lan ? null : LOCAL_KEYS[p.id],
+      });
+    });
+    if (footerH) {
+      const fy = panel.y + panel.h - footerH;
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      rr(ctx, panel.x, fy, panel.w, footerH, 6); ctx.fill();
+      ctx.textAlign = 'left';
+      ctx.font = `700 10px ${FONT}`;
+      ctx.fillStyle = MUTED;
+      ctx.fillText(lan ? 'MOVE WASD/ARROWS · E INTERACT' : 'E/ENTER INTERACT · HOLD TO REVIVE', panel.x + 8, fy + 11);
+      ctx.fillText(lan ? 'Q ABILITY · SERVER AUTHORITATIVE' : 'Q ABILITY · ESC PAUSE', panel.x + 8, fy + 24);
+    }
+    return;
   }
-  // Overview map provides navigation without exposing off-screen enemy information.
-  const mw = Math.min(190, w * 0.24),
-    mh = (mw * 1560) / 2240,
-    x = w - mw - 12,
-    y = 130;
-  ctx.fillStyle = "rgba(4,13,20,.88)";
-  ctx.fillRect(x, y, mw, mh);
-  const scale = mw / 2240;
-  ctx.fillStyle = "#3b5261";
-  for (const r of s.walls)
-    ctx.fillRect(
-      x + r.x * scale,
-      y + r.y * scale,
-      Math.max(1, r.w * scale),
-      Math.max(1, r.h * scale),
-    );
-  const dot = (o, color) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x + o.x * scale, y + o.y * scale, 3, 0, 7);
-    ctx.fill();
-  };
-  for (const k of m.keys) if (!k.collected) dot(k, "#78ffc1");
-  dot(m.terminal, "#61cfff");
-  dot(m.lock, "#ffcf72");
-  dot({ x: s.van.x + s.van.w / 2, y: s.van.y + s.van.h / 2 }, "#fff");
-  for (const p of s.players) dot(p, "#b49aff");
-  ctx.font = "10px monospace";
-  ctx.fillStyle = "#83a4af";
-  ctx.fillText("WASD · E INTERACT · Q ABILITY", 12, ctx.canvas.height - 14);
-  ctx.restore();
+
+  const cols = layout.portrait ? Math.min(2, players.length) : players.length;
+  const rows = Math.ceil(players.length / cols);
+  const cardW = (panel.w - gap * (cols - 1)) / cols;
+  const cardH = (panel.h - gap * (rows - 1)) / rows;
+  players.forEach((p, i) => {
+    const c = i % cols;
+    const r = Math.floor(i / cols);
+    _card(ctx, p, panel.x + c * (cardW + gap), panel.y + r * (cardH + gap), cardW, cardH, {
+      me: lan && p.id === net.myPlayerId,
+      keys: null,
+    });
+  });
 }
