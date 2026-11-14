@@ -12,7 +12,7 @@
  */
 
 import {
-  GUARD_DETECT_R, GUARD_TOUCH_R, CAM_DETECT_R, CAM_ARC_DEG, VAN_INTERACT_R,
+  GUARD_DETECT_R, GUARD_ARC_DEG, CAM_DETECT_R, CAM_ARC_DEG, VAN_INTERACT_R,
 } from './constants.js';
 import { LEVEL } from './mapData.js';
 import { installRoundRect } from './canvasPolyfill.js';
@@ -20,7 +20,6 @@ import { buildStaticLayers } from './levelArt.js';
 import { OBJECTIVE_COLORS, ROLE_GLYPH, missionStageId, playerColor } from './palette.js';
 
 const OUTLINE = '#2a2019';
-const GUARD_ARC_DEG = 110; // matches entityLogic guard cone
 const SUPPORT_R = 44;      // matches mission support-pad range
 
 let staticCache = { key: '', layers: null };
@@ -223,22 +222,17 @@ function _renderVision(ctx, state) {
   const blockers = blockersFor(state);
   const alarmFactor = Math.min(1, Math.max(0, (state.alarm || 0) / 100));
   const farR = GUARD_DETECT_R * (1 + 0.55 * alarmFactor);
-  const nearR = Math.max(52, GUARD_TOUCH_R + 24) + 18 * alarmFactor;
   const half = (GUARD_ARC_DEG * Math.PI) / 180 / 2;
 
   for (const g of state.guards) {
     if (g.stunned > 0) continue;
     const f = Number.isFinite(g.facing) ? g.facing : 0;
-    const pts = [];
-    const push = (a, r) => {
-      const d = castRay(g.x, g.y, a, r, blockers);
+    const pts = [[g.x, g.y]];
+    const push = (a) => {
+      const d = castRay(g.x, g.y, a, farR, blockers);
       pts.push([g.x + Math.cos(a) * d, g.y + Math.sin(a) * d]);
     };
-    push(f - half, nearR);
-    for (let i = 0; i <= 30; i += 1) push(f - half + (2 * half * i) / 30, farR);
-    push(f + half, nearR);
-    const back = Math.PI * 2 - 2 * half;
-    for (let i = 1; i < 36; i += 1) push(f + half + (back * i) / 36, nearR);
+    for (let i = 0; i <= 30; i += 1) push(f - half + (2 * half * i) / 30);
 
     const chasing = g.mode === 'chase';
     const grad = ctx.createRadialGradient(g.x, g.y, 4, g.x, g.y, farR);
