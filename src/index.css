@@ -972,12 +972,43 @@ canvas {
 .compact-controls .phone-joystick {
   width: 128px;
   height: 128px;
-  opacity: 0.85;
+  opacity: 0.8;
+  background: radial-gradient(
+    circle at 44% 38%,
+    rgba(105, 190, 218, 0.24),
+    rgba(9, 28, 39, 0.14) 62%,
+    rgba(110, 205, 231, 0.18) 64%,
+    rgba(5, 19, 28, 0.18) 70%
+  );
+  border-color: rgba(151, 224, 244, 0.52);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.2),
+    0 5px 18px rgba(0, 0, 0, 0.2);
 }
 .compact-controls .phone-action {
   width: 84px;
   height: 84px;
-  opacity: 0.88;
+  opacity: 0.82;
+  background: radial-gradient(
+    circle at 42% 35%,
+    rgba(76, 211, 161, 0.26),
+    rgba(7, 34, 27, 0.14) 72%
+  );
+  border-color: rgba(139, 247, 207, 0.58);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 4px #001;
+}
+.compact-controls .phone-action.ability {
+  background: radial-gradient(
+    circle at 42% 35%,
+    color-mix(in srgb, var(--role-color, #65d7ff) 28%, transparent),
+    rgba(5, 22, 35, 0.14) 72%
+  );
+  border-color: color-mix(in srgb, var(--role-color, #65d7ff) 64%, transparent);
 }
 .compact-controls .phone-action-area {
   gap: 10px;
@@ -1055,6 +1086,44 @@ canvas {
   }
 }
 @media (orientation: landscape) and (max-height: 600px) {
+  .game-canvas-shell .mission-overlay:not(.shared-objectives) {
+    top: max(8px, env(safe-area-inset-top));
+    left: auto;
+    right: max(8px, env(safe-area-inset-right));
+    width: min(190px, 25vw);
+    max-width: none;
+    padding: 7px 9px;
+    background: rgba(5, 19, 27, 0.58);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .game-canvas-shell .mission-overlay:not(.shared-objectives) .objective-list {
+    max-height: 42dvh;
+    overflow: auto;
+    gap: 4px;
+    padding: 7px 0 2px;
+    font-size: 8px;
+    line-height: 1.35;
+  }
+  .game-canvas-shell .mission-toast {
+    padding: 7px;
+    margin-top: 5px;
+    font-size: 8px;
+  }
+  .game-canvas-shell .game-toolbar {
+    top: max(8px, env(safe-area-inset-top));
+    bottom: auto;
+    left: max(8px, env(safe-area-inset-left));
+    right: auto;
+  }
+  .game-canvas-shell .game-toolbar button {
+    min-height: 30px;
+    padding: 6px 8px;
+    background: rgba(5, 22, 32, 0.58);
+    font-size: 8px;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
   .phone-controller {
     overflow: auto;
     padding-top: max(7px, env(safe-area-inset-top));
@@ -1114,16 +1183,22 @@ canvas {
     gap: 8px;
   }
   .compact-controls .phone-joystick {
-    width: 110px;
-    height: 110px;
+    width: clamp(104px, 24dvh, 128px);
+    height: clamp(104px, 24dvh, 128px);
   }
   .compact-controls .phone-action {
-    width: 78px;
-    height: 78px;
+    width: clamp(70px, 17dvh, 88px);
+    height: clamp(70px, 17dvh, 88px);
   }
   .compact-controls {
-    padding: 5px 12px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 5px max(18vw, env(safe-area-inset-right)) 5px
+      max(18vw, env(safe-area-inset-left));
     min-height: 0;
+  }
+  .compact-controls .phone-action small,
+  .compact-controls .joystick-guides {
+    opacity: 0.62;
   }
 }
 

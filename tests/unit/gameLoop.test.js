@@ -73,6 +73,27 @@ describe("gameLoop.updateGame", () => {
     expect(updateCrates).toHaveBeenCalledWith(s, 0.1);
   });
 
+  it("gradually lowers alarm during quiet time", () => {
+    const s = mkState();
+    s.alarm = 20;
+    updateGame(s, 1);
+    expect(s.alarm).toBe(17);
+
+    s.alarm = 1;
+    updateGame(s, 1);
+    expect(s.alarm).toBe(0);
+  });
+
+  it("does not lower alarm on a tick with active detection", () => {
+    const s = mkState();
+    s.alarm = 20;
+    updateGuards.mockImplementationOnce((state) => {
+      state.alarm += 4;
+    });
+    updateGame(s, 1);
+    expect(s.alarm).toBe(24);
+  });
+
   it("ends game when custody timer expires", () => {
     const s = mkState();
     s.players = [{ id: 1, downed: true, custodyTimer: 0.05, reviveProgress: 0.4 }];

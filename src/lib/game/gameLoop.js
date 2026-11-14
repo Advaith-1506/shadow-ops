@@ -5,7 +5,7 @@
  */
 
 import { updateMissionWorld, updateMissionPlayer } from "./mission.js";
-import { MAX_ALARM } from "./constants.js";
+import { ALARM_DECAY_RATE, MAX_ALARM } from "./constants.js";
 import {
   getP1Input,
   getP2Input,
@@ -65,11 +65,17 @@ export function updateGame(state, dt, inputByPlayer = null) {
   }
 
   // ── Update entities ─────────────────────────────────────────────────────────
+  const alarmBeforeEntities = state.alarm;
   updatePressurePlates(state); // run first so doors update before collision
   updateGuards(state, dt);
   updateCameras(state, dt);
   updateLasers(state, dt);
   updateCrates(state, dt);
+  // Alert cools only on a quiet tick. Any guard, camera, laser, or contact
+  // increase suppresses decay for the whole tick.
+  if (state.alarm <= alarmBeforeEntities) {
+    state.alarm = Math.max(0, state.alarm - ALARM_DECAY_RATE * dt);
+  }
 
   // ── Tutorial countdown ──────────────────────────────────────────────────────
   if (state.tutorialTimer > 0) state.tutorialTimer -= dt;
