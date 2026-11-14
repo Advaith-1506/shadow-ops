@@ -27,6 +27,7 @@ export function useGameRuntime({
   const lastTimeRef = useRef(null);
   const accRef = useRef(0);
   const inputReady = useRef(false);
+  const sizeRef = useRef({ cssW: 0, cssH: 0, dpr: 1 });
 
   useEffect(() => {
     if (!inputReady.current) {
@@ -44,18 +45,46 @@ export function useGameRuntime({
   }, [cleanupNetwork, screenRef, setJoinCode, setScreen]);
 
   useEffect(() => {
+    // Backing store = CSS size × devicePixelRatio, so the canvas never
+    // overflows its container or stretches; layout math stays in CSS px.
     const resize = () => {
       const canvas = canvasRef.current;
-      const host = containerRef.current;
-      if (!canvas || !host) return;
-      const w = Math.max(640, host.clientWidth - 8);
-      const h = Math.max(420, window.innerHeight - 86);
-      canvas.width = w;
-      canvas.height = h;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const cssW = Math.round(rect.width);
+      const cssH = Math.round(rect.height);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      sizeRef.current = { cssW, cssH, dpr };
+      if (!cssW || !cssH) return;
+      const bw = Math.round(cssW * dpr);
+      const bh = Math.round(cssH * dpr);
+      if (canvas.width !== bw) canvas.width = bw;
+      if (canvas.height !== bh) canvas.height = bh;
     };
     resize();
     window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    const observer =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
+    if (observer && canvasRef.current) observer.observe(canvasRef.current);
+    // DPR changes (browser zoom, moving between monitors) don't resize the element.
+    let dprQuery = null;
+    const onDprChange = () => {
+      resize();
+      watchDpr();
+    };
+    const watchDpr = () => {
+      dprQuery?.removeEventListener?.("change", onDprChange);
+      dprQuery = window.matchMedia(
+        `(resolution: ${window.devicePixelRatio || 1}dppx)`,
+      );
+      dprQuery.addEventListener?.("change", onDprChange);
+    };
+    watchDpr();
+    return () => {
+      window.removeEventListener("resize", resize);
+      observer?.disconnect();
+      dprQuery?.removeEventListener?.("change", onDprChange);
+    };
   }, [canvasRef, containerRef]);
 
   useEffect(() => {
@@ -78,7 +107,6 @@ export function useGameRuntime({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
 
     const loop = (ts) => {
       rafRef.current = requestAnimationFrame(loop);
@@ -113,36 +141,23 @@ export function useGameRuntime({
         }
       }
 
-      const trackedState =
-        networkRef.current.mode === "server"
-          ? {
-              ...state,
-              players: state.players.filter(
-                (p) => p.id === networkRef.current.myPlayerId,
-              ),
-            }
-          : state;
-      updateCameraForState(trackedState, canvas, cameraRef, viewRef);
-      renderGame(
-        ctx,
-        state,
-        ts / 1000,
-        cameraRef.current,
-        viewRef.current.zoom,
-        { w: viewRef.current.w, h: viewRef.current.h },
-      );
-      renderHUD(ctx, state);
-      if (networkRef.current.paused) {
-        ctx.fillStyle = "rgba(0,0,0,.8)";
-        ctx.fillRect(0, 100, canvas.width, 65);
-        ctx.fillStyle = "#7fffc0";
-        ctx.font = "18px sans-serif";
-        ctx.fillText(
-          "Connection interrupted · mission paused · reconnecting…",
-          15,
-          138,
-        );
-      }
+      const { cssW, cssH, dpr } = sizeRef.current;
+      if (!cssW || !cssH) return;
+      // Same fixed whole-level framing for local and LAN play.
+      updateCameraForState(state, canvas, cameraRef, viewRef, {
+        cssW,
+        cssH,
+        dpr,
+        touch: isTouchDevice,
+      });
+      const view = viewRef.current;
+      renderGame(ctx, state, ts / 1000, cameraRef.current, view.zoom, view);
+      const net = networkRef.current;
+      renderHUD(ctx, state, {
+        layout: view.layout,
+        dpr,
+        net: { paused: net.paused, mode: net.mode, myPlayerId: net.myPlayerId },
+      });
     };
 
     rafRef.current = requestAnimationFrame(loop);

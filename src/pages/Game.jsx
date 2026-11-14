@@ -11,12 +11,15 @@ import ResultScreen from "@/components/game/ResultScreen";
 import TouchControls from "@/components/game/TouchControls";
 
 import { CANVAS_H, CANVAS_W } from "@/lib/game/constants";
+import { LEAVE_BUTTON_W } from "@/lib/game/viewLayout";
 import { useLanMultiplayer } from "@/hooks/useLanMultiplayer";
 import { useGameRuntime } from "@/hooks/useGameRuntime";
 
 export default function Game() {
   const [screen, setScreen] = useState("menu");
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isPortraitSmall, setIsPortraitSmall] = useState(false);
+  const [rotateDismissed, setRotateDismissed] = useState(false);
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -105,6 +108,17 @@ export default function Game() {
     finalizeIfEnded,
     isTouchDevice,
   });
+
+  useEffect(() => {
+    const apply = () =>
+      setIsPortraitSmall(
+        window.innerHeight > window.innerWidth && window.innerWidth < 760,
+      );
+    apply();
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, []);
+  const showRotateHint = isPortraitSmall && !rotateDismissed;
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
@@ -212,37 +226,36 @@ export default function Game() {
       )}
 
       <div
-        className={`relative w-full h-full ${isTouchDevice ? "px-0" : "px-1"}`}
+        className="relative w-full h-full"
         style={{
           display:
             screen === "playing" || screen === "paused" ? "block" : "none",
         }}
       >
-        {!isTouchDevice && (
-          <div className="flex items-center justify-between mb-2 px-1">
-            <span className="font-heading font-bold text-foreground text-sm tracking-widest">
-              SHADOW OPS
-            </span>
-            <span className="text-xs font-mono text-muted-foreground/50">
-              {networkRef.current.mode === "server"
-                ? "LAN · SERVER AUTHORITATIVE"
-                : "ESC - pause"}
-            </span>
-          </div>
-        )}
-
-        <button onClick={goToMenu} className="absolute z-40 bottom-5 left-1/2 -translate-x-1/2 rounded border border-slate-600 bg-slate-950/90 px-3 py-2 text-[10px] tracking-widest text-slate-300">LEAVE OPERATION</button>
+        <button
+          onClick={goToMenu}
+          className="absolute z-40 right-2 rounded border border-[#6b5442] bg-[#2f251e] text-[10px] font-bold tracking-widest text-[#f4ead8] hover:bg-[#3d3027]"
+          style={{ top: 4, height: 26, width: LEAVE_BUTTON_W - 12 }}
+        >
+          LEAVE
+        </button>
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
           height={CANVAS_H}
-          className={`block mx-auto ${isTouchDevice ? "" : "rounded-lg border border-border shadow-2xl shadow-black/60"}`}
-          style={{
-            width: "100%",
-            height: isTouchDevice ? "100%" : "calc(100vh - 86px)",
-            imageRendering: "pixelated",
-          }}
+          className="block"
+          style={{ width: "100%", height: "100%", touchAction: "none" }}
         />
+
+        {showRotateHint && screen === "playing" && (
+          <button
+            onClick={() => setRotateDismissed(true)}
+            className="absolute z-30 left-1/2 -translate-x-1/2 rounded-full bg-[#2f251e]/95 px-3 py-1 text-[11px] font-bold tracking-wider text-[#ffcf6e] shadow"
+            style={{ top: 40 }}
+          >
+            ⟳ Rotate for a larger view ✕
+          </button>
+        )}
 
         {screen === "paused" && (
           <div className="absolute inset-0 top-8 rounded-lg">

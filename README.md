@@ -1,6 +1,6 @@
 # Shadow Ops
 
-A cooperative stealth operation for **2–4 players**, customized for a **Theta Tau hackathon** . Inspired by the top-down stealth of Hunter Assassin: infiltrate a guarded facility, recover the Crown Jewel, and extract the entire team.
+A cooperative stealth operation for **2–4 players**, customized for a **Theta Tau hackathon**. Inspired by the top-down stealth of Hunter Assassin: infiltrate Maple Row Safehouse, recover the Diamond, and extract the entire team.
 
 ## Run locally
 
@@ -39,14 +39,16 @@ npm run lan:server
 
 ## Mission
 
-1. Infiltrate through the south courtyard and lobby.
-2. Collect **ALPHA** in Gallery A and **BRAVO** in Gallery B. Any role can collect either key; collection is shared.
-3. A **Hacker** interacts with the blue lobby security terminal while a teammate with a **different role** stands on the purple support pad. Both keys must already be collected. This permanently disables cameras and lasers.
-4. Interact with the vault lock at its north entrance to open the vault.
-5. Collect the **Crown Jewel** inside.
-6. Bring **every player and the artifact** to the extraction van in the south courtyard. Carrying the artifact or depositing it at the van satisfies the artifact requirement.
+The first level is **Maple Row Safehouse**, a compact L-shaped residence shown as a roofless top-down interior. The entire building stays visible during play.
 
-The HUD shows mission progress, the alert meter, remaining time, role cooldowns, extraction status, and an overview map. Keys are green, terminal blue, vault gold, players purple, and extraction white. Cover blocks enemy vision. Detection and laser contact increase alert. Guards can capture players; hold interact nearby to revive them before their 20-second custody timer expires. A ten-minute deadline or 100% alert causes lockdown.
+1. Enter from the front yard and pass through the Garage into the Living Room.
+2. Collect **ALPHA** in the Kitchen and **BRAVO** in the Study. Any role can collect either key; collection is shared.
+3. A **Hacker** interacts with the blue terminal in the Security room while a teammate with a **different role** stands on the purple support pad. Both keys must already be collected. This permanently disables cameras and lasers.
+4. Interact with the vault lock in the Living Room to open the vault.
+5. Collect the **Diamond** inside.
+6. Bring **every player and the artifact** to the extraction van in the front yard. Carrying the artifact or depositing it at the van satisfies the artifact requirement.
+
+The HUD shows mission progress, the alert meter, remaining time, role cooldowns, and player status around the full-level view. Keys are green, terminal blue, vault gold, and extraction white. Furniture and walls block enemy vision. Detection and laser contact increase alert. Guards can capture players; hold interact nearby to revive them before their 20-second custody timer expires. A ten-minute deadline or 100% alert causes lockdown.
 
 ## Roles and controls
 
@@ -84,7 +86,8 @@ Key modules:
 | `src/lib/game/gameLoop.js`                    | Original simulation orchestration and win/loss checks             |
 | `src/lib/game/playerLogic.js`, `collision.js` | Server-owned speed and collision resolution                       |
 | `src/lib/game/entityLogic.js`, `guardNav.js`  | Guard AI, camera/laser detection, pathfinding                     |
-| `src/lib/game/mapData.js`                     | Original facility geometry and map entities                       |
+| `src/lib/game/mapData.js`                     | Active level adapter (Maple Row Safehouse geometry and entities)  |
+| `src/lib/game/levels/safehouse.js`            | Level definition: rooms, solids, spawns, mission placements       |
 | `src/lib/game/input.js`                       | Keyboard/touch input and future input-provider adapter            |
 | `src/hooks/useLanMultiplayer.js`              | Lobby protocol and private in-memory reconnection                 |
 | `src/hooks/useGameRuntime.js`                 | Rendering and local/server runtime routing                        |

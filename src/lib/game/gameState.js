@@ -22,29 +22,17 @@ function clone(x) {
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
 export function createGameState(playerCount = 2) {
-  const spawnBaseX = MAP.van.x + MAP.van.w / 2;
-  const spawnBaseY = MAP.van.y - 28;
-  const baseSpawnPoints = [
-    { x: spawnBaseX - 44, y: spawnBaseY, role: "fast", label: "Fast Thief" },
-    {
-      x: spawnBaseX + 44,
-      y: spawnBaseY,
-      role: "strong",
-      label: "Strong Thief",
-    },
-    {
-      x: spawnBaseX - 12,
-      y: spawnBaseY - 38,
-      role: "fast",
-      label: "Scout Thief",
-    },
-    {
-      x: spawnBaseX + 76,
-      y: spawnBaseY - 38,
-      role: "strong",
-      label: "Bruiser Thief",
-    },
+  const spawnRoles = [
+    { role: "fast", label: "Fast Thief" },
+    { role: "strong", label: "Strong Thief" },
+    { role: "fast", label: "Scout Thief" },
+    { role: "strong", label: "Bruiser Thief" },
   ];
+  const baseSpawnPoints = spawnRoles.map((r, i) => ({
+    x: MAP.spawnPoints[i].x,
+    y: MAP.spawnPoints[i].y,
+    ...r,
+  }));
   const clampedCount = Math.max(1, Math.min(playerCount, 4));
   const spawnPoints =
     clampedCount === 1

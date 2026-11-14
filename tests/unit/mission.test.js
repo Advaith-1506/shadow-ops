@@ -215,6 +215,7 @@ describe("Shadow Ops mission and authority", () => {
   it("revives close teammates but not remote ones", () => {
     const s = fresh(),
       [p, q] = s.players;
+    s.walls = [];
     q.downed = true;
     q.reviveProgress = 0;
     at(p, { x: 100, y: 100 });
@@ -224,6 +225,22 @@ describe("Shadow Ops mission and authority", () => {
     q.x = 120;
     updateMissionPlayer(s, p, { interact: true }, 2);
     expect(q.downed).toBe(false);
+  });
+  it("revives a teammate captured on the live safehouse floor", () => {
+    const s = fresh(),
+      [p, q] = s.players;
+    // Capture in the open living-room lane: clear LOS, no furniture between.
+    at(q, { x: 560, y: 250 });
+    q.downed = true;
+    q.custodyTimer = 20;
+    q.reviveProgress = 0;
+    at(p, { x: 560, y: 268 });
+    updateMissionPlayer(s, p, { interact: true }, 1);
+    expect(q.downed).toBe(true);
+    expect(q.reviveProgress).toBeGreaterThan(0);
+    updateMissionPlayer(s, p, { interact: true }, 1.1);
+    expect(q.downed).toBe(false);
+    expect(q.custodyTimer).toBe(0);
   });
   it("accepts removable gesture input without a webcam dependency", () => {
     const remove = registerInputProvider("gesture", () => ({

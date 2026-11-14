@@ -10,21 +10,21 @@ export default function InstructionsScreen({ onBack }) {
           style={{ listStyle: "decimal", paddingLeft: 20 }}
         >
           <li>
-            Collect ALPHA in Gallery A and BRAVO in Gallery B. Green markers on
-            the overview show keys.
+            Collect ALPHA in the Kitchen and BRAVO in the Study. Green markers
+            show the keys on the full-level view.
           </li>
           <li>
-            Bring a Hacker to the blue terminal in the lobby. A teammate with a
-            different role must stand on the purple support pad beside it. Press
-            E at the terminal to disable cameras and lasers.
+            Bring a Hacker to the blue terminal in the Security room. A teammate
+            with a different role must stand on the purple support pad beside
+            it. Press E at the terminal to disable cameras and lasers.
           </li>
           <li>
-            Interact with the vault lock at its north entrance, then enter and
-            collect the Crown Jewel.
+            Interact with the vault lock in the Living Room, then enter and
+            collect the Diamond.
           </li>
           <li>
             Return every operative and the artifact to the extraction van in the
-            south courtyard.
+            front yard.
           </li>
         </ol>
         <p className="ops-copy">
