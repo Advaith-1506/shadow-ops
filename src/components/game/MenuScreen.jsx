@@ -46,7 +46,18 @@ export default function MenuScreen({
               </button>
               <button onClick={onJoin}>JOIN GAME</button>
               <button onClick={onStart}>LOCAL CO-OP</button>
-            <label className="local-player-choice">LOCAL PLAYERS <select aria-label="Local player count" value={localPlayers} onChange={e=>setLocalPlayers(Number(e.target.value))}>{[2,3,4].map(n=><option key={n}>{n}</option>)}</select></label>
+              <label className="local-player-choice">
+                LOCAL PLAYERS{" "}
+                <select
+                  aria-label="Local player count"
+                  value={localPlayers}
+                  onChange={(e) => setLocalPlayers(Number(e.target.value))}
+                >
+                  {[2, 3, 4].map((n) => (
+                    <option key={n}>{n}</option>
+                  ))}
+                </select>
+              </label>
               <button onClick={onInstructions}>BRIEFING</button>
             </div>
           </section>

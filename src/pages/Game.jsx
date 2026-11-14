@@ -14,7 +14,7 @@ import MissionOverlay from "@/components/game/MissionOverlay";
 import { useLanMultiplayer } from "@/hooks/useLanMultiplayer";
 import { useGameRuntime } from "@/hooks/useGameRuntime";
 export default function Game() {
-  const [localPlayers,setLocalPlayers]=useState(4);
+  const [localPlayers, setLocalPlayers] = useState(4);
   const initial = useRef(parseJoinLocation(window.location));
   const [screen, setScreen] = useState(initial.current.kind ? "lobby" : "menu"),
     [entry, setEntry] = useState("join"),
@@ -86,12 +86,14 @@ export default function Game() {
   const startLocal = () => {
     net.cleanupNetwork();
     net.resetLobbyUi();
-    stateRef.current = createShadowState([
-      { id:1,nickname:'Local Hacker',role:'Hacker' },
-      { id:2,nickname:'Local Assassin',role:'Assassin' },
-      { id:3,nickname:'Local Scout',role:'Scout' },
-      { id:4,nickname:'Local Decoy',role:'Decoy' },
-    ].slice(0,localPlayers));
+    stateRef.current = createShadowState(
+      [
+        { id: 1, nickname: "Local Hacker", role: "Hacker" },
+        { id: 2, nickname: "Local Assassin", role: "Assassin" },
+        { id: 3, nickname: "Local Scout", role: "Scout" },
+        { id: 4, nickname: "Local Decoy", role: "Decoy" },
+      ].slice(0, localPlayers),
+    );
     resetFrameClock();
     transition("playing");
   };
@@ -113,7 +115,8 @@ export default function Game() {
     <div ref={containerRef} className="game-root">
       {screen === "menu" && (
         <MenuScreen
-          localPlayers={localPlayers} setLocalPlayers={setLocalPlayers}
+          localPlayers={localPlayers}
+          setLocalPlayers={setLocalPlayers}
           onStart={startLocal}
           onInstructions={() => transition("instructions")}
           onHost={() => {

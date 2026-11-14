@@ -134,8 +134,7 @@ export function getLocalP1Input() {
     left: held["KeyA"] || touchInput.left,
     right: held["KeyD"] || touchInput.right,
     ability: held["KeyQ"] || touchInput.ability,
-    interact:
-      held["KeyE"] || touchInput.interact,
+    interact: held["KeyE"] || touchInput.interact,
   };
 }
 
