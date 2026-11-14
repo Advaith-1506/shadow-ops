@@ -103,7 +103,7 @@ describe("authoritative role events and gates", () => {
       status: "complete",
       completedBy: a.id,
     });
-    expect(s.mission.keys[1].collected).toBe(true);
+    expect(s.mission.keys[1].collected).toBe(false);
   });
   it("does not award captain credentials for a different guard or ordinary pickup", () => {
     const s = fresh([]),
@@ -111,25 +111,20 @@ describe("authoritative role events and gates", () => {
       other = s.guards.find((g) => g.id === "g3");
     position(a, s.mission.keys[1]);
     interact(s, a);
-    expect(s.mission.keys[1].collected).toBe(false);
+    expect(s.mission.keys[1].collected).toBe(true);
+    expect(objective(s, "credential").status).toBe("available");
     position(a, other);
     updateMissionPlayer(s, a, { ability: true }, 0.01);
     expect(other.stunned).toBe(10);
     expect(objective(s, "credential").status).toBe("available");
   });
-  it("requires assigned Hacker for electronic access and rejects role mutation", () => {
+  it("rejects mutated role identities even for shared pickups", () => {
     const s = fresh([]),
-      [h, a] = s.players;
+      a = s.players[1];
+    a.role = "Hacker";
     position(a, s.mission.keys[0]);
     interact(s, a);
     expect(s.mission.keys[0].collected).toBe(false);
-    a.role = "Hacker";
-    interact(s, a);
-    expect(s.mission.keys[0].collected).toBe(false);
-    position(h, s.mission.keys[0]);
-    interact(s, h);
-    expect(objective(s, "electronic_key").completedBy).toBe(h.id);
-    expect(requiredMissionsComplete(s)).toBe(false);
   });
   it("requires Scout pulse in the real zone, radius, LOS and cooldown", () => {
     const s = fresh(["Scout"]),

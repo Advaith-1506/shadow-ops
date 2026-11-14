@@ -279,8 +279,14 @@ it("synchronizes a legitimate role event and preserves it across reconnect", asy
   });
   send(hacker.ws, "client_input", { input: { interact: true } });
   await pause(80);
+  Object.assign(room.state.players[0], {
+    x: room.state.mission.keys[1].x,
+    y: room.state.mission.keys[1].y,
+  });
+  await pause(500);
+
   expect(
-    room.state.mission.objectives.find((o) => o.id === "electronic_key").status,
+    room.state.mission.objectives.find((o) => o.id === "shared_keys").status,
   ).toBe("complete");
   const config = room.state.mission.config;
   for (const client of [host, hacker.ws, assassin.ws]) {
@@ -288,14 +294,13 @@ it("synchronizes a legitimate role event and preserves it across reconnect", asy
     for (let i = 0; i < 20; i++) {
       state = (await read(client, "snapshot")).state;
       if (
-        state.mission.objectives.find((o) => o.id === "electronic_key")
-          .status === "complete"
+        state.mission.objectives.find((o) => o.id === "shared_keys").status ===
+        "complete"
       )
         break;
     }
     expect(
-      state.mission.objectives.find((o) => o.id === "electronic_key")
-        .completedBy,
+      state.mission.objectives.find((o) => o.id === "shared_keys").completedBy,
     ).toBe(1);
   }
   hacker.ws.close();
@@ -310,10 +315,12 @@ it("synchronizes a legitimate role event and preserves it across reconnect", asy
   const restored = (await read(resumed, "game_start")).state;
   expect(restored.mission.config).toEqual(config);
   expect(
-    restored.mission.objectives.find((o) => o.id === "electronic_key").status,
+    restored.mission.objectives.find((o) => o.id === "shared_keys").status,
   ).toBe("complete");
   for (const [type, data] of [
     ["objective_complete", { id: "recon" }],
+    ["key_pickup", { id: "ALPHA" }],
+    ["client_input", { input: { keyId: "BRAVO" } }],
     ["client_input", { input: { objective: "complete" } }],
     ["select_role", { role: "Scout" }],
   ]) {

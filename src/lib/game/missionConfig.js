@@ -49,7 +49,9 @@ export function createMissionConfig(roster, level) {
   if (!anchors) throw Error("This level has no cooperative mission anchors");
   const conditions = {
     credential: "assassin_takedown_of_designated_guard",
-    electronic_key: "hacker_interaction_in_range_and_line_of_sight",
+    shared_keys: "two_distinct_shared_key_interactions",
+    electronic_door: "hacker_system_override_opens_secured_door",
+    camera_network: "hacker_system_override_disables_designated_network",
     recon: "scout_pulse_in_zone_and_detection_radius",
     checkpoint: "decoy_investigation_movement_then_teammate_interaction",
     security: "hacker_terminal_with_live_support_and_all_role_prerequisites",
@@ -74,11 +76,9 @@ export function createMissionConfig(roster, level) {
   });
   const objectives = [
     objective("credential", "Assassin", "Assassin: stun the security captain"),
-    objective(
-      "electronic_key",
-      "Hacker",
-      "Hacker: activate ALPHA in the Kitchen",
-    ),
+    objective("shared_keys", "Team", "Team: collect both keys (0/2)"),
+    objective("electronic_door", "Hacker", "Unlock electronic security door"),
+    objective("camera_network", "Hacker", "Disable camera network"),
   ];
   if (scout)
     objectives.push(
@@ -130,6 +130,8 @@ export function createMissionConfig(roster, level) {
     anchors: JSON.parse(
       JSON.stringify({
         captainId: anchors.captainId,
+        electronicDoorId: anchors.electronicDoorId,
+        networkCameraId: anchors.networkCameraId,
         ...(scout
           ? { reconZone: anchors.reconZone, hiddenNode: anchors.hiddenNode }
           : {}),
@@ -158,6 +160,8 @@ export function requiredMissionsComplete(state) {
   const m = state.mission;
   if (!m?.config) return true;
   return (
+    m.keys.length === 2 &&
+    m.keys.every((k) => k.collected) &&
     m.config.mandatory.every(
       (id) => m.objectives.find((o) => o.id === id)?.status === "complete",
     ) &&

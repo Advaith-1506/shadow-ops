@@ -7,7 +7,7 @@
  *        96   120          500 520                920 940          1208 1232
  *   y=40  ┌────┬─────────────┬──────────────────────┬────────────────┐
  *         │    │  KITCHEN    D   LIVING ROOM        D   STUDY        │
- *         │    │  (ALPHA)    │   fireplace, sofa    │   (BRAVO)      │
+ *         │    │  (ALPHA)    │   fireplace, sofa    │                │
  *   y=304 └────┴──[pantry]───┤                      ├──────────┬─hall┤
  *    YARD      │  GARAGE     D   bookshelf          V  VAULT   │laser│
  *    (van,     D  (car)      │                      │ (DIAMOND)│ hall│
@@ -188,6 +188,8 @@ export const SAFEHOUSE = {
     // furniture, spawn, extraction, camera or patrol geometry is replaced.
     coop: {
       captainId: 'g6',
+      electronicDoorId: 'door_pantry',
+      networkCameraId: 'cam_living',
       reconZone: { x: 312, y: 380, room: 'Garage' },
       hiddenNode: { x: 400, y: 360, room: 'Garage' },
       checkpointGuardId: 'g2',
@@ -196,7 +198,7 @@ export const SAFEHOUSE = {
     },
     keys: [
       { id: 'ALPHA', x: 164,  y: 136, room: 'Kitchen' },
-      { id: 'BRAVO', x: 1170, y: 230, room: 'Study' },
+      { id: 'BRAVO', x: 312, y: 440, room: 'Garage' },
     ],
     terminal: { x: 1122, y: 668, room: 'Security' },
     support:  { x: 1000, y: 668, room: 'Security' },
