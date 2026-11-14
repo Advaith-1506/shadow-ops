@@ -1,6 +1,6 @@
 # Shadow Ops
 
-A cooperative stealth operation for **2–4 players**, customized for a **Theta Tau hackathon** from [NandhuRajRK/MuseumBridge](https://github.com/NandhuRajRK/MuseumBridge). Inspired by the top-down stealth of Hunter Assassin: infiltrate a guarded facility, recover the Crown Jewel, and extract the entire team.
+A cooperative stealth operation for **2–4 players**, customized for a **Theta Tau hackathon** . Inspired by the top-down stealth of Hunter Assassin: infiltrate a guarded facility, recover the Crown Jewel, and extract the entire team.
 
 ## Run locally
 
