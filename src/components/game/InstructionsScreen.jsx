@@ -35,8 +35,9 @@ export default function InstructionsScreen({ onBack }) {
         </p>
         <p className="ops-copy">
           Local co-op: P1 Hacker uses WASD / E / Q. P2 Assassin uses arrows /
-          Enter / slash. ESC pauses local play. LAN play runs continuously on
-          the server. Touch controls operate your LAN player or local P1.
+          Enter / slash. P3 Scout uses T/F/G/H / R / Y. P4 Hacker uses I/J/K/L /
+          O / P. ESC pauses local play. LAN play runs continuously on the
+          server. Touch controls operate your LAN player or local P1.
         </p>
         <p className="ops-copy">
           Avoid vision cones, use walls for cover, and revive captured teammates

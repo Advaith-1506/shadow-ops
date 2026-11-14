@@ -123,6 +123,8 @@ export default function Game() {
     const gs = createShadowState([
       { id: 1, role: "Hacker" },
       { id: 2, role: "Assassin" },
+      { id: 3, role: "Scout" },
+      { id: 4, role: "Hacker" },
     ]);
     gs.screen = "playing";
     stateRef.current = gs;

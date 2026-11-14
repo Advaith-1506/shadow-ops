@@ -22,11 +22,14 @@ const GAME_KEYS = new Set([
   "KeyG",
   "KeyH",
   "KeyR",
+  "KeyY",
   "KeyI",
   "KeyJ",
   "KeyK",
   "KeyL",
   "KeyO",
+  "KeyP",
+  "Slash",
   "ArrowUp",
   "ArrowDown",
   "ArrowLeft",
@@ -149,6 +152,7 @@ export function getLocalP3Input() {
     down: held["KeyG"],
     left: held["KeyF"],
     right: held["KeyH"],
+    ability: held["KeyY"],
     interact: held["KeyR"],
   };
 }
@@ -159,6 +163,7 @@ export function getLocalP4Input() {
     down: held["KeyK"],
     left: held["KeyJ"],
     right: held["KeyL"],
+    ability: held["KeyP"],
     interact: held["KeyO"],
   };
 }
