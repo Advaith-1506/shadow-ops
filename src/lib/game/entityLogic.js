@@ -7,6 +7,7 @@
 import {
   GUARD_SPEED,
   GUARD_DETECT_R,
+  GUARD_ARC_DEG,
   GUARD_TOUCH_R,
   GUARD_ALARM_RATE,
   GUARD_TOUCH_ALARM,
@@ -230,10 +231,8 @@ function _guardDetection(guard, state, dt, blockers) {
   let bestVisible = null;
   let bestDist = Infinity;
   const facing = Number.isFinite(guard.facing) ? guard.facing : 0;
-  const guardArcDeg = 110;
   const alarmFactor = Math.min(1, Math.max(0, (state.alarm || 0) / 100));
   const dynamicDetectR = GUARD_DETECT_R * (1 + 0.55 * alarmFactor); // up to +55%
-  const closeNoticeR = Math.max(52, GUARD_TOUCH_R + 24) + 18 * alarmFactor;
 
   for (const player of state.players) {
     const d = dist(guard.x, guard.y, player.x, player.y);
@@ -245,18 +244,16 @@ function _guardDetection(guard, state, dt, blockers) {
       _downPlayer(state, player);
       guard.alertTimer = 1.0;
     } else if (
-      d < dynamicDetectR &&
       !lineBlockedByRects(guard.x, guard.y, player.x, player.y, blockers) &&
-      (d <= closeNoticeR ||
-        pointInCone(
-          player.x,
-          player.y,
-          guard.x,
-          guard.y,
-          facing,
-          guardArcDeg,
-          dynamicDetectR,
-        ))
+      pointInCone(
+        player.x,
+        player.y,
+        guard.x,
+        guard.y,
+        facing,
+        GUARD_ARC_DEG,
+        dynamicDetectR,
+      )
     ) {
       // In sight radius → gradual alarm
       state.alarm = Math.min(MAX_ALARM, state.alarm + GUARD_ALARM_RATE * dt);
