@@ -46,7 +46,7 @@ describe("fixed whole-level camera", () => {
     expect(view.zoom).toBeCloseTo(fit.zoom, 5);
   });
 
-  it("reserves gutters for touch controls without overflowing", () => {
+  it("extends the landscape map beneath touch controls and zooms out", () => {
     const view = computeLevelView({
       cssW: 844,
       cssH: 390,
@@ -54,9 +54,17 @@ describe("fixed whole-level camera", () => {
       touch: true,
       playerCount: 4,
     });
+    const desktopFit = computeLevelView({
+      cssW: 844,
+      cssH: 390,
+      dpr: 1,
+      touch: false,
+      playerCount: 4,
+    });
     expect(view.layout.touch).toBe(true);
-    expect(view.layout.play.x).toBeGreaterThan(100);
-    expect(view.layout.play.x + view.layout.play.w).toBeLessThan(844 - 100);
+    expect(view.layout.play.x).toBeLessThan(10);
+    expect(view.layout.play.x + view.layout.play.w).toBeGreaterThan(834);
+    expect(view.zoomCss).toBeLessThan(desktopFit.zoomCss);
     expect(view.world.w).toBeLessThanOrEqual(view.layout.play.w + 0.5);
   });
 

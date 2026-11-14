@@ -42,8 +42,10 @@ export function computeHudLayout(cssW, cssH, { touch = false, playerCount = 2, b
   const zoomFor = (r) => Math.min(r.w / world.w, r.h / world.h);
 
   if (touch && !portrait) {
+    // The world runs behind the touch controls in landscape. This avoids the
+    // old controller gutters and keeps the phone feeling like one game view.
     const gutter = Math.round(clamp(W * 0.15, 118, 170));
-    const play = { x: gutter, y: topH + gap, w: Math.max(1, W - gutter * 2), h: Math.max(1, H - topH - gap * 2) };
+    const play = { x: gap, y: topH + gap, w: Math.max(1, W - gap * 2), h: Math.max(1, H - topH - gap * 2) };
     const panelBottom = Math.max(topH + gap + count * 30, H - 170);
     const panel = { x: gap, y: topH + gap, w: gutter - gap * 2, h: panelBottom - topH - gap, mode: 'side' };
     return { compact: true, tiny, touch, portrait, top, panel, play };
