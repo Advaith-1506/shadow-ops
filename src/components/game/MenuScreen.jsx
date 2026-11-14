@@ -13,6 +13,8 @@ export default function MenuScreen({
   onInstructions,
   onHost,
   onJoin,
+  localPlayers = 4,
+  setLocalPlayers,
 }) {
   return (
     <main className="ops-shell">

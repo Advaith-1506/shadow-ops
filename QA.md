@@ -11,7 +11,7 @@ Validation date: November 14, 2026. Party Mode work stays on `feature/mobile-par
 
 ## Automated Party Mode checks
 
-The expanded suite has **81 tests** across eight suites, preserving every existing test. It covers:
+The expanded suite has **83 tests** across nine suites, preserving every existing test. It covers:
 
 - Party host uses no player slot; four named players can select four roles and join one room; a fifth is rejected.
 - Authorized shared display receives the same state; unauthorized display credentials and movement/ability/role/ready/start/reset actions are rejected.
@@ -33,6 +33,8 @@ npm run build
 ```
 
 Socket tests require ephemeral loopback ports. Tests simulate multiple clients on one machine; this is not proof of physical Wi-Fi behavior.
+
+The main-menu launch also has server-rendered regression coverage for the default and selected local-player count. ESLint checks undefined variables in game components.
 
 ## Browser smoke test performed
 
