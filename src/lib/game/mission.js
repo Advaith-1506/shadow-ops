@@ -9,7 +9,17 @@ export function createShadowState(roster) {
   s.players.forEach((p, i) => {
     p.id = roster[i].id;
     p.nickname = roster[i].nickname || `Operative ${p.id}`;
-    p.stats = { keys:0, security:0, vault:0, artifact:0, revives:0, takedowns:0, overrides:0, scans:0, distractions:0 };
+    p.stats = {
+      keys: 0,
+      security: 0,
+      vault: 0,
+      artifact: 0,
+      revives: 0,
+      takedowns: 0,
+      overrides: 0,
+      scans: 0,
+      distractions: 0,
+    };
     p.role = roster[i].role;
     p.label = p.role;
     p.baseSpeed = 140;
@@ -91,9 +101,15 @@ export function updateMissionPlayer(s, p, input, dt) {
     }
     if (p.role === "Decoy") {
       s.distractions ||= [];
-      s.distractions.push({id:++s.eventSequence,x:p.x,y:p.y,remaining:5,playerId:p.id});
+      s.distractions.push({
+        id: ++s.eventSequence,
+        x: p.x,
+        y: p.y,
+        remaining: 5,
+        playerId: p.id,
+      });
       if (p.stats) p.stats.distractions++;
-      used=true;
+      used = true;
     }
     if (used) p.abilityCooldown = COOLDOWNS[p.role];
   }
@@ -119,7 +135,7 @@ export function updateMissionPlayer(s, p, input, dt) {
     prompt = "Collect key " + key.id;
     action = () => {
       key.collected = true;
-      recordMissionEvent(s,p,`${key.id} key secured`,"keys");
+      recordMissionEvent(s, p, `${key.id} key secured`, "keys");
     };
   } else if (!m.securityOff && near(s, p, m.terminal)) {
     const helper = s.players.find(
@@ -137,14 +153,19 @@ export function updateMissionPlayer(s, p, input, dt) {
     if (valid)
       action = () => {
         m.securityOff = true;
-        recordMissionEvent(s,p,"Security disabled — cameras and lasers offline","security");
+        recordMissionEvent(
+          s,
+          p,
+          "Security disabled — cameras and lasers offline",
+          "security",
+        );
       };
   } else if (!s.vaultUnlocked && near(s, p, m.lock)) {
     prompt = m.securityOff ? "Unlock vault" : "Disable security first";
     if (m.securityOff)
       action = () => {
         s.vaultUnlocked = true;
-        recordMissionEvent(s,p,"Vault unlocked","vault");
+        recordMissionEvent(s, p, "Vault unlocked", "vault");
         s.doors.find((d) => d.id === "door_vault").open = true;
       };
   } else if (
@@ -155,7 +176,12 @@ export function updateMissionPlayer(s, p, input, dt) {
     prompt = "Collect Crown Jewel";
     action = () => {
       s.artifacts[0].pickedUp = true;
-      recordMissionEvent(s,p,"Crown Jewel recovered — team to extraction","artifact");
+      recordMissionEvent(
+        s,
+        p,
+        "Crown Jewel recovered — team to extraction",
+        "artifact",
+      );
       p.holding = { ...s.artifacts[0] };
     };
   } else if (p.atVan && p.holding) {
@@ -174,26 +200,71 @@ export function updateMissionPlayer(s, p, input, dt) {
   m.message = missionStage(s);
 }
 
-function recordMissionEvent(s,p,text,stat) {
-  if(p.stats) p.stats[stat]++;
+function recordMissionEvent(s, p, text, stat) {
+  if (p.stats) p.stats[stat]++;
   s.events ||= [];
-  s.events.push({id:++s.eventSequence,text,by:p.nickname || `P${p.id}`,at:s.timer});
-  s.events=s.events.slice(-8);
+  s.events.push({
+    id: ++s.eventSequence,
+    text,
+    by: p.nickname || `P${p.id}`,
+    at: s.timer,
+  });
+  s.events = s.events.slice(-8);
 }
-export function updateMissionWorld(s,dt) {
-  if(!s.mission)return;
-  s.distractions=(s.distractions || []).map(d=>({...d,remaining:d.remaining-dt})).filter(d=>d.remaining>0);
+export function updateMissionWorld(s, dt) {
+  if (!s.mission) return;
+  s.distractions = (s.distractions || [])
+    .map((d) => ({ ...d, remaining: d.remaining - dt }))
+    .filter((d) => d.remaining > 0);
 }
 export function objectiveSummary(s) {
-  if(!s?.mission) return [];
-  const m=s.mission, keys=m.keys.every(k=>k.collected);
-  const support=s.players.find(p=>!p.downed && p.role!=='Hacker' && near(s,p,m.support,44));
-  const artifact=s.players.some(p=>p.holding?.id==='art_crown') || s.loot.some(a=>a.id==='art_crown');
+  if (!s?.mission) return [];
+  const m = s.mission,
+    keys = m.keys.every((k) => k.collected);
+  const support = s.players.find(
+    (p) => !p.downed && p.role !== "Hacker" && near(s, p, m.support, 44),
+  );
+  const artifact =
+    s.players.some((p) => p.holding?.id === "art_crown") ||
+    s.loot.some((a) => a.id === "art_crown");
   return [
-    ...m.keys.map(k=>({id:k.id,label:`${k.id} access key`,status:k.collected?'complete':'active'})),
-    {id:'security',label:m.securityOff?'Security offline':support?`${support.nickname || 'Teammate'} on support — Hacker needed`:'Hacker + different role on support pad',status:m.securityOff?'complete':keys?'active':'blocked'},
-    {id:'vault',label:'Unlock vault',status:s.vaultUnlocked?'complete':m.securityOff?'active':'blocked'},
-    {id:'artifact',label:'Recover Crown Jewel',status:artifact?'complete':s.vaultUnlocked?'active':'blocked'},
-    {id:'extract',label:`Extract together · ${s.players.filter(p=>p.atVan&&!p.downed).length}/${s.players.length} at van`,status:artifact && s.players.every(p=>p.atVan&&!p.downed)?'complete':artifact?'active':'blocked'},
+    ...m.keys.map((k) => ({
+      id: k.id,
+      label: `${k.id} access key`,
+      status: k.collected ? "complete" : "active",
+    })),
+    {
+      id: "security",
+      label: m.securityOff
+        ? "Security offline"
+        : support
+          ? `${support.nickname || "Teammate"} on support — Hacker needed`
+          : "Hacker + different role on support pad",
+      status: m.securityOff ? "complete" : keys ? "active" : "blocked",
+    },
+    {
+      id: "vault",
+      label: "Unlock vault",
+      status: s.vaultUnlocked
+        ? "complete"
+        : m.securityOff
+          ? "active"
+          : "blocked",
+    },
+    {
+      id: "artifact",
+      label: "Recover Crown Jewel",
+      status: artifact ? "complete" : s.vaultUnlocked ? "active" : "blocked",
+    },
+    {
+      id: "extract",
+      label: `Extract together · ${s.players.filter((p) => p.atVan && !p.downed).length}/${s.players.length} at van`,
+      status:
+        artifact && s.players.every((p) => p.atVan && !p.downed)
+          ? "complete"
+          : artifact
+            ? "active"
+            : "blocked",
+    },
   ];
 }

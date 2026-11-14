@@ -1,114 +1,74 @@
 import React, { useCallback, useRef, useState, useEffect } from "react";
-import { createGameState } from "@/lib/game/gameState";
 import { createShadowState } from "@/lib/game/mission";
 import { clearKeys, clearTouchInput, setTouchInput } from "@/lib/game/input";
-
+import { CANVAS_H, CANVAS_W } from "@/lib/game/constants";
+import { parseJoinLocation } from "@/lib/party/invitations";
 import MenuScreen from "@/components/game/MenuScreen";
 import LobbyScreen from "@/components/game/LobbyScreen";
 import InstructionsScreen from "@/components/game/InstructionsScreen";
 import PauseOverlay from "@/components/game/PauseOverlay";
 import ResultScreen from "@/components/game/ResultScreen";
 import TouchControls from "@/components/game/TouchControls";
-
-import { CANVAS_H, CANVAS_W } from "@/lib/game/constants";
+import ControllerScreen from "@/components/game/ControllerScreen";
+import MissionOverlay from "@/components/game/MissionOverlay";
 import { useLanMultiplayer } from "@/hooks/useLanMultiplayer";
 import { useGameRuntime } from "@/hooks/useGameRuntime";
-
 export default function Game() {
-  const [screen, setScreen] = useState("menu");
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-
-  const canvasRef = useRef(null);
-  const containerRef = useRef(null);
-  const cameraRef = useRef({ x: 0, y: 0 });
-  const viewRef = useRef({ zoom: 1, w: CANVAS_W, h: CANVAS_H });
-  const stateRef = useRef(null);
-  const endStateRef = useRef(null);
-  const screenRef = useRef("menu");
-
+  const [localPlayers,setLocalPlayers]=useState(4);
+  const initial = useRef(parseJoinLocation(window.location));
+  const [screen, setScreen] = useState(initial.current.kind ? "lobby" : "menu"),
+    [entry, setEntry] = useState("join"),
+    [isTouch, setIsTouch] = useState(false),
+    [overview, setOverview] = useState(false);
+  const canvasRef = useRef(null),
+    containerRef = useRef(null),
+    cameraRef = useRef({ x: 0, y: 0 }),
+    viewRef = useRef({ zoom: 1, w: CANVAS_W, h: CANVAS_H }),
+    stateRef = useRef(null),
+    endStateRef = useRef(null),
+    screenRef = useRef(screen);
   screenRef.current = screen;
-
-  const finalizeIfEnded = useCallback((state, endRef = endStateRef) => {
-    if (state.screen !== "win" && state.screen !== "loss") return;
-    endRef.current = {
-      screen: state.screen,
-      lossReason: state.lossReason,
-      timer: state.timer,
-      alarm: state.alarm,
-      loot: [...state.loot],
-      score: state.score,
-    };
-    setScreen(state.screen);
-    screenRef.current = state.screen;
+  const transition = useCallback((next) => {
+    setScreen(next);
+    screenRef.current = next;
   }, []);
-
-  const onPeerLeftToMenu = useCallback(() => {
-    setScreen("menu");
-    screenRef.current = "menu";
-  }, []);
-
-  const {
-    networkRef,
-    joinCode,
-    setJoinCode,
-    netStatus,
-    netError,
-    roomCode,
-    serverIp,
-    inviteLink,
-    lanMaxPlayers,
-    setLanMaxPlayers,
-    discoveredRooms,
-    players,
-    myPlayerId,
-    hostId,
-    sendLobby,
-    wsUrl,
-    setWsUrl,
-    cleanupNetwork,
-    resetLobbyUi,
-    hostLanGame,
-    discoverLanGames,
-    joinLanGame,
-  } = useLanMultiplayer({
-    screenRef,
-    startNetworkGame: (mode, playerIds = [1, 2], snapshot) => {
-      const gs = snapshot || createGameState(playerIds.length);
-      gs.players = gs.players.filter((p) => playerIds.includes(p.id));
-      gs.screen = "playing";
-      stateRef.current = gs;
-      cameraRef.current = { x: 0, y: 0 };
-      clearKeys();
-      const net = networkRef.current;
-      net.mode = mode;
-      net.frame = 0;
-      net.nextClientFrame = 0;
-      net.queuedFrames = new Map();
-      setScreen("playing");
-      screenRef.current = "playing";
+  const finalizeIfEnded = useCallback(
+    (state) => {
+      if (!["win", "loss"].includes(state.screen)) return;
+      endStateRef.current = state;
+      transition(state.screen);
     },
-    onPeerLeftToMenu,
+    [transition],
+  );
+  const net = useLanMultiplayer({
+    onGameStart: (state) => {
+      stateRef.current = state;
+      clearKeys();
+      clearTouchInput();
+      if (["win", "loss"].includes(state.screen)) finalizeIfEnded(state);
+      else transition("playing");
+    },
+    onLobby: () => transition("lobby"),
+    onEnd: finalizeIfEnded,
   });
-
+  const viewMode =
+    net.kind === "player" ? net.viewMode : net.kind ? "display" : "game";
   const { resetFrameClock } = useGameRuntime({
     canvasRef,
     containerRef,
     screenRef,
     setScreen,
-    setJoinCode,
-    cleanupNetwork,
     stateRef,
-    endStateRef,
-    networkRef,
+    networkRef: net.networkRef,
     cameraRef,
     viewRef,
     finalizeIfEnded,
-    isTouchDevice,
+    viewMode,
+    overview,
   });
-
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
-    const apply = () => setIsTouchDevice(mq.matches || window.innerWidth < 900);
+    const apply = () => setIsTouch(mq.matches || window.innerWidth < 900);
     apply();
     mq.addEventListener?.("change", apply);
     window.addEventListener("resize", apply);
@@ -117,139 +77,140 @@ export default function Game() {
       window.removeEventListener("resize", apply);
     };
   }, []);
-
-  const startLocalGame = useCallback(() => {
-    cleanupNetwork();
-    const gs = createShadowState([
-      { id: 1, role: "Hacker" },
-      { id: 2, role: "Assassin" },
-    ]);
-    gs.screen = "playing";
-    stateRef.current = gs;
-    cameraRef.current = { x: 0, y: 0 };
+  useEffect(() => {
+    if (screen !== "playing") {
+      clearKeys();
+      clearTouchInput();
+    }
+  }, [screen]);
+  const startLocal = () => {
+    net.cleanupNetwork();
+    net.resetLobbyUi();
+    stateRef.current = createShadowState([
+      { id:1,nickname:'Local Hacker',role:'Hacker' },
+      { id:2,nickname:'Local Assassin',role:'Assassin' },
+      { id:3,nickname:'Local Scout',role:'Scout' },
+      { id:4,nickname:'Local Decoy',role:'Decoy' },
+    ].slice(0,localPlayers));
     resetFrameClock();
-    clearKeys();
-    setScreen("playing");
-    screenRef.current = "playing";
-  }, [cleanupNetwork, resetFrameClock]);
-
-  const goToMenu = useCallback(() => {
-    cleanupNetwork();
-    clearTouchInput();
+    transition("playing");
+  };
+  const leave = () => {
+    net.cleanupNetwork();
+    net.resetLobbyUi();
     stateRef.current = null;
-    resetLobbyUi();
-    setScreen("menu");
-    screenRef.current = "menu";
-  }, [cleanupNetwork, resetLobbyUi]);
-
-  const showInstructions = useCallback(() => {
-    setScreen("instructions");
-    screenRef.current = "instructions";
-  }, []);
-
-  const showLobby = useCallback(() => {
-    setScreen("lobby");
-    screenRef.current = "lobby";
-  }, []);
-
-  const resume = useCallback(() => {
+    endStateRef.current = null;
     resetFrameClock();
-    setScreen("playing");
-    screenRef.current = "playing";
-  }, [resetFrameClock]);
-
+    transition("menu");
+    if (window.location.protocol.startsWith("http"))
+      window.history.replaceState(null, "", "/");
+  };
+  const isHost =
+    net.kind === "host" ||
+    (net.kind === "player" && net.myPlayerId === net.hostId);
+  const current = net.liveState || stateRef.current;
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col items-center justify-center w-[100dvw] h-[100dvh] min-h-[100dvh] bg-background select-none overflow-hidden"
-    >
+    <div ref={containerRef} className="game-root">
       {screen === "menu" && (
-        <div className="w-full">
-          <MenuScreen
-            onStart={startLocalGame}
-            onInstructions={showInstructions}
-            onLan={showLobby}
-          />
-        </div>
-      )}
-
-      {screen === "lobby" && (
-        <LobbyScreen
-          players={players}
-          myPlayerId={myPlayerId}
-          hostId={hostId}
-          sendLobby={sendLobby}
-          wsUrl={wsUrl}
-          setWsUrl={setWsUrl}
-          joinCode={joinCode}
-          setJoinCode={setJoinCode}
-          onHost={hostLanGame}
-          onJoin={joinLanGame}
-          onDiscover={discoverLanGames}
-          discoveredRooms={discoveredRooms}
-          onBack={goToMenu}
-          status={netStatus}
-          roomCode={roomCode}
-          serverIp={serverIp}
-          inviteLink={inviteLink}
-          error={netError}
-          lanMaxPlayers={lanMaxPlayers}
-          setLanMaxPlayers={setLanMaxPlayers}
+        <MenuScreen
+          localPlayers={localPlayers} setLocalPlayers={setLocalPlayers}
+          onStart={startLocal}
+          onInstructions={() => transition("instructions")}
+          onHost={() => {
+            setEntry("host");
+            transition("lobby");
+          }}
+          onJoin={() => {
+            setEntry("join");
+            transition("lobby");
+          }}
         />
       )}
-
-      {screen === "instructions" && <InstructionsScreen onBack={goToMenu} />}
-      {(screen === "win" || screen === "loss") && endStateRef.current && (
+      {screen === "lobby" && (
+        <LobbyScreen net={net} entry={entry} onBack={leave} />
+      )}
+      {screen === "instructions" && <InstructionsScreen onBack={leave} />}
+      {["win", "loss"].includes(screen) && endStateRef.current && (
         <ResultScreen
           state={endStateRef.current}
           onRestart={
-            networkRef.current.mode === "server" ? goToMenu : startLocalGame
+            net.kind
+              ? () => {
+                  if (isHost) net.sendLobby("lobby_reset");
+                }
+              : startLocal
           }
-          onMenu={goToMenu}
+          onMenu={leave}
+          networked={!!net.kind}
+          isHost={isHost}
         />
       )}
-
+      {screen === "playing" && viewMode === "controller" && (
+        <ControllerScreen net={net} onInput={setTouchInput} onLeave={leave} />
+      )}
       <div
-        className={`relative w-full h-full ${isTouchDevice ? "px-0" : "px-1"}`}
+        className="game-canvas-shell"
         style={{
           display:
-            screen === "playing" || screen === "paused" ? "block" : "none",
+            ["playing", "paused"].includes(screen) && viewMode !== "controller"
+              ? "block"
+              : "none",
         }}
       >
-        {!isTouchDevice && (
-          <div className="flex items-center justify-between mb-2 px-1">
-            <span className="font-heading font-bold text-foreground text-sm tracking-widest">
-              SHADOW OPS
-            </span>
-            <span className="text-xs font-mono text-muted-foreground/50">
-              {networkRef.current.mode === "server"
-                ? "LAN · SERVER AUTHORITATIVE"
-                : "ESC - pause"}
-            </span>
-          </div>
-        )}
-
-        <button onClick={goToMenu} className="absolute z-40 bottom-5 left-1/2 -translate-x-1/2 rounded border border-slate-600 bg-slate-950/90 px-3 py-2 text-[10px] tracking-widest text-slate-300">LEAVE OPERATION</button>
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
           height={CANVAS_H}
-          className={`block mx-auto ${isTouchDevice ? "" : "rounded-lg border border-border shadow-2xl shadow-black/60"}`}
-          style={{
-            width: "100%",
-            height: isTouchDevice ? "100%" : "calc(100vh - 86px)",
-            imageRendering: "pixelated",
-          }}
+          aria-label={
+            viewMode === "display"
+              ? "Shared mission display"
+              : "Shadow Ops game world"
+          }
         />
-
+        {net.kind && net.netError && (
+          <p role="alert" className="network-game-error">
+            {net.netError}
+          </p>
+        )}
+        <MissionOverlay state={current} shared={viewMode === "display"} />
+        <nav className="game-toolbar">
+          {net.kind === "player" && (
+            <button onClick={() => net.changeViewMode("controller")}>
+              PHONE CONTROLLER
+            </button>
+          )}
+          {viewMode !== "display" && (
+            <button
+              aria-pressed={overview}
+              onClick={() => setOverview(!overview)}
+            >
+              {overview ? "FOLLOW PLAYER" : "OVERVIEW"}
+            </button>
+          )}
+          <button onClick={leave}>
+            {net.kind === "host" ? "CLOSE ROOM" : "LEAVE"}
+          </button>
+        </nav>
         {screen === "paused" && (
-          <div className="absolute inset-0 top-8 rounded-lg">
-            <PauseOverlay onResume={resume} onQuit={goToMenu} />
+          <div className="pause-shell">
+            <PauseOverlay
+              onResume={() => {
+                resetFrameClock();
+                transition("playing");
+              }}
+              onQuit={leave}
+            />
           </div>
         )}
-
-        {isTouchDevice && screen === "playing" && (
-          <TouchControls onChange={setTouchInput} />
+        {isTouch && screen === "playing" && viewMode === "game" && (
+          <TouchControls
+            compact
+            player={current?.players.find(
+              (p) => p.id === (net.myPlayerId || 1),
+            )}
+            onChange={setTouchInput}
+            enabled={!net.networkRef.current.paused}
+          />
         )}
       </div>
     </div>

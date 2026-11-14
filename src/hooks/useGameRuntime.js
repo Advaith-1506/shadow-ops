@@ -1,128 +1,113 @@
 import { useEffect, useRef } from "react";
-import { getLanInput, initInput } from "@/lib/game/input";
+import { initInput, clearKeys, clearTouchInput } from "@/lib/game/input";
 import { updateGame } from "@/lib/game/gameLoop";
 import { renderGame } from "@/lib/game/renderer";
 import { renderHUD } from "@/lib/game/hud";
 import { updateCameraForState } from "@/lib/game/cameraController";
-import { sanitizeInputPayload } from "@/lib/game/networkClient";
-
-const FIXED_DT = 1 / 30;
-
+import { CANVAS_W, CANVAS_H } from "@/lib/game/constants";
+const DT = 1 / 30;
 export function useGameRuntime({
   canvasRef,
   containerRef,
   screenRef,
   setScreen,
-  setJoinCode,
-  cleanupNetwork,
   stateRef,
-  endStateRef,
   networkRef,
   cameraRef,
   viewRef,
   finalizeIfEnded,
-  isTouchDevice,
+  viewMode,
+  overview = false,
 }) {
-  const rafRef = useRef(null);
-  const lastTimeRef = useRef(null);
-  const accRef = useRef(0);
-  const inputReady = useRef(false);
-
+  const last = useRef(null),
+    acc = useRef(0);
   useEffect(() => {
-    if (!inputReady.current) {
-      initInput();
-      inputReady.current = true;
-    }
-    const params = new URLSearchParams(window.location.search);
-    const room = params.get("room");
-    if (room) {
-      setJoinCode(room.toUpperCase());
-      setScreen("lobby");
-      screenRef.current = "lobby";
-    }
-    return () => cleanupNetwork();
-  }, [cleanupNetwork, screenRef, setJoinCode, setScreen]);
-
-  useEffect(() => {
-    const resize = () => {
-      const canvas = canvasRef.current;
-      const host = containerRef.current;
-      if (!canvas || !host) return;
-      const w = Math.max(640, host.clientWidth - 8);
-      const h = Math.max(420, window.innerHeight - 86);
-      canvas.width = w;
-      canvas.height = h;
+    initInput();
+    return () => {
+      clearKeys();
+      clearTouchInput();
     };
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
-  }, [canvasRef, containerRef]);
-
+  }, []);
   useEffect(() => {
-    const onKey = (e) => {
+    const key = (e) => {
       if (e.code !== "Escape" || networkRef.current.mode === "server") return;
       if (screenRef.current === "playing") {
         setScreen("paused");
         screenRef.current = "paused";
+        clearKeys();
+        clearTouchInput();
       } else if (screenRef.current === "paused") {
-        lastTimeRef.current = null;
+        last.current = null;
         setScreen("playing");
         screenRef.current = "playing";
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [screenRef, setScreen]);
-
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [networkRef, screenRef, setScreen]);
   useEffect(() => {
+    const resize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      canvas.width = Math.max(
+        320,
+        containerRef.current?.clientWidth || window.innerWidth,
+      );
+      canvas.height = Math.max(280, window.innerHeight);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [canvasRef, containerRef, viewMode]);
+  useEffect(() => {
+    if (viewMode === "controller") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
-
+    let raf;
     const loop = (ts) => {
-      rafRef.current = requestAnimationFrame(loop);
+      raf = requestAnimationFrame(loop);
       const state = stateRef.current;
-      if (!state) return;
-
-      if (screenRef.current === "playing") {
-        if (!lastTimeRef.current) lastTimeRef.current = ts;
-        const frameDt = Math.min((ts - lastTimeRef.current) / 1000, 0.1);
-        lastTimeRef.current = ts;
-        accRef.current += frameDt;
-
-        const net = networkRef.current;
-        while (accRef.current >= FIXED_DT) {
-          if (net.mode === "server") {
-            net.session?.send("client_input", {
-              input: sanitizeInputPayload(getLanInput()),
-            });
-            if (net.snapshot) {
-              Object.assign(state, net.snapshot);
-              net.snapshot = null;
-            }
-          } else {
-            updateGame(state, FIXED_DT);
-          }
-
-          accRef.current -= FIXED_DT;
-          if (state.screen === "win" || state.screen === "loss") {
-            finalizeIfEnded(state, endStateRef);
+      if (!state || !["playing", "paused"].includes(screenRef.current)) return;
+      const net = networkRef.current;
+      if (net.mode === "server") {
+        if (net.snapshot) {
+          Object.assign(state, net.snapshot);
+          net.snapshot = null;
+        }
+      } else if (screenRef.current === "playing") {
+        if (!last.current) last.current = ts;
+        acc.current += Math.min((ts - last.current) / 1000, 0.1);
+        last.current = ts;
+        while (acc.current >= DT) {
+          updateGame(state, DT);
+          acc.current -= DT;
+          if (["win", "loss"].includes(state.screen)) {
+            finalizeIfEnded(state);
             break;
           }
         }
       }
-
-      const trackedState =
-        networkRef.current.mode === "server"
-          ? {
-              ...state,
-              players: state.players.filter(
-                (p) => p.id === networkRef.current.myPlayerId,
-              ),
-            }
-          : state;
-      updateCameraForState(trackedState, canvas, cameraRef, viewRef);
+      if (viewMode === "display" || overview) {
+        const zoom = Math.min(
+          canvas.width / CANVAS_W,
+          (canvas.height - 130) / CANVAS_H,
+        );
+        const w = canvas.width / zoom,
+          h = canvas.height / zoom;
+        cameraRef.current = { x: -(w - CANVAS_W) / 2, y: -130 / zoom };
+        viewRef.current = { zoom, w, h };
+      } else {
+        const tracked =
+          net.mode === "server"
+            ? {
+                ...state,
+                players: state.players.filter((p) => p.id === net.myPlayerId),
+              }
+            : state;
+        updateCameraForState(tracked, canvas, cameraRef, viewRef);
+      }
       renderGame(
         ctx,
         state,
@@ -132,37 +117,36 @@ export function useGameRuntime({
         { w: viewRef.current.w, h: viewRef.current.h },
       );
       renderHUD(ctx, state);
-      if (networkRef.current.paused) {
-        ctx.fillStyle = "rgba(0,0,0,.8)";
-        ctx.fillRect(0, 100, canvas.width, 65);
+      if (net.paused) {
+        ctx.fillStyle = "rgba(0,0,0,.85)";
+        ctx.fillRect(0, 120, canvas.width, 55);
         ctx.fillStyle = "#7fffc0";
-        ctx.font = "18px sans-serif";
+        ctx.font = "16px sans-serif";
+        ctx.textAlign = "center";
         ctx.fillText(
-          "Connection interrupted · mission paused · reconnecting…",
-          15,
-          138,
+          "Connection interrupted · mission paused · reconnecting",
+          canvas.width / 2,
+          151,
         );
       }
     };
-
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
   }, [
     canvasRef,
     cameraRef,
-    endStateRef,
     finalizeIfEnded,
     networkRef,
     screenRef,
     stateRef,
     viewRef,
-    isTouchDevice,
+    viewMode,
+    overview,
   ]);
-
   return {
     resetFrameClock: () => {
-      lastTimeRef.current = null;
-      accRef.current = 0;
+      last.current = null;
+      acc.current = 0;
     },
   };
 }

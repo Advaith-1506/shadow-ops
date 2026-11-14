@@ -1,132 +1,151 @@
-import React, { useRef, useState } from "react";
-
-function dirFromVector(dx, dy) {
-  const dead = 14;
-  if (Math.hypot(dx, dy) < dead)
-    return { up: false, down: false, left: false, right: false };
-  return {
-    up: dy < -8,
-    down: dy > 8,
-    left: dx < -8,
-    right: dx > 8,
-  };
-}
-
-export default function TouchControls({ onChange }) {
-  const padRef = useRef(null);
-  const [knob, setKnob] = useState({ x: 0, y: 0 });
-  const [pid, setPid] = useState(null);
-  const interactHeld = useRef(false);
-  const abilityHeld = useRef(false);
-
-  const emit = (extra = {}) => {
-    const d = dirFromVector(knob.x, knob.y);
-    onChange?.({
-      ...d,
-      interact: interactHeld.current,
-      ability: abilityHeld.current,
-      ...extra,
+import React, { useEffect, useRef, useState } from "react";
+import {
+  createControllerInput,
+  neutralInput,
+  bindInputRelease,
+} from "@/lib/party/controllerInput";
+export default function TouchControls({
+  onChange,
+  player,
+  compact = false,
+  haptics = false,
+  enabled = true,
+}) {
+  const callback = useRef(onChange);
+  callback.current = onChange;
+  const [input, setInput] = useState(neutralInput),
+    [knob, setKnob] = useState({ x: 0, y: 0 });
+  const joystick = useRef(null),
+    movePointer = useRef(null),
+    model = useRef(null);
+  if (!model.current)
+    model.current = createControllerInput((next) => {
+      setInput(next);
+      callback.current?.(next);
     });
+  const clear = () => {
+    model.current.clear();
+    movePointer.current = null;
+    setKnob({ x: 0, y: 0 });
   };
-
-  const pointerPos = (e) => {
-    const r = padRef.current?.getBoundingClientRect();
-    if (!r) return { x: 0, y: 0 };
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    let dx = e.clientX - cx;
-    let dy = e.clientY - cy;
-    const max = Math.min(r.width, r.height) * 0.32;
-    const len = Math.hypot(dx, dy) || 1;
-    if (len > max) {
-      dx = (dx / len) * max;
-      dy = (dy / len) * max;
+  useEffect(() => {
+    const release = () => {
+      model.current.clear();
+      movePointer.current = null;
+      setKnob({ x: 0, y: 0 });
+    };
+    return bindInputRelease(window, document, release);
+  }, []);
+  useEffect(() => {
+    if (!enabled) clear();
+  }, [enabled]);
+  function start(e, control) {
+    e.preventDefault();
+    if (!enabled || !model.current.start(e.pointerId, control)) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (haptics) navigator.vibrate?.(12);
+    if (control === "move") {
+      movePointer.current = e.pointerId;
+      move(e);
     }
-    return { x: dx, y: dy };
-  };
-
+  }
+  function move(e) {
+    if (e.pointerId !== movePointer.current) return;
+    const r = joystick.current.getBoundingClientRect();
+    const radius = r.width * 0.34;
+    const d = model.current.move(
+      e.pointerId,
+      e.clientX - r.left - r.width / 2,
+      e.clientY - r.top - r.height / 2,
+      radius,
+    );
+    if (d) setKnob({ x: d.x, y: d.y });
+  }
+  function end(e) {
+    model.current.end(e.pointerId);
+    if (movePointer.current === e.pointerId) {
+      movePointer.current = null;
+      setKnob({ x: 0, y: 0 });
+    }
+  }
+  const events = (control) => ({
+    onPointerDown: (e) => start(e, control),
+    onPointerUp: end,
+    onPointerCancel: end,
+    onLostPointerCapture: end,
+  });
+  const cooldown = Math.ceil(player?.abilityCooldown || 0);
   return (
-    <div className="pointer-events-none absolute inset-0 z-30">
-      <div
-        ref={padRef}
-        className="pointer-events-auto absolute left-4 bottom-6 w-32 h-32 rounded-full border border-white/25 bg-black/35 backdrop-blur-sm touch-none"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          e.currentTarget.setPointerCapture(e.pointerId);
-          setPid(e.pointerId);
-          const p = pointerPos(e);
-          setKnob(p);
-          onChange?.({
-            ...dirFromVector(p.x, p.y),
-            interact: interactHeld.current,
-            ability: abilityHeld.current,
-          });
-        }}
-        onPointerMove={(e) => {
-          if (pid !== e.pointerId) return;
-          e.preventDefault();
-          const p = pointerPos(e);
-          setKnob(p);
-          onChange?.({
-            ...dirFromVector(p.x, p.y),
-            interact: interactHeld.current,
-            ability: abilityHeld.current,
-          });
-        }}
-        onPointerUp={(e) => {
-          if (pid !== e.pointerId) return;
-          e.preventDefault();
-          setPid(null);
-          setKnob({ x: 0, y: 0 });
-          emit({ up: false, down: false, left: false, right: false });
-        }}
-      >
+    <div
+      className={`phone-controls ${compact ? "compact-controls" : ""} ${!enabled ? "controls-disabled" : ""}`}
+    >
+      <div className="joystick-area">
         <div
-          className="absolute left-1/2 top-1/2 w-12 h-12 -ml-6 -mt-6 rounded-full bg-white/35 border border-white/45"
-          style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
-        />
+          ref={joystick}
+          role="group"
+          aria-label="Movement joystick"
+          data-testid="joystick"
+          className={`phone-joystick ${input.up || input.down || input.left || input.right ? "moving" : ""}`}
+          {...events("move")}
+          onPointerMove={move}
+        >
+          <span className="joystick-guides">
+            ↑<br />
+            ←　 →<br />↓
+          </span>
+          <div
+            className="joystick-knob"
+            style={{ transform: `translate(${knob.x}px,${knob.y}px)` }}
+          />
+        </div>
+        <small>
+          {input.up || input.down || input.left || input.right
+            ? "MOVING"
+            : "DRAG TO MOVE"}
+        </small>
       </div>
-
-      <button
-        className="pointer-events-auto absolute right-8 bottom-36 w-16 h-16 rounded-full border border-emerald-300 bg-emerald-900/70 text-emerald-200 touch-none"
-        aria-label="Use ability"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          e.currentTarget.setPointerCapture(e.pointerId);
-          abilityHeld.current = true;
-          emit({ ability: true });
-        }}
-        onPointerUp={() => {
-          abilityHeld.current = false;
-          emit({ ability: false });
-        }}
-        onPointerCancel={() => {
-          abilityHeld.current = false;
-          emit({ ability: false });
-        }}
-      >
-        Q
-      </button>
-      <button
-        className="pointer-events-auto absolute right-5 bottom-8 w-24 h-24 rounded-full border border-[#ffd166]/70 bg-[#ffd166]/25 text-[#ffe8a3] font-heading text-lg touch-none"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          e.currentTarget.setPointerCapture(e.pointerId);
-          interactHeld.current = true;
-          emit({ interact: true });
-        }}
-        onPointerUp={(e) => {
-          e.preventDefault();
-          interactHeld.current = false;
-          emit({ interact: false });
-        }}
-        onPointerCancel={() => {
-          interactHeld.current = false;
-          emit({ interact: false });
-        }}
-      >
-        ACT
-      </button>
+      <div className="phone-action-area">
+        <button
+          aria-label="Interact"
+          className={`phone-action interact ${input.interact ? "pressed" : ""}`}
+          {...events("interact")}
+        >
+          <b>INTERACT</b>
+          <small>
+            {player?.downed
+              ? "AWAIT REVIVE"
+              : player?.nearPrompt?.text?.replace(/^\[E\]\s*/, "") ||
+                "HOLD TO REVIVE"}
+          </small>
+        </button>
+        <button
+          aria-label="Use ability"
+          className={`phone-action ability ${input.ability ? "pressed" : ""}`}
+          style={{
+            "--role-color": player?.role === "Decoy" ? "#d1a2ff" : "#65d7ff",
+          }}
+          {...events("ability")}
+        >
+          <b>{cooldown ? `${cooldown}s` : "ABILITY"}</b>
+          <small>
+            {cooldown
+              ? "RECHARGING"
+              : player?.role === "Decoy"
+                ? "NOISE MAKER"
+                : player?.role === "Scout"
+                  ? "RECON PULSE"
+                  : player?.role === "Hacker"
+                    ? "SYSTEM OVERRIDE"
+                    : "SILENT TAKEDOWN"}
+          </small>
+          <span
+            className="ability-charge"
+            style={{
+              width: `${cooldown ? Math.max(0, 100 - (cooldown / 18) * 100) : 100}%`,
+            }}
+          />
+        </button>
+      </div>
     </div>
   );
 }

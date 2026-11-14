@@ -37,6 +37,7 @@ const GAME_KEYS = new Set([
 
 const held = {}; // code → boolean
 let networkInputs = null; // { p1: {...}, p2: {...} } when driven by netcode
+let touchPresses = { interact: false, ability: false };
 let touchInput = {
   up: false,
   down: false,
@@ -87,6 +88,8 @@ export function clearNetworkInputs() {
 }
 
 export function setTouchInput(next) {
+  for (const key of ["interact", "ability"])
+    if (next?.[key] && !touchInput[key]) touchPresses[key] = true;
   touchInput = {
     up: !!next?.up,
     down: !!next?.down,
@@ -98,6 +101,7 @@ export function setTouchInput(next) {
 }
 
 export function clearTouchInput() {
+  touchPresses = { interact: false, ability: false };
   touchInput = {
     up: false,
     down: false,
@@ -183,6 +187,9 @@ export function registerInputProvider(name, provider) {
 }
 export function getLanInput() {
   const out = getKeyboardLanInput();
+  out.interact = !!out.interact || touchPresses.interact;
+  out.ability = !!out.ability || touchPresses.ability;
+  touchPresses = { interact: false, ability: false };
   for (const provider of providers.values()) {
     const input = provider() || {};
     for (const k of ["up", "down", "left", "right", "interact", "ability"])
