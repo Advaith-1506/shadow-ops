@@ -65,7 +65,7 @@ Scout and Decoy objective markers appear only in missions containing those roles
 
 ## Mission and teamwork
 
-1. Infiltrate through the Garage. Any role collects ALPHA in the Kitchen and BRAVO in the Garage (shared 0/2, 1/2, 2/2). Assassin separately neutralizes the captain; Hacker unlocks the Garage pantry electronic door and overrides the Living Room camera network. If Scout is selected, scan the Garage network from its marked zone. These initial tasks can happen concurrently. Each key can be picked up once; neither is granted by a role ability. The unlocked door becomes passable and the disabled camera network permanently stops detecting operatives.
+1. Infiltrate through the Garage. Any role collects ALPHA in the Kitchen and BRAVO in the Study (shared 0/2, 1/2, 2/2). Assassin separately neutralizes the captain; Hacker unlocks the Garage pantry electronic door and overrides the Living Room camera network. If Scout is selected, scan the Garage network from its marked zone. These initial tasks can happen concurrently. Each key can be picked up once; neither is granted by a role ability. The unlocked door becomes passable and the disabled camera network permanently stops detecting operatives.
 2. With Decoy selected, complete those access objectives first. Decoy uses Ability at the Living Room noise zone and **moves away**. The intended sentry must use real investigation/pathfinding, travel at least 28px and clear the relay by 95px. During the visible **10-second opportunity**, Hacker or Assassin presses **Interact at the relay**. A chase or stun cancels the opportunity; let the patrol settle and retry after cooldown. Both teammates receive contribution credit.
 3. Go to Security: **Hacker stands at TERMINAL and presses Interact. A different teammate stands on SUPPORT PAD and stays there.** All required role objectives must be complete. The helper does not interact with the terminal. Successful cooperation permanently disables cameras and lasers.
 4. Interact with the vault lock in the Living Room. Enter the vault and recover the Diamond.
@@ -160,4 +160,11 @@ Distributed under the **MIT License**. Required copyright notices are preserved 
 
 ### Shared inventory and security rebalance
 
-Exactly two keys spawn on reachable floor: ALPHA in the Kitchen, BRAVO above the Garage car. Every role has identical Interact permission. Both keys, the captain takedown, the Hacker's separate electronic-door and camera-network actions, and any selected Scout/Decoy objectives gate terminal and vault progression. Key pickup is never a Hacker-only duty. Scout receives “Recon complete — Security layout revealed.” after one valid zone pulse. Unlimited mission time is retained.
+Exactly two keys spawn on reachable floor: ALPHA in the Kitchen, BRAVO in the Study. Every role has identical Interact permission. Both keys, the captain takedown, the Hacker's separate electronic-door and camera-network actions, and any selected Scout/Decoy objectives gate terminal and vault progression. Key pickup is never a Hacker-only duty. Scout receives “Recon complete — Security layout revealed.” after one valid zone pulse. Unlimited mission time is retained.
+
+
+### Tactical command center UI
+
+The landing page, host/join lobbies, role selection, How to Play, squad briefing and results share the official Shadow Ops logo and a responsive navy/cyan tactical interface. Party Mode remains the primary demo: host a shared display, scan its real invitation QR, select roles and ready up. Expand **View mission objectives** for a briefing generated from the selected squad; no extra deployment step is required.
+
+BRAVO is in the Study; ALPHA remains in the Kitchen. Gameplay rendering, map artwork, HUD and controls are preserved. See [UI 3 implementation and verification](docs/UI_3.md) for screenshots and validation details.

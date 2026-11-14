@@ -369,10 +369,22 @@ export function runLiveMission(roles) {
     tick({ 3: { ability: true } });
     go(3, 124, 580);
   }
+  // BRAVO is again in the Study. The Assassin retrieves it with real
+  // movement, interaction and takedowns; the map/AI are not modified by tests.
+  phase = "study-key";
+  huntId = "g4";
+  go(
+    2,
+    s.mission.keys.find((k) => k.id === "BRAVO").x,
+    s.mission.keys.find((k) => k.id === "BRAVO").y,
+  );
+  tick({ 2: { interact: true, ability: true } });
+  go(2, 184, 650);
+  huntId = null;
   phase = "decoy";
   if (roles.includes("Decoy")) {
     const id = s.players.find((p) => p.role === "Decoy").id;
-    if (roles.length === 4) {
+    if (roles.length >= 3) {
       const route = (points) => {
         for (const [x, y] of points) {
           let ok = false;
@@ -468,21 +480,34 @@ export function runLiveMission(roles) {
       );
     }
   }
-  if (roles.length === 4) {
+  if (roles.length >= 3) {
     // Regroup after the long four-role infiltration. This is ordinary movement
     // and waiting for main's real alert recovery, not an alarm assignment.
     many(
-      { 1: [148, 620], 2: [184, 660], 3: [124, 580], 4: [120, 660] },
+      {
+        1: [148, 620],
+        2: [184, 660],
+        ...Object.fromEntries(
+          s.players
+            .filter((p) => p.id > 2)
+            .map((p) => [p.id, p.role === "Scout" ? [124, 580] : [120, 660]]),
+        ),
+      },
       () => s.players.every((p) => p.atVan && !p.downed),
       6000,
     );
-    for (let i = 0; i < 900; i++) tick({});
+    for (
+      let i = 0;
+      i < (roles.length === 3 && roles.includes("Scout") ? 450 : 900);
+      i++
+    )
+      tick({});
   }
 
   phase = "terminal";
   many({ 1: [1122, 668], 2: [1000, 668] }, () => s.mission.securityOff);
-  phase = "decoy";
-  if (roles.includes("Decoy")) {
+  phase = "vault";
+  if (roles.length >= 3) {
     huntId = "g2";
     many(
       {

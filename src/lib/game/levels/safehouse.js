@@ -198,7 +198,7 @@ export const SAFEHOUSE = {
     },
     keys: [
       { id: 'ALPHA', x: 164,  y: 136, room: 'Kitchen' },
-      { id: 'BRAVO', x: 312, y: 440, room: 'Garage' },
+      { id: 'BRAVO', x: 1170, y: 230, room: 'Study' },
     ],
     terminal: { x: 1122, y: 668, room: 'Security' },
     support:  { x: 1000, y: 668, room: 'Security' },

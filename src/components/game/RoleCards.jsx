@@ -1,4 +1,5 @@
 import React from "react";
+import { ROLE_ICONS } from "./CommandUI";
 import { ROLE_INFO } from "@/lib/game/roles";
 export default function RoleCards({ selected, onSelect, players = [] }) {
   return (
@@ -13,7 +14,9 @@ export default function RoleCards({ selected, onSelect, players = [] }) {
           onClick={() => onSelect(role)}
         >
           <span className="role-card-top">
-            <b>{role}</b>
+            <b>
+              {React.createElement(ROLE_ICONS[role], { size: 20 })} {role}
+            </b>
             <small>
               {players.filter((p) => p.role === role).length} selected
             </small>

@@ -9,3 +9,8 @@ New focused tests cover pickup permissions for all four roles, exactly two uniqu
 Validation commands: `npm run test:run`, `npm run lint`, `npm run build`, `npm run assets:audit`. Physical phones/LAN and native builds remain unverified. Existing screenshots under docs/screenshots record PR #6's earlier UI, not this rebalance.
 
 Final local validation: **147 tests passed across 14 suites**, including complete live missions for all four compositions, with guards/hazards active and all role gates enforced. Lint, production build and asset audit passed. The explicit WebSocket forged-key cases also passed.
+
+
+## UI 3 verification
+
+See [UI 3 validation and screenshots](docs/UI_3.md). The full suite passes 156 tests, including all four live composition wins with BRAVO relocated to clear floor in the Study. Browser verification covered four real connected roles, QR and clipboard values, readiness/composition gating, deployment, reconnect, read-only display, controller/game view, actual mission failure and host replay. Success presentation uses an actual winning simulation snapshot. Responsive portrait and landscape frames scroll without horizontal overflow. Physical phone/LAN-device verification remains outstanding.

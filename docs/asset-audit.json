@@ -1517,6 +1517,16 @@
       "references": [],
       "status": "retained-native",
       "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "src/assets/shadow-ops-logo.png",
+      "bytes": 998256,
+      "sha256": "5ba455fd4f0eef11f8bc1d853e9bb5a7c06e88e56a9b168ad2fb455ae66b9ef2",
+      "references": [
+        "src/components/game/Logo.jsx"
+      ],
+      "status": "retained-runtime",
+      "reason": "User-supplied official UI 3.0 branding; lossless PNG recompression only. Distinct from upstream game artwork; see THIRD_PARTY_NOTICES.md."
     }
   ]
 }
