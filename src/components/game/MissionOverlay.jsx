@@ -10,7 +10,8 @@ export default function MissionOverlay({ state, shared = false }) {
           {state.mission.config?.variant || "MISSION PROGRESS"} ·{" "}
           {state.mission.objectives?.filter((o) => o.status === "complete")
             .length || 0}
-          /{state.mission.objectives?.length || 0}
+          /{state.mission.objectives?.length || 0} · KEYS{" "}
+          {state.mission.keys.filter((k) => k.collected).length}/2
         </summary>
         <div className="objective-list">
           {objectiveSummary(state).map((o) => (

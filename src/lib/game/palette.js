@@ -36,7 +36,7 @@ export function missionStageId(s) {
   if (m.config) {
     const next = m.objectives.find((o) => o.status !== "complete");
     if (
-      ["credential", "electronic_key", "recon", "checkpoint"].includes(next?.id)
+      ["credential", "shared_keys", "electronic_door", "camera_network", "recon", "checkpoint"].includes(next?.id)
     )
       return "keys";
   }

@@ -260,7 +260,7 @@ function _renderVision(ctx, state) {
     ctx.stroke();
   }
 
-  if (state.mission?.securityOff) return;
+  if (state.mission?.securityOff || state.mission?.cameraNetworkOff) return;
   const camHalf = (CAM_ARC_DEG * Math.PI) / 180 / 2;
   for (const c of state.cameras) {
     if (c.disabled > 0) continue;
@@ -410,7 +410,7 @@ function _renderObjectives(ctx, state, tick, stage) {
     const captain = state.guards.find(
       (g) => g.id === m.config.anchors.captainId,
     );
-    if (captain && !m.keys.find((k) => k.id === "BRAVO")?.collected)
+    if (captain && !m.objectives.find(o=>o.id==="credential")?.completedBy)
       mark(captain, "ASSASSIN · CAPTAIN", "#ffa78b");
     if (m.recon) {
       mark(
@@ -555,7 +555,7 @@ function _renderLegacyProps(ctx, state) {
 // ─── Cameras ──────────────────────────────────────────────────────────────────
 function _renderCameras(ctx, state, tick) {
   for (const c of state.cameras) {
-    const off = state.mission?.securityOff || c.disabled > 0;
+    const off = state.mission?.securityOff || state.mission?.cameraNetworkOff || c.disabled > 0;
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(c.angle);
@@ -782,7 +782,7 @@ function _renderLabels(ctx, state, tick, stage, scale) {
   }
 
   for (const c of state.cameras) {
-    if (c.disabled > 0 && !m?.securityOff) {
+    if (c.disabled > 0 && !m?.securityOff && !m?.cameraNetworkOff) {
       label(ctx, `CAM OFF ${Math.ceil(c.disabled)}s`, c.x, c.y - 16 * scale, '#6fe39a', scale * 0.85);
     }
   }

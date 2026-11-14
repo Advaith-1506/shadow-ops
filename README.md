@@ -47,7 +47,7 @@ The server generates a deterministic mission from the actual player roster and M
 
 | Team | Required roles | Mission variant |
 | --- | --- | --- |
-| Two | Hacker + Assassin | Operation Duo: credential, electronic key, cooperative terminal, vault, Diamond, extraction |
+| Two | Hacker + Assassin | Operation Duo: two shared keys, captain takedown, Hacker door/camera overrides, cooperative terminal, vault, Diamond, extraction |
 | Three | Hacker + Assassin + Scout | Operation Trio · Recon: also discover the hidden control network |
 | Three | Hacker + Assassin + Decoy | Operation Trio · Distraction: also lure the sentry and release its relay |
 | Four | Hacker + Assassin + Scout + Decoy | Operation Full Squad: every role objective is mandatory |
@@ -56,16 +56,16 @@ Duplicate roles and other combinations cannot deploy. The lobby explains missing
 
 | Role | Mandatory contribution | Ability / cooldown |
 | --- | --- | --- |
-| **Assassin** | Stun the marked Garage security captain to recover BRAVO credentials. Ordinary key pickup cannot substitute. | Silent Takedown: actual guard within 62px and clear sight; stun 10s (captain's first credential takedown: 20s), cooldown 12s |
-| **Hacker** | Interact with electronic ALPHA in the Kitchen, then operate the protected terminal after the team's role objectives. | System Override: camera within 100px suppressed 10s or side door within 65px unlocked; cooldown 16s. Use **Interact** for keys and terminals. |
-| **Scout**, when selected | Pulse from the marked Garage recon zone to discover the hidden control node and unlock terminal authorization. This is an actual prerequisite. | Recon Pulse: zone radius 58px AND hidden node within 120px; discovery persists, hazard reveal lasts 6s; cooldown 18s |
+| **Assassin** | Incapacitate the marked Garage captain. This objective is separate from shared key collection. | Silent Takedown: actual guard within 62px and clear sight; stun 10s (captain's first credential takedown: 20s), cooldown 12s |
+| **Hacker** | Unlock the Garage pantry electronic door and disable the designated Living Room camera network using System Override. Both actions persist and are mandatory; then operate the cooperative terminal. | System Override: designated camera network within 100px disabled permanently; optional cameras suppressed 10s; electronic door within 65px unlocked permanently; cooldown 16s. Any role uses **Interact** for keys. Use **Ability** for electronic security and **Interact** at the final terminal. |
+| **Scout**, when selected | Pulse from the marked Garage recon zone once to reveal the security layout and unlock terminal authorization. No separate Scout item, code pickup or repeated scan is required. This is an actual prerequisite. | Recon Pulse: zone radius 58px AND hidden node within 120px; discovery persists, hazard reveal lasts 6s; cooldown 18s |
 | **Decoy**, when selected | Place noise in the marked Living Room zone after credential/key/recon objectives. The sentry must actually investigate and move clear; Hacker or Assassin then interacts at the checkpoint relay. | Noise Maker: nearby guards within 260px pathfind to noise; 5s normally, 12s for a valid checkpoint attempt; cooldown 16s |
 
 Scout and Decoy objective markers appear only in missions containing those roles. Hidden-node discovery is never granted by ordinary Interact. The existing hazard scan, camera override, side-door hack and general-purpose distractions remain useful throughout the heist.
 
 ## Mission and teamwork
 
-1. Infiltrate through the Garage. Assassin neutralizes the marked captain for BRAVO; Hacker activates ALPHA in the Kitchen. If Scout is selected, scan the Garage network from its marked zone. These initial tasks can happen concurrently.
+1. Infiltrate through the Garage. Any role collects ALPHA in the Kitchen and BRAVO in the Garage (shared 0/2, 1/2, 2/2). Assassin separately neutralizes the captain; Hacker unlocks the Garage pantry electronic door and overrides the Living Room camera network. If Scout is selected, scan the Garage network from its marked zone. These initial tasks can happen concurrently. Each key can be picked up once; neither is granted by a role ability. The unlocked door becomes passable and the disabled camera network permanently stops detecting operatives.
 2. With Decoy selected, complete those access objectives first. Decoy uses Ability at the Living Room noise zone and **moves away**. The intended sentry must use real investigation/pathfinding, travel at least 28px and clear the relay by 95px. During the visible **10-second opportunity**, Hacker or Assassin presses **Interact at the relay**. A chase or stun cancels the opportunity; let the patrol settle and retry after cooldown. Both teammates receive contribution credit.
 3. Go to Security: **Hacker stands at TERMINAL and presses Interact. A different teammate stands on SUPPORT PAD and stays there.** All required role objectives must be complete. The helper does not interact with the terminal. Successful cooperation permanently disables cameras and lasers.
 4. Interact with the vault lock in the Living Room. Enter the vault and recover the Diamond.
@@ -157,3 +157,7 @@ Unused imported resources have been removed, and the pause and result screens us
 ## License and notices
 
 Distributed under the **MIT License**. Required copyright notices are preserved in [LICENSE](LICENSE); imported code, assets and dependency acknowledgments are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Published history is retained. GitHub may show an older commit beside files that have not changed since that commit; cosmetic history rewrites are not used to hide provenance.
+
+### Shared inventory and security rebalance
+
+Exactly two keys spawn on reachable floor: ALPHA in the Kitchen, BRAVO above the Garage car. Every role has identical Interact permission. Both keys, the captain takedown, the Hacker's separate electronic-door and camera-network actions, and any selected Scout/Decoy objectives gate terminal and vault progression. Key pickup is never a Hacker-only duty. Scout receives “Recon complete — Security layout revealed.” after one valid zone pulse. Unlimited mission time is retained.

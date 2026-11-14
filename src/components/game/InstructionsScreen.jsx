@@ -10,8 +10,10 @@ export default function InstructionsScreen({ onBack }) {
           style={{ listStyle: "decimal", paddingLeft: 20 }}
         >
           <li>
-            Hacker activates ALPHA in the Kitchen. Assassin uses Silent Takedown
-            on the marked security captain in the Garage to recover BRAVO.
+            Any operative collects ALPHA in the Kitchen and BRAVO in the Garage.
+            Assassin must separately incapacitate the marked security captain.
+            Hacker must use Ability to unlock the Garage pantry door and disable
+            the designated Living Room camera network.
           </li>
           <li>
             If Scout is selected, pulse from the Garage recon zone. If Decoy is
