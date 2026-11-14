@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 
 function dirFromVector(dx, dy) {
   const dead = 14;
-  if (Math.hypot(dx, dy) < dead) return { up: false, down: false, left: false, right: false };
+  if (Math.hypot(dx, dy) < dead)
+    return { up: false, down: false, left: false, right: false };
   return {
     up: dy < -8,
     down: dy > 8,
@@ -16,10 +17,16 @@ export default function TouchControls({ onChange }) {
   const [knob, setKnob] = useState({ x: 0, y: 0 });
   const [pid, setPid] = useState(null);
   const interactHeld = useRef(false);
+  const abilityHeld = useRef(false);
 
   const emit = (extra = {}) => {
     const d = dirFromVector(knob.x, knob.y);
-    onChange?.({ ...d, interact: interactHeld.current, ...extra });
+    onChange?.({
+      ...d,
+      interact: interactHeld.current,
+      ability: abilityHeld.current,
+      ...extra,
+    });
   };
 
   const pointerPos = (e) => {
@@ -49,14 +56,22 @@ export default function TouchControls({ onChange }) {
           setPid(e.pointerId);
           const p = pointerPos(e);
           setKnob(p);
-          onChange?.({ ...dirFromVector(p.x, p.y), interact: interactHeld.current });
+          onChange?.({
+            ...dirFromVector(p.x, p.y),
+            interact: interactHeld.current,
+            ability: abilityHeld.current,
+          });
         }}
         onPointerMove={(e) => {
           if (pid !== e.pointerId) return;
           e.preventDefault();
           const p = pointerPos(e);
           setKnob(p);
-          onChange?.({ ...dirFromVector(p.x, p.y), interact: interactHeld.current });
+          onChange?.({
+            ...dirFromVector(p.x, p.y),
+            interact: interactHeld.current,
+            ability: abilityHeld.current,
+          });
         }}
         onPointerUp={(e) => {
           if (pid !== e.pointerId) return;
@@ -73,9 +88,30 @@ export default function TouchControls({ onChange }) {
       </div>
 
       <button
+        className="pointer-events-auto absolute right-8 bottom-36 w-16 h-16 rounded-full border border-emerald-300 bg-emerald-900/70 text-emerald-200 touch-none"
+        aria-label="Use ability"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.currentTarget.setPointerCapture(e.pointerId);
+          abilityHeld.current = true;
+          emit({ ability: true });
+        }}
+        onPointerUp={() => {
+          abilityHeld.current = false;
+          emit({ ability: false });
+        }}
+        onPointerCancel={() => {
+          abilityHeld.current = false;
+          emit({ ability: false });
+        }}
+      >
+        Q
+      </button>
+      <button
         className="pointer-events-auto absolute right-5 bottom-8 w-24 h-24 rounded-full border border-[#ffd166]/70 bg-[#ffd166]/25 text-[#ffe8a3] font-heading text-lg touch-none"
         onPointerDown={(e) => {
           e.preventDefault();
+          e.currentTarget.setPointerCapture(e.pointerId);
           interactHeld.current = true;
           emit({ interact: true });
         }}
@@ -94,4 +130,3 @@ export default function TouchControls({ onChange }) {
     </div>
   );
 }
-

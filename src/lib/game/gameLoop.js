@@ -4,17 +4,18 @@
  * Orchestrates all system updates and checks win/loss conditions.
  */
 
-import { MAX_ALARM } from './constants';
-import { getP1Input, getP2Input, getLocalP3Input, getLocalP4Input } from './input';
-import { updatePlayer }           from './playerLogic';
+import { updateMissionPlayer } from './mission.js';
+import { MAX_ALARM } from './constants.js';
+import { getP1Input, getP2Input, getLocalP3Input, getLocalP4Input } from './input.js';
+import { updatePlayer }           from './playerLogic.js';
 import {
   updateGuards,
   updateCameras,
   updateLasers,
   updatePressurePlates,
   updateCrates,
-} from './entityLogic';
-import { isWinConditionMet, calculateScore } from './gameState';
+} from './entityLogic.js';
+import { isWinConditionMet, calculateScore } from './gameState.js';
 
 export function updateGame(state, dt, inputByPlayer = null) {
   // ── Countdown timer ─────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ export function updateGame(state, dt, inputByPlayer = null) {
       up: false, down: false, left: false, right: false, interact: false,
     };
     updatePlayer(player, input, state, dt);
+    if (state.mission) updateMissionPlayer(state, player, input, dt);
   }
 
   // ── Update entities ─────────────────────────────────────────────────────────

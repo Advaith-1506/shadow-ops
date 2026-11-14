@@ -10,10 +10,10 @@
 import {
   C, CANVAS_W, CANVAS_H, TILE,
   GUARD_DETECT_R, CAM_DETECT_R, CAM_ARC_DEG,
-} from './constants';
-import { roomLabels, displayCases } from './mapData';
-import { installRoundRect } from './canvasPolyfill';
-import { ANIM, drawStripFrame, getSprites } from './spriteAssets';
+} from './constants.js';
+import { roomLabels, displayCases } from './mapData.js';
+import { installRoundRect } from './canvasPolyfill.js';
+import { ANIM, drawStripFrame, getSprites } from './spriteAssets.js';
 
 // ─── Master render call ───────────────────────────────────────────────────────
 export function renderGame(ctx, state, tick, camera = { x: 0, y: 0 }, zoom = 1, view = { w: CANVAS_W, h: CANVAS_H }) {
@@ -43,6 +43,7 @@ export function renderGame(ctx, state, tick, camera = { x: 0, y: 0 }, zoom = 1, 
   _renderGuards(ctx, state, tick, S);
   _renderVan(ctx, state, tick, S);
   _renderPlayers(ctx, state, tick, S);
+  if (state.mission) renderMissionWorld(ctx, state);
   _renderPrompts(ctx, state);
   _renderAlarmOverlay(ctx, state, tick, camera, view);
   _renderTutorial(ctx, state, camera, view);
@@ -270,6 +271,7 @@ function _renderSwitches(ctx, state) {
 function _renderCameras(ctx, state, tick) {
   const S = getSprites();
   for (const cam of state.cameras) {
+    if (state.mission?.securityOff || cam.disabled > 0) { ctx.fillStyle="#53d7ac"; ctx.fillRect(cam.x-6,cam.y-6,12,12); continue; }
     const halfArc = (CAM_ARC_DEG * Math.PI / 180) / 2;
 
     // Vision cone fill
@@ -303,6 +305,7 @@ function _renderCameras(ctx, state, tick) {
 // ─── Guards ───────────────────────────────────────────────────────────────────
 function _renderGuards(ctx, state, tick, S) {
   for (const guard of state.guards) {
+    if (guard.stunned > 0) { ctx.fillStyle="#559c83"; ctx.fillRect(guard.x-10,guard.y-5,20,10); continue; }
     // Detection radius (faint red circle)
     ctx.save();
     ctx.beginPath();
@@ -521,3 +524,21 @@ function _renderTutorial(ctx, state, camera, view) {
   ctx.restore();
 }
 
+
+function renderMissionWorld(ctx, s) {
+  const m = s.mission;
+  ctx.save();ctx.textAlign='center';ctx.font='bold 13px monospace';
+  const marker=(o,text,color)=>{ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(o.x,o.y,20,0,Math.PI*2);ctx.stroke();ctx.fillText(text,o.x,o.y-30);};
+  for(const k of m.keys) if(!k.collected) marker(k,'KEY '+k.id,'#7bffb5');
+  marker(m.terminal,m.securityOff?'SECURITY OFF':'HACKER TERMINAL','#6bd6ff');
+  marker(m.support,'TEAM SUPPORT PAD','#c1a4ff');
+  marker(m.lock,s.vaultUnlocked?'VAULT OPEN':'VAULT LOCK','#ffd77b');
+  for(const p of s.players) if(p.scanTime>0) {
+    ctx.strokeStyle='#63e7ff55';ctx.beginPath();ctx.arc(p.x,p.y,360,0,Math.PI*2);ctx.stroke();
+    for(const g of [...s.guards,...s.cameras]) if(Math.hypot(g.x-p.x,g.y-p.y)<360) marker(g,g.stunned>0?'INCAPACITATED':g.disabled>0?'DISABLED':'THREAT','#63e7ff');
+    for(const l of s.lasers) if(l.active && Math.hypot(l.x1-p.x,l.y1-p.y)<360) marker({x:l.x1,y:l.y1},'LASER','#63e7ff');
+  }
+  for(const g of s.guards) if(g.stunned>0) marker(g,'STUN '+Math.ceil(g.stunned)+'s','#7bffb5');
+  for(const c of s.cameras) if(c.disabled>0 || m.securityOff) marker(c,'OFF','#7bffb5');
+  ctx.restore();
+}

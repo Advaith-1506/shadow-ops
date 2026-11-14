@@ -9,7 +9,12 @@ export function updateCameraForState(state, canvas, cameraRef, viewRef) {
 
   const targetViewW = 620;
   const targetViewH = 380;
-  const zoom = Math.max(1, Math.min(2.6, Math.max(canvas.width / targetViewW, canvas.height / targetViewH)));
+  let zoom = Math.max(1, Math.min(2.6, Math.max(canvas.width / targetViewW, canvas.height / targetViewH)));
+  if (state.players.length > 1) {
+    const spreadX = Math.max(...state.players.map(p => p.x)) - Math.min(...state.players.map(p => p.x));
+    const spreadY = Math.max(...state.players.map(p => p.y)) - Math.min(...state.players.map(p => p.y));
+    zoom = Math.min(zoom, canvas.width / (spreadX + 220), canvas.height / (spreadY + 300));
+  }
   const viewW = canvas.width / zoom;
   const viewH = canvas.height / zoom;
   viewRef.current = { zoom, w: viewW, h: viewH };

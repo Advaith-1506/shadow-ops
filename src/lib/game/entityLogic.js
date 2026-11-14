@@ -10,18 +10,19 @@ import {
   CAM_DETECT_R, CAM_ARC_DEG, CAM_SWEEP_RAD_S, CAM_ALARM_RATE,
   LASER_ALARM_RATE, MAX_ALARM,
   CANVAS_W, CANVAS_H,
-} from './constants';
+} from './constants.js';
 import {
   dist, pointInCone, rectsOverlap,
   lineIntersectsCircle, circleOverlapsRect, moveCircleWithCollisions, moveRectWithCollisions, lineBlockedByRects,
-} from './collision';
-import { computeGuardPath } from './guardNav';
+} from './collision.js';
+import { computeGuardPath } from './guardNav.js';
 
 // ─── Guards ───────────────────────────────────────────────────────────────────
 export function updateGuards(state, dt) {
   const solids = [...state.walls, ...state.doors.filter((d) => !d.open)];
   const blockers = [...solids, ...state.crates];
   for (const guard of state.guards) {
+    if (guard.stunned > 0) { guard.stunned = Math.max(0, guard.stunned - dt); continue; }
     _patrolGuard(guard, dt, solids, state.crates);
     _separateGuardFromCrates(guard, state.crates, solids);
     _guardDetection(guard, state, dt, blockers);
@@ -208,7 +209,9 @@ function _guardDetection(guard, state, dt, blockers) {
 
 // ─── Cameras ──────────────────────────────────────────────────────────────────
 export function updateCameras(state, dt) {
+  if (state.mission?.securityOff) return;
   for (const cam of state.cameras) {
+    if (cam.disabled > 0) { cam.disabled = Math.max(0, cam.disabled - dt); continue; }
     _sweepCamera(cam, dt);
     _cameraDetection(cam, state, dt);
   }
@@ -232,6 +235,7 @@ function _cameraDetection(cam, state, dt) {
 
 // ─── Lasers ───────────────────────────────────────────────────────────────────
 export function updateLasers(state, dt) {
+  if (state.mission?.securityOff) { for (const l of state.lasers) l.active = false; return; }
   const singlePlayer = (state.players?.length || 0) <= 1;
   for (const laser of state.lasers) {
     if (singlePlayer && state.vaultUnlocked && laser.disabledBy === 'plate_vault') {
@@ -292,6 +296,7 @@ export function updatePressurePlates(state) {
   // Vault plate (group:'single') → also opens the vault door directly
   const vaultPlate = state.pressurePlates.find(p => p.id === 'plate_vault');
   const vaultDoor  = state.doors.find(d => d.id === 'door_vault');
+  if (state.mission) { if (vaultDoor) vaultDoor.open = !!state.vaultUnlocked; return; }
   if (vaultPlate && vaultDoor) {
     if (singlePlayer) {
       if (vaultPlate.activated) state.vaultUnlocked = true;

@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
-import { getLanInput, initInput } from '@/lib/game/input';
-import { updateGame } from '@/lib/game/gameLoop';
-import { renderGame } from '@/lib/game/renderer';
-import { renderHUD } from '@/lib/game/hud';
-import { updateCameraForState } from '@/lib/game/cameraController';
-import { sanitizeInputPayload } from '@/lib/game/networkClient';
+import { useEffect, useRef } from "react";
+import { getLanInput, initInput } from "@/lib/game/input";
+import { updateGame } from "@/lib/game/gameLoop";
+import { renderGame } from "@/lib/game/renderer";
+import { renderHUD } from "@/lib/game/hud";
+import { updateCameraForState } from "@/lib/game/cameraController";
+import { sanitizeInputPayload } from "@/lib/game/networkClient";
 
 const FIXED_DT = 1 / 30;
 
@@ -34,11 +34,11 @@ export function useGameRuntime({
       inputReady.current = true;
     }
     const params = new URLSearchParams(window.location.search);
-    const room = params.get('room');
+    const room = params.get("room");
     if (room) {
       setJoinCode(room.toUpperCase());
-      setScreen('lobby');
-      screenRef.current = 'lobby';
+      setScreen("lobby");
+      screenRef.current = "lobby";
     }
     return () => cleanupNetwork();
   }, [cleanupNetwork, screenRef, setJoinCode, setScreen]);
@@ -54,30 +54,30 @@ export function useGameRuntime({
       canvas.height = h;
     };
     resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
   }, [canvasRef, containerRef]);
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.code !== 'Escape') return;
-      if (screenRef.current === 'playing') {
-        setScreen('paused');
-        screenRef.current = 'paused';
-      } else if (screenRef.current === 'paused') {
+      if (e.code !== "Escape" || networkRef.current.mode === "server") return;
+      if (screenRef.current === "playing") {
+        setScreen("paused");
+        screenRef.current = "paused";
+      } else if (screenRef.current === "paused") {
         lastTimeRef.current = null;
-        setScreen('playing');
-        screenRef.current = 'playing';
+        setScreen("playing");
+        screenRef.current = "playing";
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [screenRef, setScreen]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
 
     const loop = (ts) => {
@@ -85,7 +85,7 @@ export function useGameRuntime({
       const state = stateRef.current;
       if (!state) return;
 
-      if (screenRef.current === 'playing') {
+      if (screenRef.current === "playing") {
         if (!lastTimeRef.current) lastTimeRef.current = ts;
         const frameDt = Math.min((ts - lastTimeRef.current) / 1000, 0.1);
         lastTimeRef.current = ts;
@@ -93,44 +93,71 @@ export function useGameRuntime({
 
         const net = networkRef.current;
         while (accRef.current >= FIXED_DT) {
-          if (net.mode === 'host') {
-            const inputs = {};
-            for (const p of state.players) {
-              const pid = p.id;
-              inputs[pid] = pid === net.myPlayerId
-                ? sanitizeInputPayload(getLanInput())
-                : sanitizeInputPayload(net.remoteInputs[pid] || { up: false, down: false, left: false, right: false, interact: false });
+          if (net.mode === "server") {
+            net.session?.send("client_input", {
+              input: sanitizeInputPayload(getLanInput()),
+            });
+            if (net.snapshot) {
+              Object.assign(state, net.snapshot);
+              net.snapshot = null;
             }
-            updateGame(state, FIXED_DT, inputs);
-            net.session?.send('frame_inputs', { frame: net.frame, inputs });
-            net.frame += 1;
-          } else if (net.mode === 'client') {
-            const payload = net.queuedFrames.get(net.nextClientFrame);
-            if (!payload) break;
-            updateGame(state, FIXED_DT, payload.inputs);
-            net.queuedFrames.delete(net.nextClientFrame);
-            net.nextClientFrame += 1;
-            net.session?.send('client_input', { input: sanitizeInputPayload(getLanInput()) });
           } else {
             updateGame(state, FIXED_DT);
           }
 
           accRef.current -= FIXED_DT;
-          if (state.screen === 'win' || state.screen === 'loss') {
+          if (state.screen === "win" || state.screen === "loss") {
             finalizeIfEnded(state, endStateRef);
             break;
           }
         }
       }
 
-      updateCameraForState(state, canvas, cameraRef, viewRef);
-      renderGame(ctx, state, ts / 1000, cameraRef.current, viewRef.current.zoom, { w: viewRef.current.w, h: viewRef.current.h });
+      const trackedState =
+        networkRef.current.mode === "server"
+          ? {
+              ...state,
+              players: state.players.filter(
+                (p) => p.id === networkRef.current.myPlayerId,
+              ),
+            }
+          : state;
+      updateCameraForState(trackedState, canvas, cameraRef, viewRef);
+      renderGame(
+        ctx,
+        state,
+        ts / 1000,
+        cameraRef.current,
+        viewRef.current.zoom,
+        { w: viewRef.current.w, h: viewRef.current.h },
+      );
       renderHUD(ctx, state);
+      if (networkRef.current.paused) {
+        ctx.fillStyle = "rgba(0,0,0,.8)";
+        ctx.fillRect(0, 100, canvas.width, 65);
+        ctx.fillStyle = "#7fffc0";
+        ctx.font = "18px sans-serif";
+        ctx.fillText(
+          "Connection interrupted · mission paused · reconnecting…",
+          15,
+          138,
+        );
+      }
     };
 
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [canvasRef, cameraRef, endStateRef, finalizeIfEnded, networkRef, screenRef, stateRef, viewRef, isTouchDevice]);
+  }, [
+    canvasRef,
+    cameraRef,
+    endStateRef,
+    finalizeIfEnded,
+    networkRef,
+    screenRef,
+    stateRef,
+    viewRef,
+    isTouchDevice,
+  ]);
 
   return {
     resetFrameClock: () => {

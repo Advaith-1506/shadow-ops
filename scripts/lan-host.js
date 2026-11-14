@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 
 function run(cmd, args, label) {
-  const child = spawn(cmd, args, { stdio: "inherit", shell: true });
+  const child = spawn(cmd, args, { stdio: "inherit", shell: false });
   child.on("exit", (code) => {
     if (code !== 0) {
       console.error(`[${label}] exited with code ${code}`);
@@ -10,7 +10,7 @@ function run(cmd, args, label) {
   return child;
 }
 
-console.log("Starting Museum Break LAN host stack...");
+console.log("Starting Shadow Ops LAN host stack...");
 console.log("This starts both: room server (:8787) and Vite dev server (:5173 or next free port).");
 
 const server = run("npm", ["run", "lan:server"], "lan:server");

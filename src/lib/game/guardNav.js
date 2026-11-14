@@ -1,5 +1,5 @@
 import PF from 'pathfinding';
-import { CANVAS_W, CANVAS_H } from './constants';
+import { CANVAS_W, CANVAS_H } from './constants.js';
 
 const CELL = 24;
 

@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install
@@ -24,3 +24,6 @@ jobs:
       - name: Unit + Integration Tests (coverage)
         run: npm run test:run
 
+
+      - name: Production build
+        run: npm run build

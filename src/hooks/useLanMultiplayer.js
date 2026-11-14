@@ -1,176 +1,181 @@
-import { useCallback, useRef, useState } from 'react';
-import { clearNetworkInputs, clearTouchInput, getLanInput } from '@/lib/game/input';
-import { createNetworkSession, makeWsUrl, sanitizeFramePayload, sanitizeInputPayload } from '@/lib/game/networkClient';
-
-function createEmptyNetworkState() {
-  return {
-    mode: 'local',
-    myPlayerId: 1,
-    session: null,
-    remoteInputs: {},
-    frame: 0,
-    queuedFrames: new Map(),
-    nextClientFrame: 0,
-  };
-}
-
-export function useLanMultiplayer({ screenRef, startNetworkGame, onPeerLeftToMenu }) {
-  const networkRef = useRef(createEmptyNetworkState());
-
-  const [wsUrl] = useState(makeWsUrl(''));
-  const [joinCode, setJoinCode] = useState('');
-  const [netStatus, setNetStatus] = useState('');
-  const [netError, setNetError] = useState('');
-  const [roomCode, setRoomCode] = useState('');
-  const [serverIp, setServerIp] = useState('');
-  const [inviteLink, setInviteLink] = useState('');
+import { useCallback, useRef, useState } from "react";
+import { clearTouchInput } from "@/lib/game/input";
+import { createNetworkSession, makeWsUrl } from "@/lib/game/networkClient";
+const empty = () => ({
+  mode: "local",
+  myPlayerId: 1,
+  session: null,
+  snapshot: null,
+  paused: false,
+});
+export function useLanMultiplayer({
+  screenRef,
+  startNetworkGame,
+  onPeerLeftToMenu,
+}) {
+  const networkRef = useRef(empty());
+  const callbacks = useRef({ startNetworkGame, onPeerLeftToMenu });
+  callbacks.current = { startNetworkGame, onPeerLeftToMenu };
+  const [joinCode, setJoinCode] = useState("");
+  const [wsUrl, setWsUrl] = useState(makeWsUrl(""));
+  const [netStatus, setNetStatus] = useState("");
+  const [netError, setNetError] = useState("");
+  const [roomCode, setRoomCode] = useState("");
+  const [serverIp, setServerIp] = useState("");
+  const [inviteLink, setInviteLink] = useState("");
   const [lanMaxPlayers, setLanMaxPlayers] = useState(4);
   const [discoveredRooms, setDiscoveredRooms] = useState([]);
-
+  const [players, setPlayers] = useState([]);
+  const [myPlayerId, setMyPlayerId] = useState(1);
+  const [hostId, setHostId] = useState(1);
+  const retry = useRef(null);
+  const reconnectDeadline = useRef(0);
+  const credentials = useRef(null);
+  const manualClose = useRef(false);
   const cleanupNetwork = useCallback(() => {
-    const net = networkRef.current;
-    try { net.session?.close(); } catch {}
-    networkRef.current = createEmptyNetworkState();
-    clearNetworkInputs();
+    manualClose.current = true;
+    clearTimeout(retry.current);
+    reconnectDeadline.current = 0;
+    credentials.current = null;
+    networkRef.current.session?.send("leave");
+    networkRef.current.session?.close();
+    networkRef.current = empty();
     clearTouchInput();
   }, []);
-
   const resetLobbyUi = useCallback(() => {
-    setRoomCode('');
-    setServerIp('');
-    setJoinCode('');
-    setNetStatus('');
-    setNetError('');
-    setInviteLink('');
+    setRoomCode("");
+    setServerIp("");
+    setJoinCode("");
+    setNetStatus("");
+    setNetError("");
+    setInviteLink("");
     setDiscoveredRooms([]);
+    setPlayers([]);
   }, []);
-
-  const connectNetwork = useCallback((mode) => {
-    cleanupNetwork();
-    const url = makeWsUrl(wsUrl);
-    setNetStatus(`Connecting to ${url} ...`);
-    setNetError('');
-
-    const session = createNetworkSession(url, {
-      onOpen: () => {
-        if (mode === 'host') {
-          session.send('host_create', { maxPlayers: lanMaxPlayers });
-          setNetStatus('Connected. Creating room...');
-        } else {
-          session.send('join_room', { roomCode: joinCode.trim().toUpperCase() });
-          setNetStatus('Connected. Joining room...');
+  const connectNetwork = useCallback(
+    (mode, code) => {
+      cleanupNetwork();
+      manualClose.current = false;
+      setNetError("");
+      setNetStatus("Connecting…");
+      function open(resuming = false) {
+        if (resuming && Date.now() >= reconnectDeadline.current) {
+          credentials.current = null;
+          setNetError('Connection could not be restored. Leave the operation to create a new room.');
+          return;
         }
-      },
-      onClose: () => {
-        if (screenRef.current === 'playing' || screenRef.current === 'lobby') {
-          setNetError('Connection closed.');
-          setNetStatus('');
-        }
-      },
-      onError: (msg) => setNetError(msg),
+        const session = createNetworkSession(makeWsUrl(wsUrl), {
+          onOpen: () => {
+            if (resuming && credentials.current)
+              session.send("resume", credentials.current);
+            else
+              session.send(
+                mode === "host" ? "host_create" : "join_room",
+                mode === "host"
+                  ? { maxPlayers: lanMaxPlayers }
+                  : { roomCode: code },
+              );
+          },
+          onError: (msg) => setNetError(msg),
+          onClose: () => {
+            if (manualClose.current || networkRef.current.session !== session)
+              return;
+            if (!reconnectDeadline.current) reconnectDeadline.current = Date.now() + 30000;
+            networkRef.current.paused = true;
+            setNetError("Disconnected. Reconnecting for up to 30 seconds…");
+            if (credentials.current)
+              retry.current = setTimeout(() => open(true), 1000);
+          },
+          onMessage: (msg) => {
+            const net = networkRef.current;
+            if (["room_created", "joined_room"].includes(msg.type)) {
+              net.mode = "server";
+              net.myPlayerId = msg.playerId;
+              net.paused = false;
+              reconnectDeadline.current = 0;
+              credentials.current = {
+                roomCode: msg.roomCode,
+                token: msg.sessionToken,
+              };
+              setMyPlayerId(msg.playerId);
+              setHostId(msg.hostId);
+              setRoomCode(msg.roomCode);
+              setServerIp(msg.serverIp || "");
+              const webHost = new URL(makeWsUrl(wsUrl)).hostname;
+              setInviteLink(
+                `${window.location.protocol}//${webHost}:${window.location.port || 5173}/?room=${msg.roomCode}`,
+              );
+              setNetError("");
+              setNetStatus("Connected. Choose a role and ready up.");
+            }
+            if (msg.type === "roster_update") {
+              setPlayers(msg.players);
+              setHostId(msg.hostId);
+            }
+            if (msg.type === "game_start") {
+              callbacks.current.startNetworkGame(
+                "server",
+                msg.playerIds,
+                msg.state,
+              );
+              net.snapshot = msg.state;
+            }
+            if (msg.type === "snapshot") {
+              net.snapshot = msg.state;
+              net.paused = msg.paused;
+              setNetError(
+                msg.paused
+                  ? "Teammate disconnected. Mission frozen for reconnection."
+                  : "",
+              );
+            }
+            if (msg.type === "join_error") {
+              setNetError(msg.message);
+              if (resuming) {
+                credentials.current = null;
+                manualClose.current = true;
+                setNetStatus(
+                  "Session expired. Return to menu and join a new room.",
+                );
+              }
+            }
+            if (msg.type === "rooms_discovered")
+              setDiscoveredRooms(msg.rooms || []);
+          },
+        });
+        networkRef.current.session = session;
+      }
+      open();
+    },
+    [cleanupNetwork, lanMaxPlayers, wsUrl],
+  );
+  const hostLanGame = () => connectNetwork("host");
+  const joinLanGame = () => {
+    if (!joinCode.trim()) return setNetError("Enter room code first.");
+    connectNetwork("client", joinCode.trim().toUpperCase());
+  };
+  const discoverLanGames = () => {
+    if (roomCode) return;
+    const session = createNetworkSession(makeWsUrl(wsUrl), {
+      onOpen: () => session.send("discover_rooms"),
+      onError: () => setNetError("Cannot reach this server."),
       onMessage: (msg) => {
-        const net = networkRef.current;
-
-        if (msg.type === 'room_created') {
-          net.mode = 'host';
-          net.myPlayerId = Number(msg.playerId || 1);
-          setRoomCode(msg.roomCode || '');
-          setServerIp(msg.serverIp || '');
-          const port = window.location.port || '5173';
-          setInviteLink(`http://${msg.serverIp}:${port}/?room=${msg.roomCode}`);
-          setNetStatus('Room created. Share room code or invite link.');
-        }
-
-        if (msg.type === 'joined_room') {
-          net.mode = 'client';
-          net.myPlayerId = Number(msg.playerId || 2);
-          setRoomCode(msg.roomCode || '');
-          setNetStatus(`Joined room as Player ${net.myPlayerId}. Waiting for host...`);
-        }
-
-        if (msg.type === 'roster_update') {
-          setNetStatus(`Players in lobby: ${(msg.players || []).join(', ')} / ${msg.maxPlayers || lanMaxPlayers}`);
-        }
-
-        if (msg.type === 'game_start') {
-          startNetworkGame(net.mode === 'host' ? 'host' : 'client', msg.playerIds || [1, 2]);
-        }
-
-        if (msg.type === 'frame_inputs' && net.mode === 'client') {
-          const payload = sanitizeFramePayload(msg);
-          net.queuedFrames.set(payload.frame, payload);
-        }
-
-        if (msg.type === 'client_input' && net.mode === 'host') {
-          net.remoteInputs[msg.playerId] = sanitizeInputPayload(msg.input);
-        }
-
-        if (msg.type === 'peer_left') {
-          setNetError('Peer disconnected. Returning to menu.');
-          setTimeout(() => onPeerLeftToMenu(), 1200);
-        }
-
-        if (msg.type === 'join_error') {
-          setNetError(msg.message || 'Unable to join room.');
-        }
-
-        if (msg.type === 'rooms_discovered') {
-          setDiscoveredRooms(msg.rooms || []);
-          setNetStatus(`Found ${(msg.rooms || []).length} room(s).`);
-        }
-      },
-    });
-
-    networkRef.current.session = session;
-  }, [cleanupNetwork, joinCode, lanMaxPlayers, onPeerLeftToMenu, screenRef, startNetworkGame, wsUrl]);
-
-  const hostLanGame = useCallback(() => connectNetwork('host'), [connectNetwork]);
-
-  const discoverLanGames = useCallback(() => {
-    cleanupNetwork();
-    const url = makeWsUrl('');
-    setNetStatus('Scanning nearby sessions...');
-    setNetError('');
-    const session = createNetworkSession(url, {
-      onOpen: () => session.send('discover_rooms', {}),
-      onClose: () => {},
-      onError: () => setNetError('Unable to scan for nearby sessions.'),
-      onMessage: (msg) => {
-        if (msg.type === 'rooms_discovered') {
-          setDiscoveredRooms(msg.rooms || []);
-          setNetStatus(`Found ${(msg.rooms || []).length} room(s).`);
+        if (msg.type === "rooms_discovered") {
+          setDiscoveredRooms(msg.rooms);
+          setNetStatus("Rooms on the selected server");
         }
         session.close();
       },
     });
-  }, [cleanupNetwork]);
-
-  const joinLanGame = useCallback(() => {
-    if (!joinCode.trim()) {
-      setNetError('Enter room code first.');
-      return;
-    }
-    connectNetwork('client');
-  }, [connectNetwork, joinCode]);
-
-  const buildHostInputs = useCallback(() => {
-    const net = networkRef.current;
-    return (players) => {
-      const inputs = {};
-      for (const p of players) {
-        const pid = p.id;
-        inputs[pid] = pid === net.myPlayerId
-          ? sanitizeInputPayload(getLanInput())
-          : sanitizeInputPayload(net.remoteInputs[pid] || { up: false, down: false, left: false, right: false, interact: false });
-      }
-      return inputs;
-    };
-  }, []);
-
+  };
+  const sendLobby = (type, payload) =>
+    networkRef.current.session?.send(type, payload);
   return {
     networkRef,
     joinCode,
     setJoinCode,
+    wsUrl,
+    setWsUrl,
     netStatus,
     netError,
     roomCode,
@@ -179,12 +184,14 @@ export function useLanMultiplayer({ screenRef, startNetworkGame, onPeerLeftToMen
     lanMaxPlayers,
     setLanMaxPlayers,
     discoveredRooms,
+    players,
+    myPlayerId,
+    hostId,
     cleanupNetwork,
     resetLobbyUi,
     hostLanGame,
-    discoverLanGames,
     joinLanGame,
-    buildHostInputs,
+    discoverLanGames,
+    sendLobby,
   };
 }
-

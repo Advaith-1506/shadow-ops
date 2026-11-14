@@ -8,9 +8,9 @@ import {
   CARRY_SLOW_NORMAL, CARRY_SLOW_HEAVY,
   INTERACT_R, VAN_INTERACT_R,
   CANVAS_W, CANVAS_H,
-} from './constants';
-import { moveCircleWithCollisions, dist, rectsOverlap } from './collision';
-import { getSolids } from './gameState';
+} from './constants.js';
+import { moveCircleWithCollisions, dist, rectsOverlap } from './collision.js';
+import { getSolids } from './gameState.js';
 
 // ─── Main per-player update ───────────────────────────────────────────────────
 export function updatePlayer(player, input, state, dt) {
@@ -25,6 +25,7 @@ export function updatePlayer(player, input, state, dt) {
   if (player.detected > 0)         player.detected         -= dt;
   _checkVan(player, state);
   _findPrompt(player, state, input, dt);
+  if (state.mission) return;
 
   if (input.interact && player.interactCooldown <= 0 && !_reviveNearby(player, state, dt)) {
     _interact(player, state);

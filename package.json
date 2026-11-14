@@ -1,7 +1,7 @@
 {
-  "name": "museum-break",
+  "name": "shadow-ops",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -48,15 +48,17 @@
   },
   "main": "electron/main.cjs",
   "build": {
-    "appId": "com.museumbreak.app",
-    "productName": "Museum Break",
+    "appId": "com.shadowops.game",
+    "productName": "Shadow Ops",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "package.json"
+      "package.json",
+      "server/**/*",
+      "src/lib/game/**/*"
     ],
     "asar": true,
     "win": {

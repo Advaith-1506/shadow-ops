@@ -7,6 +7,7 @@ function normalizeInput(input) {
     left: !!input?.left,
     right: !!input?.right,
     interact: !!input?.interact,
+    ...(input?.ability !== undefined ? { ability: !!input.ability } : {}),
   };
 }
 
@@ -23,7 +24,9 @@ export function makeWsUrl(rawUrl) {
 }
 
 export function createNetworkSession(url, handlers) {
-  const ws = new WebSocket(url);
+  let ws;
+  try { ws = new WebSocket(url); }
+  catch { handlers?.onError?.('Invalid server address. Use ws://HOST:8787.'); return { send() {}, close() {} }; }
 
   ws.onopen = () => handlers?.onOpen?.();
   ws.onclose = () => handlers?.onClose?.();
