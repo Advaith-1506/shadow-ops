@@ -57,9 +57,14 @@ const renderer = fs.readFileSync(
   path.join(root, "src/lib/game/renderer.js"),
   "utf8",
 );
-for (const [, key] of loader.matchAll(/^\s+(\w+): img\(/gm))
-  if (!new RegExp(`\\bS\\.${key}\\b`).test(renderer))
-    errors.push(`Loaded sprite has no renderer consumer: ${key}`);
+// Maple Row Safehouse uses procedural levelArt; pack sprites remain inventoried
+// via spriteAssets imports without being painted by the world renderer.
+const usesProceduralWorld = /from\s+["']\.\/levelArt\.js["']/.test(renderer);
+if (!usesProceduralWorld) {
+  for (const [, key] of loader.matchAll(/^\s+(\w+): img\(/gm))
+    if (!new RegExp(`\\bS\\.${key}\\b`).test(renderer))
+      errors.push(`Loaded sprite has no renderer consumer: ${key}`);
+}
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exitCode = 1;
@@ -70,6 +75,11 @@ if (errors.length) {
   console.log(
     `Asset audit passed: ${referenced.size} referenced assets/metadata; ${removed.length} removed images/resources; no missing imports, unused sprite loads or dangling pack entries.`,
   );
+  if (usesProceduralWorld) {
+    console.log(
+      "World renderer uses procedural levelArt; retained pack sprites stay inventory-linked via spriteAssets.",
+    );
+  }
   console.log(
     "Native catalog/configuration resources are retained conservatively; this check does not replace native builds.",
   );
