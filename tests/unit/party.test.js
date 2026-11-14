@@ -1,3 +1,4 @@
+import { initInput, clearKeys, getLocalP3Input, getLocalP4Input, getLocalP1Input } from '../../src/lib/game/input.js';
 import { describe, it, expect, vi } from "vitest";
 import {
   createInviteUrl,
@@ -309,3 +310,5 @@ it("releases all pointers on blur, visibility change and screen unmount", () => 
   unbind();
   expect(model.snapshot().ability).toBe(false);
 });
+
+it('preserves P3/P4 local ability keys without P2 interact affecting P1',()=>{const original=global.window,handlers={};global.window={addEventListener:(name,fn)=>{handlers[name]=fn;}};try{initInput();clearKeys();for(const code of ['KeyY','KeyP','Enter'])handlers.keydown({code,target:null,preventDefault(){}});expect(getLocalP3Input().ability).toBe(true);expect(getLocalP4Input().ability).toBe(true);expect(!!getLocalP1Input().interact).toBe(false);}finally{clearKeys();global.window=original;}});

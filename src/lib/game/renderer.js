@@ -694,10 +694,12 @@ function _renderTutorial(ctx, state, camera, view) {
   ctx.globalAlpha = alpha;
 
   const lines = [
-    "P1 (Blue): WASD to move  |  E to interact",
-    "P2 (Orange): Arrow Keys to move  |  Enter/Space to interact",
-    "Steal 3 artifacts (including the Crown Jewel), then reach the van!",
-    "Avoid guards and cameras — keep the alarm below 100%",
+    'P1 (Blue): WASD to move  |  E to interact  |  Q ability',
+    'P2 (Orange): Arrow Keys to move  |  Enter/Space to interact  |  / ability',
+    'P3 (Green): T/F/G/H to move  |  R interact  |  Y ability',
+    'P4 (Purple): I/J/K/L to move  |  O interact  |  P ability',
+    'Steal 3 artifacts (including the Crown Jewel), then reach the van!',
+    'Avoid guards and cameras — keep the alarm below 100%',
   ];
 
   const boxW = 540,

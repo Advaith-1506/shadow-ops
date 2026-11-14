@@ -5,12 +5,13 @@ Validation date: November 14, 2026. Party Mode work stays on `feature/mobile-par
 ## Baselines
 
 - Before the Party Mode upgrade: **45 tests passed** across six suites; production frontend built successfully.
+- Integrated concurrent `main` changes adding four-player local keyboard co-op. The menu defaults to four local players and supports choosing two or three; P3/P4 controls are preserved and local P4 uses the new Decoy role.
 - Baseline lint could not load its configuration because a JavaScript flat config was named `eslint.config.json`. The feature branch renames it to `eslint.config.js` and adds the lint command to CI.
 - Original import provenance, asset review and mandatory notices are retained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSE](LICENSE). Branding changes do not rewrite published history.
 
 ## Automated Party Mode checks
 
-The expanded suite has **80 tests** across eight suites, preserving every existing test. It covers:
+The expanded suite has **81 tests** across eight suites, preserving every existing test. It covers:
 
 - Party host uses no player slot; four named players can select four roles and join one room; a fifth is rejected.
 - Authorized shared display receives the same state; unauthorized display credentials and movement/ability/role/ready/start/reset actions are rejected.
