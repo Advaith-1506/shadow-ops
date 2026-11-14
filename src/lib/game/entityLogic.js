@@ -23,6 +23,12 @@ export function updateGuards(state, dt) {
   const blockers = [...solids, ...state.crates];
   for (const guard of state.guards) {
     if (guard.stunned > 0) { guard.stunned = Math.max(0, guard.stunned - dt); continue; }
+    if (state.mission && guard.mode !== 'chase') {
+      const noise=(state.distractions || []).find(d=>d.remaining>0 && dist(guard.x,guard.y,d.x,d.y)<=260);
+      const current=(state.distractions || []).find(d=>d.id===guard.noiseId && d.remaining>0);
+      if (noise && !current) {guard.mode='investigate';guard.noiseId=noise.id;guard.investigation={x:noise.x,y:noise.y};guard.path=null;}
+      if (guard.mode==='investigate' && !noise && !current) {guard.mode='patrol';guard.investigation=null;guard.noiseId=null;guard.path=null;}
+    }
     _patrolGuard(guard, dt, solids, state.crates);
     _separateGuardFromCrates(guard, state.crates, solids);
     _guardDetection(guard, state, dt, blockers);
@@ -95,7 +101,7 @@ function _chooseNextPatrolIdx(guard, crates) {
 }
 
 function _patrolGuard(guard, dt, solids, crates) {
-  const target = guard.mode === 'chase' && guard.chaseTarget ? guard.chaseTarget : guard.patrol[guard.patrolIdx];
+  const target = guard.mode === 'investigate' && guard.investigation ? guard.investigation : guard.mode === 'chase' && guard.chaseTarget ? guard.chaseTarget : guard.patrol[guard.patrolIdx];
   if (!target) return;
   guard.repathTimer = Math.max(0, (guard.repathTimer || 0) - dt);
   const needRepath = !guard.path || guard.path.length < 2 || guard.repathTimer <= 0;
@@ -122,6 +128,7 @@ function _patrolGuard(guard, dt, solids, crates) {
       guard.pathIdx += 1;
       return;
     }
+    if (guard.mode === 'investigate') return;
     if (guard.mode === 'chase') {
       guard.mode = 'patrol';
       guard.chaseTarget = null;
@@ -146,6 +153,7 @@ function _patrolGuard(guard, dt, solids, crates) {
     if (movedDist < 0.2) {
       guard.stuckTimer = (guard.stuckTimer || 0) + dt;
       if (guard.stuckTimer > 0.15) {
+        if (guard.mode === 'investigate') { guard.path=null; guard.repathTimer=0;guard.stuckTimer=0;return; }
         if (guard.mode === 'chase') {
           guard.mode = 'patrol';
           guard.chaseTarget = null;
@@ -199,6 +207,8 @@ function _guardDetection(guard, state, dt, blockers) {
   }
 
   if (bestVisible) {
+    if (guard.mode !== 'chase') guard.path=null;
+    guard.investigation=null;guard.noiseId=null;
     guard.mode = 'chase';
     guard.chaseTarget = { x: bestVisible.x, y: bestVisible.y };
   } else if (guard.mode === 'chase' && guard.alertTimer <= 0) {

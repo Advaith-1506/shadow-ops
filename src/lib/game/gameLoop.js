@@ -4,7 +4,7 @@
  * Orchestrates all system updates and checks win/loss conditions.
  */
 
-import { updateMissionPlayer } from './mission.js';
+import { updateMissionWorld, updateMissionPlayer } from './mission.js';
 import { MAX_ALARM } from './constants.js';
 import { getP1Input, getP2Input, getLocalP3Input, getLocalP4Input } from './input.js';
 import { updatePlayer }           from './playerLogic.js';
@@ -18,6 +18,7 @@ import {
 import { isWinConditionMet, calculateScore } from './gameState.js';
 
 export function updateGame(state, dt, inputByPlayer = null) {
+  updateMissionWorld(state, dt);
   // ── Countdown timer ─────────────────────────────────────────────────────────
   state.timer -= dt;
   if (state.timer <= 0) {
