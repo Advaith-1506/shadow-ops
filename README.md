@@ -28,7 +28,7 @@ Open **http://localhost:5173** on the laptop. The helper starts the frontend on 
 3. Check the **advertised laptop address**. The app prefers an ordinary LAN interface and offers detected addresses plus a manual correction field. A detected interface is a candidate, not proof that another device can reach it.
 4. Show the large **QR code**, six-character room code, and full connection URL on the shared screen.
 5. Each phone scans the QR with its normal camera app, opens the website, enters a nickname, chooses a role, and joins. The WebSocket endpoint derives automatically from the scanned hostname; phones do not connect to their own localhost.
-6. Each player taps **Ready Up**. For a four-player demo, try one of each role. Duplicates are allowed; every mission needs a Hacker and at least one different role.
+6. Each player taps **Ready Up**. Choose a valid team: Duo = Hacker + Assassin; Trio = those two plus Scout OR Decoy; Full Squad = all four unique roles. Role changes reset Ready. The host and shared displays use no player slots.
 7. The laptop host selects **Deploy Squad**. Move with the phone joystick, use **Interact**, and activate **Ability**. The laptop shows the entire Maple Row Safehouse and shared mission state.
 8. The host can open **Shared Display** in another tab/window for an authorized, read-only view. That link has display-only access, never host privileges. Keep the host tab for lobby/start controls.
 9. After success or failure, the host selects **Return to Lobby / Play Again**. The same connected players and roles remain; everyone readies again.
@@ -41,31 +41,41 @@ Select **Play on This Phone** in the lobby or **View Game on Phone** on the cont
 
 Portrait remains usable; landscape provides a wider gamepad layout. Touch surfaces use pointer capture, independent pointers for movement/interact/ability, safe-area padding, and optional haptics where supported. Controller Mode skips Canvas rendering and receives UI updates at a reduced rate. Input is bounded to roughly 30 updates/second with idle heartbeats; stale input expires server-side after 250ms.
 
-## Four roles
+## Every selected role matters
 
-| Role         | Ability                                                                                                         | Duration / cooldown             | Cooperation                                |
-| ------------ | --------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------ |
-| **Assassin** | Silent Takedown: stun a guard within 62px and clear line of sight                                               | 5s / 12s                        | Create a safe window for the team          |
-| **Hacker**   | System Override: disable a camera within 100px or unlock a side door within 65px                                | Camera 10s; door persists / 16s | Operate the main security terminal         |
-| **Scout**    | Recon Pulse: highlight nearby guards, cameras and laser hazards within 360px                                    | 6s / 18s                        | Reveal threats around teammates            |
-| **Decoy**    | Noise Maker: place noise at your current valid position; nearby guards within 260px investigate via pathfinding | 5s / 16s                        | Draw patrols away, then move out of danger |
+The server generates a deterministic mission from the actual player roster and Maple Row's existing interaction anchors. That configuration, participant identities and role assignments remain fixed until the match ends. Hosts and read-only displays do not count as operatives.
 
-A noise does not override an active chase. Guards return to patrol when it expires, and detection can turn investigation into a chase. Abilities have role-colored feedback. No four-role requirement is imposed on two- or three-player teams. The Hacker's side-door ability cannot bypass the main vault objective. Terminal interactions use **Interact**, not the ability button.
+| Team | Required roles | Mission variant |
+| --- | --- | --- |
+| Two | Hacker + Assassin | Operation Duo: credential, electronic key, cooperative terminal, vault, Diamond, extraction |
+| Three | Hacker + Assassin + Scout | Operation Trio · Recon: also discover the hidden control network |
+| Three | Hacker + Assassin + Decoy | Operation Trio · Distraction: also lure the sentry and release its relay |
+| Four | Hacker + Assassin + Scout + Decoy | Operation Full Squad: every role objective is mandatory |
+
+Duplicate roles and other combinations cannot deploy. The lobby explains missing roles, and the server independently validates the roster.
+
+| Role | Mandatory contribution | Ability / cooldown |
+| --- | --- | --- |
+| **Assassin** | Stun the marked Garage security captain to recover BRAVO credentials. Ordinary key pickup cannot substitute. | Silent Takedown: actual guard within 62px and clear sight; stun 10s (captain's first credential takedown: 20s), cooldown 12s |
+| **Hacker** | Interact with electronic ALPHA in the Kitchen, then operate the protected terminal after the team's role objectives. | System Override: camera within 100px suppressed 10s or side door within 65px unlocked; cooldown 16s. Use **Interact** for keys and terminals. |
+| **Scout**, when selected | Pulse from the marked Garage recon zone to discover the hidden control node and unlock terminal authorization. This is an actual prerequisite. | Recon Pulse: zone radius 58px AND hidden node within 120px; discovery persists, hazard reveal lasts 6s; cooldown 18s |
+| **Decoy**, when selected | Place noise in the marked Living Room zone after credential/key/recon objectives. The sentry must actually investigate and move clear; Hacker or Assassin then interacts at the checkpoint relay. | Noise Maker: nearby guards within 260px pathfind to noise; 5s normally, 12s for a valid checkpoint attempt; cooldown 16s |
+
+Scout and Decoy objective markers appear only in missions containing those roles. Hidden-node discovery is never granted by ordinary Interact. The existing hazard scan, camera override, side-door hack and general-purpose distractions remain useful throughout the heist.
 
 ## Mission and teamwork
 
-The first level is **Maple Row Safehouse**, a compact L-shaped residence shown as a roofless top-down interior. The entire building stays visible during play (fixed whole-level camera).
+1. Infiltrate through the Garage. Assassin neutralizes the marked captain for BRAVO; Hacker activates ALPHA in the Kitchen. If Scout is selected, scan the Garage network from its marked zone. These initial tasks can happen concurrently.
+2. With Decoy selected, complete those access objectives first. Decoy uses Ability at the Living Room noise zone and **moves away**. The intended sentry must use real investigation/pathfinding, travel at least 28px and clear the relay by 95px. During the visible **10-second opportunity**, Hacker or Assassin presses **Interact at the relay**. A chase or stun cancels the opportunity; let the patrol settle and retry after cooldown. Both teammates receive contribution credit.
+3. Go to Security: **Hacker stands at TERMINAL and presses Interact. A different teammate stands on SUPPORT PAD and stays there.** All required role objectives must be complete. The helper does not interact with the terminal. Successful cooperation permanently disables cameras and lasers.
+4. Interact with the vault lock in the Living Room. Enter the vault and recover the Diamond.
+5. Bring **every fixed mission participant, alive, and the Diamond** to the front-yard extraction van. Carrying or depositing it counts; leaving someone behind never does.
 
-1. Enter from the front yard and pass through the Garage into the Living Room.
-2. Collect **ALPHA** in the Kitchen and **BRAVO** in the Study. Any role can collect either key; collection is shared.
-3. A **Hacker** interacts with the blue terminal in the Security room while a teammate with a **different role** stands on the purple support pad. Both keys must already be collected. This permanently disables cameras and lasers.
-4. Interact with the vault lock in the Living Room to open the vault.
-5. Collect the **Diamond** inside.
-6. Bring **every player and the artifact** to the extraction van in the front yard. Carrying the artifact or depositing it at the van satisfies the artifact requirement.
+Objectives show their required role, locked/available/in-progress/complete state and prerequisites. Shared displays and phone controllers show the same authoritative progress, short team notifications and role-specific next steps. Completion records include the operative, event and terminal/checkpoint helpers.
 
-Objectives distinguish active, blocked and complete tasks. The support pad reports occupancy, and completed objectives produce shared notifications. The HUD locates keys, terminal, vault, teammates and extraction. Role-colored overhead names identify each operative.
+The Safehouse's existing walls, solid furniture, spawns, fixed whole-level camera and patrol routes are preserved. The new network node and relay are procedural markers on reachable floor along the infiltration route.
 
-Guards patrol, investigate, chase and capture. Use cover, coordinate abilities and hold Interact nearby to revive a captured teammate before the **20-second custody timer** expires. At **100% alert** or the **10-minute deadline**, the mission fails. Results show the shared score, elapsed time and actually recorded objective/ability contributions.
+Guards still patrol, investigate, chase and capture; noise never overrides an active chase. Hold Interact near a captured teammate to revive them before the **20-second custody timer** expires. At **100% alert** or the **10-minute deadline**, the mission fails. For the longer cooperative chain, takedowns now provide a 10s opening (20s on the captain's first credential takedown). After **3 seconds with every operative safe and undetected and no guard chasing/alerted**, alert recovers by **2 points/second** so the team can regroup. Cooldowns, patrol geometry and the mission deadline remain intact.
 
 ## Controls and sessions
 

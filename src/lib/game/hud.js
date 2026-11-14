@@ -6,6 +6,7 @@
  */
 
 import { MAX_ALARM } from './constants.js';
+import { missionStage, objectiveSummary } from './mission.js';
 import { COOLDOWNS } from './mission.js';
 import { LEVEL } from './mapData.js';
 import { LEAVE_BUTTON_W } from './viewLayout.js';
@@ -48,6 +49,7 @@ function fitText(ctx, text, maxW) {
 function objectiveText(s) {
   const m = s.mission;
   if (!m) return 'Reach the extraction zone';
+  if (m.config) return `${m.config.variant}: ${missionStage(s)}`;
   const stage = missionStageId(s);
   const missing = m.keys.filter((k) => !k.collected).map((k) => {
     const def = LEVEL.mission.keys.find((d) => d.id === k.id);
@@ -147,32 +149,61 @@ function _topBar(ctx, s, layout, hud) {
   }
 
   const stage = missionStageId(s);
-  const stepIdx = Math.max(0, STEPS.findIndex((st) => st.id === stage));
+  const steps = s.mission?.config
+    ? objectiveSummary(s).map((o) => ({
+        id: o.id,
+        text: o.id.replace("_", " ").toUpperCase(),
+        done: o.phase === "complete",
+        active: o.phase === "available" || o.phase === "in_progress",
+      }))
+    : STEPS;
+  const stepIdx = s.mission?.config
+    ? Math.max(
+        0,
+        steps.findIndex((st) => st.active),
+      )
+    : Math.max(
+        0,
+        steps.findIndex((st) => st.id === stage),
+      );
   const showSteps = !!s.mission && !compact && objW > 380;
   let tx = objX;
   if (showSteps) {
-    for (let i = 0; i < STEPS.length; i += 1) {
-      const done = i < stepIdx;
-      const cur = i === stepIdx;
-      ctx.fillStyle = done ? '#6fd38a' : cur ? '#ffcf6e' : 'rgba(255,255,255,0.18)';
-      ctx.beginPath(); ctx.arc(tx + 5, H * 0.32, 4.5, 0, Math.PI * 2); ctx.fill();
-      if (i < STEPS.length - 1) {
-        ctx.fillStyle = done ? '#6fd38a' : 'rgba(255,255,255,0.18)';
+    for (let i = 0; i < steps.length; i += 1) {
+      const done = s.mission?.config ? steps[i].done : i < stepIdx;
+      const cur = s.mission?.config ? steps[i].active : i === stepIdx;
+      ctx.fillStyle = done
+        ? "#6fd38a"
+        : cur
+          ? "#ffcf6e"
+          : "rgba(255,255,255,0.18)";
+      ctx.beginPath();
+      ctx.arc(tx + 5, H * 0.32, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      if (i < steps.length - 1) {
+        ctx.fillStyle = done ? "#6fd38a" : "rgba(255,255,255,0.18)";
         ctx.fillRect(tx + 11, H * 0.32 - 1, 14, 2);
       }
       tx += 30;
     }
-    ctx.textAlign = 'left';
+    ctx.textAlign = "left";
     ctx.font = `700 11px ${FONT}`;
-    ctx.fillStyle = '#ffcf6e';
-    ctx.fillText(`STEP ${stepIdx + 1}/5 · ${STEPS[stepIdx].text}`, objX + STEPS.length * 30 + 6, H * 0.32);
+    ctx.fillStyle = "#ffcf6e";
+    ctx.fillText(
+      `STEP ${stepIdx + 1}/${steps.length} · ${steps[stepIdx].text}`,
+      objX + steps.length * 30 + 6,
+      H * 0.32,
+    );
   }
-  ctx.textAlign = 'left';
+  ctx.textAlign = "left";
   ctx.font = `700 ${tiny ? 12 : compact ? 14 : 15}px ${FONT}`;
   ctx.fillStyle = INK;
-  const keysDone = s.mission ? s.mission.keys.filter((k) => k.collected).length : 0;
-  const prefix = s.mission && !showSteps ? `${stepIdx + 1}/5 ` : '';
-  const text = `${prefix}${objectiveText(s)}${stage === 'keys' ? `  [${keysDone}/2]` : ''}`;
+  const keysDone = s.mission
+    ? s.mission.keys.filter((k) => k.collected).length
+    : 0;
+  const prefix =
+    s.mission && !showSteps ? `${stepIdx + 1}/${steps.length} ` : "";
+  const text = `${prefix}${objectiveText(s)}${!s.mission?.config && stage === "keys" ? `  [${keysDone}/2]` : ""}`;
   ctx.fillText(fitText(ctx, text, objW), objX, showSteps ? H * 0.7 : H / 2 + 1);
 }
 

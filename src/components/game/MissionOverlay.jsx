@@ -5,8 +5,13 @@ export default function MissionOverlay({ state, shared = false }) {
   const latest = state.events?.at(-1);
   return (
     <aside className={`mission-overlay ${shared ? "shared-objectives" : ""}`}>
-      <details open={shared}>
-        <summary>MISSION PROGRESS</summary>
+      <details>
+        <summary>
+          {state.mission.config?.variant || "MISSION PROGRESS"} ·{" "}
+          {state.mission.objectives?.filter((o) => o.status === "complete")
+            .length || 0}
+          /{state.mission.objectives?.length || 0}
+        </summary>
         <div className="objective-list">
           {objectiveSummary(state).map((o) => (
             <span key={o.id} className={o.status}>
@@ -16,6 +21,11 @@ export default function MissionOverlay({ state, shared = false }) {
                   ? "○"
                   : "→"}{" "}
               {o.label}
+              {o.phase === "locked"
+                ? " · LOCKED"
+                : o.phase === "in_progress"
+                  ? " · IN PROGRESS"
+                  : ""}
             </span>
           ))}
         </div>

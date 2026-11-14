@@ -33,6 +33,13 @@ export function playerColor(id) {
 export function missionStageId(s) {
   const m = s?.mission;
   if (!m) return null;
+  if (m.config) {
+    const next = m.objectives.find((o) => o.status !== "complete");
+    if (
+      ["credential", "electronic_key", "recon", "checkpoint"].includes(next?.id)
+    )
+      return "keys";
+  }
   if (!m.keys.every((k) => k.collected)) return 'keys';
   if (!m.securityOff) return 'security';
   if (!s.vaultUnlocked) return 'vault';

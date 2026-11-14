@@ -10,13 +10,17 @@ export default function InstructionsScreen({ onBack }) {
           style={{ listStyle: "decimal", paddingLeft: 20 }}
         >
           <li>
-            Collect ALPHA in the Kitchen and BRAVO in the Study. Green markers
-            show the keys on the full-level view.
+            Hacker activates ALPHA in the Kitchen. Assassin uses Silent Takedown
+            on the marked security captain in the Garage to recover BRAVO.
           </li>
           <li>
-            Bring a Hacker to the blue terminal in the Security room. A teammate
-            with a different role must stand on the purple support pad beside
-            it. Press E at the terminal to disable cameras and lasers.
+            If Scout is selected, pulse from the Garage recon zone. If Decoy is
+            selected, use Noise Maker in the marked zone after access
+            objectives, move away, and have Hacker/Assassin interact at the
+            checkpoint during the opening. Then bring Hacker to the blue
+            terminal in Security. A teammate with a different role must stand on
+            the purple support pad beside it. Press E at the terminal to disable
+            cameras and lasers.
           </li>
           <li>
             Interact with the vault lock in the Living Room, then enter and
@@ -29,9 +33,11 @@ export default function InstructionsScreen({ onBack }) {
         </ol>
         <p className="ops-copy">
           Move with WASD or arrows. E / Enter: interact or hold to revive. Q:
-          role ability. Assassin stuns a nearby guard for 5s (12s cooldown).
-          Hacker disables a nearby camera for 10s or unlocks a side door (16s
-          cooldown). Scout highlights nearby threats for 6s (18s cooldown).
+          role ability. Assassin stuns a nearby guard for 10s (captain: 20s; 12s
+          cooldown). Hacker disables a nearby camera for 10s or unlocks a side
+          door (16s cooldown). Scout discovers the hidden node and highlights
+          threats for 6s (18s cooldown). Decoy noise lasts 5s normally or 12s at
+          an active checkpoint (16s cooldown).
         </p>
         <p className="ops-copy">
           Local co-op: P1 Hacker uses WASD / E / Q. P2 Assassin uses arrows /

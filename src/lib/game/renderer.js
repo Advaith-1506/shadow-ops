@@ -375,7 +375,7 @@ function _renderLasers(ctx, state, tick) {
 function _renderObjectives(ctx, state, tick, stage) {
   const m = state.mission;
   for (const k of m.keys) {
-    if (k.collected) continue;
+    if (k.collected || k.method === 'captain') continue;
     const bob = Math.sin(tick * 3 + k.x) * 2;
     ctx.save();
     circle(ctx, k.x, k.y, 16 + 3 * pulse(tick, 4));
@@ -394,6 +394,48 @@ function _renderObjectives(ctx, state, tick, stage) {
     ctx.restore();
   }
 
+  if (m.config) {
+    const mark = (point, text, color) => {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 2;
+      circle(ctx, point.x, point.y, 20);
+      ctx.stroke();
+      ctx.font = "bold 10px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(text, point.x, point.y - 25);
+      ctx.restore();
+    };
+    const captain = state.guards.find(
+      (g) => g.id === m.config.anchors.captainId,
+    );
+    if (captain && !m.keys.find((k) => k.id === "BRAVO")?.collected)
+      mark(captain, "ASSASSIN · CAPTAIN", "#ffa78b");
+    if (m.recon) {
+      mark(
+        m.config.anchors.reconZone,
+        m.recon.discovered ? "RECON COMPLETE" : "SCOUT · PULSE HERE",
+        "#7ff0b6",
+      );
+      if (m.recon.discovered)
+        mark(m.config.anchors.hiddenNode, "CONTROL NODE REVEALED", "#7ff0b6");
+    }
+    if (m.checkpoint && !m.checkpoint.cleared) {
+      mark(
+        m.config.anchors.distractionZone,
+        "DECOY · NOISE THEN RETREAT",
+        "#d1a2ff",
+      );
+      mark(
+        m.config.anchors.checkpoint,
+        m.checkpoint.windowRemaining > 0
+          ? `RELAY OPEN ${Math.ceil(m.checkpoint.windowRemaining)}s`
+          : "CHECKPOINT · HACKER / ASSASSIN",
+        "#65d7ff",
+      );
+    }
+  }
   const t = m.terminal;
   ctx.save();
   const termCol = m.securityOff ? '#6fe39a' : OBJECTIVE_COLORS.terminal;
@@ -718,12 +760,12 @@ function _renderLabels(ctx, state, tick, stage, scale) {
 
   if (m) {
     for (const k of m.keys) {
-      if (!k.collected) label(ctx, `KEY ${k.id}`, k.x, k.y - 24 * scale, OBJECTIVE_COLORS.key, scale);
+      if (!k.collected && k.method !== 'captain') label(ctx, `KEY ${k.id}`, k.x, k.y - 24 * scale, OBJECTIVE_COLORS.key, scale);
     }
-    label(ctx, m.securityOff ? 'SECURITY OFF' : 'TERMINAL', m.terminal.x, m.terminal.y - 24 * scale,
+    label(ctx, m.securityOff ? 'SECURITY OFF' : 'HACKER · INTERACT HERE', m.terminal.x, m.terminal.y - 24 * scale,
       m.securityOff ? '#6fe39a' : OBJECTIVE_COLORS.terminal, scale);
     if (!m.securityOff) {
-      label(ctx, 'SUPPORT PAD', m.support.x, m.support.y - 52 * scale, OBJECTIVE_COLORS.support, scale);
+      label(ctx, 'TEAMMATE STAND HERE', m.support.x, m.support.y - 52 * scale, OBJECTIVE_COLORS.support, scale);
     }
     label(ctx, state.vaultUnlocked ? 'VAULT OPEN' : 'VAULT LOCK', m.lock.x - 24 * scale, m.lock.y - 24 * scale,
       state.vaultUnlocked ? '#6fe39a' : OBJECTIVE_COLORS.lock, scale);
