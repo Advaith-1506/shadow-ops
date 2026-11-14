@@ -1,0 +1,1522 @@
+{
+  "baselineCommit": "1ee69d12c2d1425704fbddd846c40edc6382cc7e",
+  "method": "Runtime source imports, getSprites/ANIM consumer review, CSS URL search, native manifests/catalogs; native resources retained conservatively. Original pack documents are provenance, not runtime dependencies.",
+  "resources": [
+    {
+      "path": "Background_images/ChatGPT Image May 17, 2026, 12_39_06 AM (1).png",
+      "bytes": 1906976,
+      "sha256": "2f0715fb9b9a8991891969f85da2994e7238a0008669d6de2d7f025876cfd286",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "Background_images/ChatGPT Image May 17, 2026, 12_39_07 AM (2).png",
+      "bytes": 1790188,
+      "sha256": "31a66d2e38487abfdc88bd2571ab1d1190a60b05eb3f409db349207be5e209cc",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/README.md",
+      "bytes": 801,
+      "sha256": "441066cb750060271ed130b430613968a5c62da3b22c50e116c66d1ce64c7f9c",
+      "references": [],
+      "status": "retained-notice",
+      "reason": "Original pack/font documentation retained for provenance, even when describing the original full pack."
+    },
+    {
+      "path": "museum_break_final_assets/assets_manifest.json",
+      "bytes": 21216,
+      "sha256": "8e41de9a40f222c0113886f8888898293004a116ac0f2ee544e52ba210c8fb20",
+      "references": [],
+      "status": "retained-metadata",
+      "reason": "Original inventory pruned to shipped resources; no runtime lookup uses the removed entries."
+    },
+    {
+      "path": "museum_break_final_assets/bg/parallax_far.png",
+      "bytes": 27426,
+      "sha256": "6c7e91985b3aaf4b55ebff0c4cbda02e8a898be930b118927d933d4fa425ea62",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/bg/parallax_mid.png",
+      "bytes": 13872,
+      "sha256": "a9acfaf4a1a18f2e501e967f515cb540d92d50e31e2acc5c32f74f428e9454a4",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/bg/vignette_overlay.png",
+      "bytes": 97727,
+      "sha256": "b1bed66aef5853c8eecf43a8b7b1615db89038c9c031b61138cd93a9c4d262f3",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/exit_vent.png",
+      "bytes": 1369574,
+      "sha256": "a3bc79e0ac2e4b9da8c4b2d3c9c17b89d151bac0b85b4a59255015cd1b52eaab",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/fx/alarm_flash.png",
+      "bytes": 12957,
+      "sha256": "85802e63c45674632018fad5e8ee40c083144e42700279086b0a9a0620d6a238",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/fx/detection_ring.png",
+      "bytes": 6205,
+      "sha256": "77bd0c186dcb42fcd2f2bbaaab8c73e1d8c8bb9aea43920a92e512b3bc1af08f",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/fx/light_cone_soft.png",
+      "bytes": 8335,
+      "sha256": "e3f1dc277b53d9652f0afe4518c42878144b7efa0a003d495ceb1537c605d5ee",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/guards/guard_alert_strip.png",
+      "bytes": 514,
+      "sha256": "2c089d7663e7a21f11bab71b660e40939a9fff122bb3dc96057acd8741083322",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/guards/guard_idle_strip.png",
+      "bytes": 485,
+      "sha256": "f304f95e855d47ad344f4ea50fb4a06f75d4cd3870b8cc0c688c137037c6e039",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/guards/guard_meta.json",
+      "bytes": 914,
+      "sha256": "3c4a0fa6ed7d031f93b77d7af8dbde38043384592b145018a0c3cfe42a31a71d",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/guards/guard_turn_strip.png",
+      "bytes": 633,
+      "sha256": "3e9e5459842d02f1d9a4e2ce1b1f732dd67ba211f7bc4ec3add58fef18f9f926",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "Previously imported and loaded, but never consumed by the renderer; removed loader entry and unused turn FPS export."
+    },
+    {
+      "path": "museum_break_final_assets/guards/guard_walk_strip.png",
+      "bytes": 589,
+      "sha256": "abe35bdf6d1fddd53039081d3a5ee0518537e85193bb8007bd7104a1b227baf4",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/back_button_hover.png",
+      "bytes": 585,
+      "sha256": "247fb4e8afc5ac684ad486e8034f13e8fe38132e3135abe5fe4af58a1863ac14",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/back_button_idle.png",
+      "bytes": 570,
+      "sha256": "34a13547b12bf46af60d6c29926ed11fc3fdc9703451ff9f5b3a29f1d3aeff3d",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/bg.png",
+      "bytes": 68406,
+      "sha256": "e19d23810fc44657dd05c4b579c02b30cdb7532db17af66bf6ee50550de91663",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/icon_hazards.png",
+      "bytes": 198,
+      "sha256": "33e1bab35ac6b7f8f8c58e01a179e73460b5bc49bf171cc0f6aa1d735af88d3c",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/icon_objective.png",
+      "bytes": 229,
+      "sha256": "4921af1d51ba8433aa7cc5e537b9f6ac2fc34e52b9d49f6f7f47049d42a54b00",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/icon_player.png",
+      "bytes": 245,
+      "sha256": "8c89a66fd7f1816fc6697f0c030eba28f39cdb495e3ca713a483daa30eb17e0b",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/icon_score.png",
+      "bytes": 397,
+      "sha256": "9f242a89670b315d6a62c2c58ea5a8ece94a1763efadcfb97409a6a99ab74a0a",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/instructions/section_card.png",
+      "bytes": 1264,
+      "sha256": "1df2db850ab0dbc6bf0b3f076645d3b88cef9bcd650ceeac49eb35c1af9579cd",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/items/artifact_crown_strip.png",
+      "bytes": 425,
+      "sha256": "71697e7a8ce12b125f509517ce797c630922b9fe493a8db8df7daa3d980e09d9",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/artifact_heavy_strip.png",
+      "bytes": 381,
+      "sha256": "33360e32f395c29a2ff3c6d6be54c04cd90cc5adcddfccec2b07651034daa129",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/artifact_small_strip.png",
+      "bytes": 385,
+      "sha256": "969eae7e3be8d89c33cce2d55c94777b429d6f28a3ab3ca9547a747ac3ed7d3d",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/crate_idle.png",
+      "bytes": 339,
+      "sha256": "273a39b88168390135492944b0325076bc96944a73b1eb884993ec3a17d9b4af",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/crate_push_strip.png",
+      "bytes": 503,
+      "sha256": "c931fbd40bf6cb4280ef0af006ec705aa5736ee9ab8e04f4991a4d77263f466d",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/items/display_case_closed.png",
+      "bytes": 342,
+      "sha256": "5445f79d305defbc9df69dbbb2353055359765ca12fcce7b350e439038eb36d1",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/display_case_open.png",
+      "bytes": 352,
+      "sha256": "0ac47d571b1fdb17bf4051457e90907094e5828216c42be9e44c28360cb3b14b",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/items/switch_off.png",
+      "bytes": 167,
+      "sha256": "8331a5cdf6faae02f4ab4533be02929688e2d4438dd330bb58f75f34717d90a0",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/switch_on.png",
+      "bytes": 166,
+      "sha256": "ff42ea67e2cf2cb69d0e5a91ef15f0ffd99c1fa00c6ccb5c5ec18c976f0b7455",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/items/vent.png",
+      "bytes": 143,
+      "sha256": "94f418cf0f5913265ffbdc7331ed5aa290189a06274fa6cb0d4604266c1d4796",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/button_host_hover.png",
+      "bytes": 583,
+      "sha256": "09820457ce7632afdedf4552531e84d37330e096bd691477f36c9b646351dd61",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/button_host_idle.png",
+      "bytes": 584,
+      "sha256": "e31879eccef2465b90f4cb451e03f7da3b2e7a14653afc2569a6624c7acdd94e",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/button_join_hover.png",
+      "bytes": 576,
+      "sha256": "a42198e4f99a6b84cd60e2b1b0e7d4948ae98884723dcb7aaf1cadbbf7b1e4d7",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/button_join_idle.png",
+      "bytes": 576,
+      "sha256": "6cba95db39864a82306141e00176ff006c4addceb9dee3cd40817529861741ea",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/input_bg.png",
+      "bytes": 559,
+      "sha256": "2b6fb9bd9dccc9a965d8ed5282bf4deceb205640bd209602d37a33c12e7f1dd8",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/lobby_bg.png",
+      "bytes": 68406,
+      "sha256": "e19d23810fc44657dd05c4b579c02b30cdb7532db17af66bf6ee50550de91663",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/panel_card.png",
+      "bytes": 2691,
+      "sha256": "2b338158cb16cedf93d6387e2b5506a701837526b3f7b550ceb546bcb2707884",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/status_chip_err.png",
+      "bytes": 446,
+      "sha256": "be82c856722f354ddfc303bc99dac3c5d5f68a7a43e404ff18b4a36be1ce693a",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/status_chip_idle.png",
+      "bytes": 466,
+      "sha256": "bb6b4e1649e7fa42a7bb2657c8d70b5420025830967e84618e6dc49387fd884f",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/lobby/status_chip_ok.png",
+      "bytes": 464,
+      "sha256": "78f14060f689c7b9b74a2ad050be577f68e5ce442c36faa1948654b3e0853692",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/ambient_particles.png",
+      "bytes": 1119,
+      "sha256": "41378adb63a8e273f28db8fdb105b4f90626650852222babaf187f8767ac5f6a",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/button_primary_hover.png",
+      "bytes": 619,
+      "sha256": "96f6b2763d42ce7f30ccb10f3dbf0c2bedd75fdec10ad828ee76ced8464973b3",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/button_primary_idle.png",
+      "bytes": 611,
+      "sha256": "5f50812d4caeb4b893dea6e991215f669b3e0c70e6bb4d979116b9099fc08af0",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/button_secondary_hover.png",
+      "bytes": 602,
+      "sha256": "31bc6220156f31160110bfc1208190be8790de05ecaee7c36581068ec4e73257",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/button_secondary_idle.png",
+      "bytes": 581,
+      "sha256": "8d296e13348c95901552187268c8ada7bed619b4c36dad436e3e506322d63ff3",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/logo_break.png",
+      "bytes": 1699,
+      "sha256": "ff54de055c231385063d7f98b8770d587fd2716cf63fe8d344dbaee315bff550",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/logo_museum.png",
+      "bytes": 1745,
+      "sha256": "27c485eefe97551c47de5e96432d8548fc0e5997651a5f0c0777bf78bf8b4367",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/menu/menu_bg.png",
+      "bytes": 68406,
+      "sha256": "e19d23810fc44657dd05c4b579c02b30cdb7532db17af66bf6ee50550de91663",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/pause/button_quit_hover.png",
+      "bytes": 613,
+      "sha256": "a084d801c8b561d818b78b9718331b1ea2d14388dc6d40fe8e1fe8a9f2a59d51",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/pause/button_quit_idle.png",
+      "bytes": 609,
+      "sha256": "8bdfc4b181de9d857343a83a63dec374bb890dc86e488dfa8511aabd319cc192",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/pause/button_resume_hover.png",
+      "bytes": 622,
+      "sha256": "797e8c0734a7581c1b9763768a0710d14e443af576d8da712345c1a5a89ab925",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/pause/button_resume_idle.png",
+      "bytes": 617,
+      "sha256": "003a60ff0eace0f6a8cefe8f61767b30225dc15715668b48ff6c8e987635d877",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/pause/overlay_blur_mask.png",
+      "bytes": 91170,
+      "sha256": "3d68bb7e6695ccaf6961b802ace4a8a354d6c772cd3d57115f1259869d227068",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/pause/panel.png",
+      "bytes": 2286,
+      "sha256": "36be8d2b177dd99f5c19f72b4d1e58c9b529545c7a10bfe40cec3dc4b454c244",
+      "references": [],
+      "status": "replaced",
+      "reason": "Replaced by original CSS tactical debrief/pause artwork."
+    },
+    {
+      "path": "museum_break_final_assets/players/p1_hurt_strip.png",
+      "bytes": 501,
+      "sha256": "c71ea9efc270f280a8feffb91e34d28b9193ba46fae3d9490ae1ce396ae858de",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/players/p1_idle_strip.png",
+      "bytes": 487,
+      "sha256": "a4e1ab87c7a98aa821136bbd0cbbc73757ab1792f87030a514d843891a852061",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/players/p1_interact_strip.png",
+      "bytes": 481,
+      "sha256": "17ab372b07fd977101b6885c2395357198347548c6a89ff130c3d77487ec44a8",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/players/p1_walk_strip.png",
+      "bytes": 589,
+      "sha256": "ecb33ddea916b4b92db6fa2f7c9d3df0cd268727fa84996a885c97593b162b34",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/players/p2_hurt_strip.png",
+      "bytes": 501,
+      "sha256": "45141554e1a9f187f8156e6e6d6e055a8b2334b3981534d55de74f63a191e05d",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/players/p2_idle_strip.png",
+      "bytes": 487,
+      "sha256": "7e5e7e42a26f1d5fb16fe5e5f2ab67c75da23999fe2ff371f717a1640e3b8c23",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/players/p2_interact_strip.png",
+      "bytes": 481,
+      "sha256": "1554a978ec6c7e9c1b75c25bd8c1316710e0734fb55bf08598b1c4b42e4a8756",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/players/p2_walk_strip.png",
+      "bytes": 587,
+      "sha256": "1be6a05186f413fdf9030947c69f275ea751d47282a1817ef5097ea9c79209d4",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/players/player_meta.json",
+      "bytes": 1276,
+      "sha256": "dc870c418df5bf2e0100e81b65c19f163700ef541616eb491b4b04e3f4b2ed10",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/preview_contact_sheet.png",
+      "bytes": 163269,
+      "sha256": "7823bd28c59d30f89a4e69f6ce180fdfe7b3e27ad3648fbceb6dcf07bbde4cc3",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/props/atlas.json",
+      "bytes": 1082,
+      "sha256": "976d8410464cc08eb8766dcb774dcfafdc9549c772dbb09611da1cfce9eecfbe",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/props/atlas.png",
+      "bytes": 5745,
+      "sha256": "a55211e93c2ecc970badcd360c8e81e14bb041317d7f68aed141490928185c8c",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/badge_loss.png",
+      "bytes": 768,
+      "sha256": "1ad0528b4a5a4e6d81c3706381ed90e67c942319f4ad680d30c28e31029b93b1",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/badge_win.png",
+      "bytes": 781,
+      "sha256": "cb947d3c50034e1368c9044f2a886ef95de59a77155073b26f983d00186d3c80",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/button_menu_hover.png",
+      "bytes": 623,
+      "sha256": "da5050a2bf7d572caa6f64b731ff9e43b319d9ab05dee04f75618876989cb71c",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/button_menu_idle.png",
+      "bytes": 601,
+      "sha256": "5d7984325844ea0b60aecd93e789b4daa24acefd38e5886d2958aad337586bd6",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/button_playagain_hover.png",
+      "bytes": 622,
+      "sha256": "797e8c0734a7581c1b9763768a0710d14e443af576d8da712345c1a5a89ab925",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/button_playagain_idle.png",
+      "bytes": 617,
+      "sha256": "003a60ff0eace0f6a8cefe8f61767b30225dc15715668b48ff6c8e987635d877",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/loss_bg.png",
+      "bytes": 58144,
+      "sha256": "cee14544e06a574fd4951bc0e3ed18bfe248e6987903685f5c1f39443669f368",
+      "references": [],
+      "status": "replaced",
+      "reason": "Replaced by original CSS tactical debrief/pause artwork."
+    },
+    {
+      "path": "museum_break_final_assets/result/panel.png",
+      "bytes": 2758,
+      "sha256": "c445ac6564993ba470aa215b2f7f76e25a128aaa1b1db7b29ffd9c95a7b4497e",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/result/win_bg.png",
+      "bytes": 68406,
+      "sha256": "e19d23810fc44657dd05c4b579c02b30cdb7532db17af66bf6ee50550de91663",
+      "references": [],
+      "status": "replaced",
+      "reason": "Replaced by original CSS tactical debrief/pause artwork."
+    },
+    {
+      "path": "museum_break_final_assets/security/camera_alert_strip.png",
+      "bytes": 468,
+      "sha256": "13fb886888e2951ae0dbb78d1bd669637ca1743848e48bf70418e31fe42242d7",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/security/camera_idle_strip.png",
+      "bytes": 437,
+      "sha256": "5495711a6769ca192cc946c24c62f00f254f2bc8f720a9ef405d1b2d0e22e14a",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/security/laser_beam_core.png",
+      "bytes": 104,
+      "sha256": "801f073ffe0a6105331d3c6b4180a6692c0d3b149222644886baecf3a570ee9e",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/security/laser_beam_glow.png",
+      "bytes": 162,
+      "sha256": "8ce71fc7e6ef553401ee323f0e757a94b5a7aa67ff6efe6768ff42c710a60e7d",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/security/laser_emitter_off.png",
+      "bytes": 133,
+      "sha256": "3f721049b74181a691f46a09b9e3db880614ea401c8abefb1f7ce43213646157",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/security/laser_emitter_on.png",
+      "bytes": 120,
+      "sha256": "7cac75d71824e68aae48f2633f704ee3eeef2d96158104e1edfb24e2515e9e82",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "museum_break_final_assets/tiles/atlas.json",
+      "bytes": 1305,
+      "sha256": "17bd6e81f020679d9b627c5dbd44428e853febe915bf515e7eb9cea24a976b41",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/tiles/atlas.png",
+      "bytes": 6489,
+      "sha256": "6b9ab9509d500572045194c62ada3174e2a758cab54adec6b273762a19191ae0",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/font_bitmap.fnt",
+      "bytes": 3987,
+      "sha256": "5559ffafbd9b920114d843431a501c0c9fbb15736154b0b30270e403b4b726c3",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/font_bitmap.png",
+      "bytes": 2482,
+      "sha256": "358a3b32ab7414877c936392740cacd08eeb50270b47db3cc29b6f05cb680320",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/hud_bar_bg.png",
+      "bytes": 1145,
+      "sha256": "ecb5ee5b80238f3137bbf9e22e17455ec9377757d0de49c17d90436815a09443",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/hud_panel_left.png",
+      "bytes": 762,
+      "sha256": "224e2f9d38f0ed2c52c82b1fefd68443364c7c405e4a20e1e74a69345007c796",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/hud_panel_right.png",
+      "bytes": 762,
+      "sha256": "224e2f9d38f0ed2c52c82b1fefd68443364c7c405e4a20e1e74a69345007c796",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/icon_alarm.png",
+      "bytes": 180,
+      "sha256": "8db85e289e1c42b3c1dd422d6e2673eed5bb940f3c2292cead3641257ebffdc7",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/icon_loot.png",
+      "bytes": 245,
+      "sha256": "01d651d239d9afe20389943ca424e1fdc3881578104d80a4d7c90316f643e3cb",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/icon_timer.png",
+      "bytes": 223,
+      "sha256": "85c56c180fafdf676e89e6cfe26164b71c4ab821871ed5667a10c354c4c2e59b",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/progress_alarm_fill.png",
+      "bytes": 168,
+      "sha256": "3cb349ada74981a7437405a96c8aea5cc34263109bfbd8b32a675ac8cb60074f",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/ui/progress_alarm_mask.png",
+      "bytes": 177,
+      "sha256": "ff2bd97d1d416ffa59f0e06e64e592e6d4ed0a427182c293752e287b9c8d04a8",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "museum_break_final_assets/van.png",
+      "bytes": 905983,
+      "sha256": "0b31fea2e4f44ff032e6a37a85bfc742f549976e531c84c1e52a80b2fed76bcd",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/README.md",
+      "bytes": 839,
+      "sha256": "20e32f9da1eb5d1232bfdd7888e343cc71cb3de3b5ff47ac31aafc28ab2c339c",
+      "references": [],
+      "status": "retained-notice",
+      "reason": "Original pack/font documentation retained for provenance, even when describing the original full pack."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/cameras/camera_alert_dot.png",
+      "bytes": 114,
+      "sha256": "26bcf39262d30e978d47c06427b5f396a215d8e06d51f900cc3effa8d9891da6",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/cameras/camera_base.png",
+      "bytes": 323,
+      "sha256": "e5a025b920c55c4080425b05de65113274688236471576ec75a1d5d6b261745d",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/effects/alarm_overlay.png",
+      "bytes": 11183,
+      "sha256": "1da2e1bf963a9fdc29011691579bdea26c07acec11172c4396eab41c06b53807",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/effects/laser_beam.png",
+      "bytes": 118,
+      "sha256": "c6c534613314cd07dba205223892572f17869c8473646f7f3db0d7b393c4b709",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/effects/laser_emitter.png",
+      "bytes": 121,
+      "sha256": "aced132e11272f3c78b2786f90b2b273a0aa4834ec55035d1d0aca95f0c6dcba",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/effects/prompt_bg.png",
+      "bytes": 340,
+      "sha256": "7b3ee44c590a011e31e2ab15131389e209839a1ef380f80711ef5d58f07a7793",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/fonts/README.md",
+      "bytes": 139,
+      "sha256": "fbd59de3a577dad79532a7e5960d7537f3abb696f24460a204121ccd663409ce",
+      "references": [],
+      "status": "retained-notice",
+      "reason": "Original pack/font documentation retained for provenance, even when describing the original full pack."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/guards/guard_alert.png",
+      "bytes": 366,
+      "sha256": "dcbff0de1f879fff608c2b28aac0a894ea137c241b473a578f5ee066c681b254",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/guards/guard_idle.png",
+      "bytes": 304,
+      "sha256": "b6b8c1c2b45c6880c24ae3f0dcf32774e8bbf1bf9261416721e4aea484f7f211",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/guards/guard_walk.png",
+      "bytes": 673,
+      "sha256": "ad28a322fa355301fd203390d7cb3e40cb1d7c0c72c637508274b60e8c0ca8bb",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/guards/vision_cone_mask.png",
+      "bytes": 1248,
+      "sha256": "073c31f152318dea5ffd5c03dfcdb15ac941bbe9ce8b7472052bb589238002d8",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/artifact_crown.png",
+      "bytes": 237,
+      "sha256": "fa8d97ffea459cc6758538041e02efe607d701d080a87c02f75114a2b8200ef2",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/artifact_heavy.png",
+      "bytes": 214,
+      "sha256": "b3b350b1b755b5033b606705abb7f02e63a40264bfeafaef727f3e6a0ef59157",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/artifact_small.png",
+      "bytes": 238,
+      "sha256": "3c0ec2f9ba2f1b6b089186b15264004056009bb0491f26120da617e6dabf3702",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/crate.png",
+      "bytes": 348,
+      "sha256": "51d52caba8a2a61002d23a273273fac9787e9ae587e7bca642c066cf390ee87d",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/display_case.png",
+      "bytes": 376,
+      "sha256": "c1c65bf30d6d31c4fb7911c279326a337406cd79c6b8a4abce59ba6675273f4c",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/pressure_plate_off.png",
+      "bytes": 173,
+      "sha256": "02376e2717dad8dea78e8b9319a3fdaba1d865869cd184867541ee5de0ae6ecb",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/pressure_plate_on.png",
+      "bytes": 173,
+      "sha256": "f6178c62df17c475edc7ca3b24ed7c6a7338161d2e4fc7020cbc48d6075bbe32",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/switch_off.png",
+      "bytes": 172,
+      "sha256": "1991245f89f385af118e97210f2ef46fd3e7be5c80087559b3a1bb139451ae25",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/switch_on.png",
+      "bytes": 175,
+      "sha256": "0fd14037a98880e302f4376f61b03233c2204f2364f5e00fdf6a4547acad4a64",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/items/vent.png",
+      "bytes": 148,
+      "sha256": "925df71465984922e91d0b87013c04ed940ccb2ebc7ef86bd5688fa7a8f20d41",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/players/p1_idle.png",
+      "bytes": 306,
+      "sha256": "3e0e79396f2dcd7425432a421b9bd2167dd1541ab8bf67f7295266473e86a093",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/players/p1_walk.png",
+      "bytes": 679,
+      "sha256": "e28462c3e73377e37b1689bb386a07e674efcf2231d8ea078df3af82d01b3a8f",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/players/p2_idle.png",
+      "bytes": 306,
+      "sha256": "d6601b0894b2d50e6108a86bb68a6eaf791c62efe227455cb7fdeba1a9e5ba0e",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/players/p2_walk.png",
+      "bytes": 668,
+      "sha256": "109436201420fe67a5f0c61faebf0df1048bf01c18e7779b8a5cb0a0fd961460",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/players/player_shadow.png",
+      "bytes": 359,
+      "sha256": "0ac952881563c3c04584fbc3c0afafffa497abdb655f6b8ec924301bd989a0b1",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/preview_contact_sheet.png",
+      "bytes": 67523,
+      "sha256": "fa1e0c9d6cd9f54e36b25b192472f019ca60a7983b7f95d792360e165e350818",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/door_closed_h.png",
+      "bytes": 170,
+      "sha256": "db1e0e9722c180324a01d1f84de4de3d237851db4198fe9b9f6e84e1ed39fd4c",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/door_closed_v.png",
+      "bytes": 189,
+      "sha256": "ada6c7d823a207afb82b05fc66b94bafbe429bdcd9dd9d0453217f4421422411",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/door_open_h.png",
+      "bytes": 189,
+      "sha256": "26e792f1accefde81101970fb728f1492e375d3ebc36e80ae9a786c0f07398bc",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/door_open_v.png",
+      "bytes": 162,
+      "sha256": "b5df459bb4fdfc64f4c53b551180e6c93ea8c193f14ab34e31033ec1ae05fe3e",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/floor_alt.png",
+      "bytes": 560,
+      "sha256": "e557dff8380512d019da656cc97af9112d7f6043dd9fda3f484d2e074287de24",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/floor_base.png",
+      "bytes": 375,
+      "sha256": "86353087d4663c073f20caf96b613a783042996d2ba2081871ea227632556a46",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/wall_brick.png",
+      "bytes": 387,
+      "sha256": "f783cdbf4cabb54e9404dc1f6692a4fd4eef4b9e6a507ff186b3a16854295373",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/tiles/wall_top_edge.png",
+      "bytes": 169,
+      "sha256": "99e134d21a91f5a81064b1b0eb88b1b3c525930fd03485e205c055fbeca202fb",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/ui/hud_panel.png",
+      "bytes": 551,
+      "sha256": "821daa41505a615708909de95b98422ba8ee357915bb90e304c8cc00b9b73a8b",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/ui/icon_alarm.png",
+      "bytes": 164,
+      "sha256": "8da30738f23b22db643e0198a919a86631ff7bc84cb94a73ff40b5d4774753e3",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/ui/icon_loot.png",
+      "bytes": 214,
+      "sha256": "a79b8a4c412e68e0f872b50548fcece9e511d75852f207c4ca53b5c5c49ef6bc",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/ui/icon_timer.png",
+      "bytes": 200,
+      "sha256": "e4afcf86974fc7ba56cf0333130d840ef236f7bedb6b6012946bcde7cb796325",
+      "references": [],
+      "status": "removed-unused",
+      "reason": "No remaining runtime import, CSS URL, renderer sprite consumer or native resource reference in this scope."
+    },
+    {
+      "path": "topdown_stealth_sprite_pack/ui/van.png",
+      "bytes": 704,
+      "sha256": "bf3bae8df4416b23bcac0b6bdee4816ab58e8509e83552bd687a214d9f58d2d3",
+      "references": [
+        "src/lib/game/spriteAssets.js"
+      ],
+      "status": "retained-runtime",
+      "reason": "Imported by runtime loader or UI; renderer branches including legacy/general artifacts remain supported."
+    },
+    {
+      "path": "android/app/src/main/res/drawable/ic_launcher_background.xml",
+      "bytes": 5606,
+      "sha256": "718ba51adf166bb55c3e9936bb8199a0148457f7f0191aaa2f37a94f3159d6ec",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable/splash.png",
+      "bytes": 4040,
+      "sha256": "5cf98b4451bd99b20df26f9e608a46946118be6b0ae90762f9ca1786a30c76ff",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-hdpi/splash.png",
+      "bytes": 7705,
+      "sha256": "08cc34ad7713fe7ed58bceaa37b2387b670c53cd60264b4bd6442db3098e75dc",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-mdpi/splash.png",
+      "bytes": 4040,
+      "sha256": "5cf98b4451bd99b20df26f9e608a46946118be6b0ae90762f9ca1786a30c76ff",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-xhdpi/splash.png",
+      "bytes": 9251,
+      "sha256": "22f87e1e3bc89aa01a7dbc39c9a4db058cd0bf4ad3fe9f55712bf69eb997f4bf",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-xxhdpi/splash.png",
+      "bytes": 13984,
+      "sha256": "42aa26392546fcdee1b8d3ac6d4b41bfcceb41dc6a4f3a3c30c24a8a8f4db862",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-xxxhdpi/splash.png",
+      "bytes": 17683,
+      "sha256": "60393ce8636fd263e4e1fea3fd4ab2de948c6295e898fda9b50ac4e5283be809",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-hdpi/splash.png",
+      "bytes": 7934,
+      "sha256": "c5015f4ba3628392b538386c5e210f0b94f352a3160adab934fd0311972137ca",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-mdpi/splash.png",
+      "bytes": 4096,
+      "sha256": "07fa579e1c83e04ba7f9cbcbfcf41b68e15fe3638f2c44a04e58b809103e6b69",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-xhdpi/splash.png",
+      "bytes": 9875,
+      "sha256": "b73049cb37fe76d6c11b87a796766bf6af0c85483b31eb6a921657b0d764a4b9",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-xxhdpi/splash.png",
+      "bytes": 13346,
+      "sha256": "0c7f1212f25b7b90e9a6e1d320013e4ff3d3e03e634cbb07b7b7981cac51627f",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-xxxhdpi/splash.png",
+      "bytes": 17489,
+      "sha256": "3db071a03b2f8ffe0dfd4170fc59842d53cd15bba5e88af59401d58efabf7827",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml",
+      "bytes": 1880,
+      "sha256": "a8514094f754b099d3e55ce1d6e0b2de79db418b2eeacb0fc2a6bb0bfadef221",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/layout/activity_main.xml",
+      "bytes": 535,
+      "sha256": "5d770feb791313b947020cbfc57e5c733c556dac5e9e49261a1190e527073253",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "bytes": 265,
+      "sha256": "9c3a7e0a6515c6e1a7ae834a9ae430311ebc3241f7b2e5e7f0460aa690709a7c",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "bytes": 265,
+      "sha256": "9c3a7e0a6515c6e1a7ae834a9ae430311ebc3241f7b2e5e7f0460aa690709a7c",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "bytes": 2786,
+      "sha256": "72b71c3581ca3b5a23b1c168d69b9d855b3f184fa079902a01f088eb4f0607d5",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "bytes": 3450,
+      "sha256": "32baa10d2632a4417454a579f992bd640e0a3cec79321423559b2c9940de58a9",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+      "bytes": 4341,
+      "sha256": "bfcc1b0fa931b14bb241372c76ab4f04374b67d02363c98d9cb12edfdacdf5f3",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "bytes": 1869,
+      "sha256": "27ed3603010ebc278f64f8645741ab132ff517abb5308eb9df6c8e42a48956b2",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "bytes": 2110,
+      "sha256": "58e78a618778926b1f6d9472a6468de878de8530970934e94aab5ba4ba08cc00",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+      "bytes": 2725,
+      "sha256": "0166fc333074c373fbd0ce6b5defd71552166165ac778121ca9c9dff6b83f0fc",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "bytes": 3981,
+      "sha256": "d35dbfff175b83c13ef59cf924abfc810f7b6a158595d7417c5498ea8c7c7ed1",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "bytes": 5036,
+      "sha256": "6f88083b8166cc559102f7044688de7525287632ebe09ac45d001ac8bf4b3eae",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+      "bytes": 6593,
+      "sha256": "40911a00922868686854a4804b93fd6e56b503664696de03f450bff690affb6d",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "bytes": 6644,
+      "sha256": "ed346eb1e3f0280f15709393705899b3ff55c20b88f4e0308006b3c33cf5fe14",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "bytes": 9793,
+      "sha256": "4a82bc1e9923576275869998925ce0ae021a79aa18b24a0dd87ad6b61ca85053",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+      "bytes": 10455,
+      "sha256": "1ee4cd9ff371dcb2e3938097e434f6fb8731688ed7165e61fc63693ad5b2f455",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "bytes": 9441,
+      "sha256": "87cb2f2ffe992652bb4fa768c73719a37b5852ab17fbf8e170e888f7a42b0761",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "bytes": 15529,
+      "sha256": "bd24fd383253bf8d43f0a81f11c071d76d1d555114376dd647cd9fb38fa0a9da",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+      "bytes": 15916,
+      "sha256": "ab93096331e7cd8ec379f73f1e9adcaaa9ee1115c9f4ff10411a811fb9700174",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/values/ic_launcher_background.xml",
+      "bytes": 120,
+      "sha256": "cd40bafe618ff506f4088778b135cb4faa15f25e0c9b475e22d730c74b7be115",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/values/strings.xml",
+      "bytes": 298,
+      "sha256": "b164cb09ea4416f5bfa0c04459cde3166e26c84f68d3a653a2a5ac94d341ab58",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/values/styles.xml",
+      "bytes": 823,
+      "sha256": "18ebba36575e9461347ee67361b23caf095f158ee85dbefe1b83a4669ba5bd6c",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "android/app/src/main/res/xml/file_paths.xml",
+      "bytes": 213,
+      "sha256": "a46ed43ef65c90cb6778f4581decf3556e3f0055aad8f36d69dae16f9a0e99aa",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
+      "bytes": 110522,
+      "sha256": "29e4777e319de3ee5a52c3a8004ec19d0568414004257e36d7c94a077d71c93b",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+      "bytes": 218,
+      "sha256": "5c09bec6eede599b14fa9e4c44b03e7febebc930615a0cd70f02981c09dfe48a",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/Contents.json",
+      "bytes": 62,
+      "sha256": "972ec1fd42325872438eb085ac29e94f51c10788ec18ec5549439950866c541d",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/Splash.imageset/Contents.json",
+      "bytes": 403,
+      "sha256": "041481917eb249533ac6dd63d283bc6190b2d0642a93deda11b2ed0f6f7b605a",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png",
+      "bytes": 41273,
+      "sha256": "1b5002b74a5500e697298ced06ca2811ac33f2771f236f3c720ff23243890530",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png",
+      "bytes": 41273,
+      "sha256": "1b5002b74a5500e697298ced06ca2811ac33f2771f236f3c720ff23243890530",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    },
+    {
+      "path": "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png",
+      "bytes": 41273,
+      "sha256": "1b5002b74a5500e697298ced06ca2811ac33f2771f236f3c720ff23243890530",
+      "references": [],
+      "status": "retained-native",
+      "reason": "Platform asset catalogs, density/orientation variants or resource configuration; native builds not revalidated, so retained conservatively."
+    }
+  ]
+}

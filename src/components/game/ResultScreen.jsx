@@ -1,7 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import winBg from "../../../museum_break_final_assets/result/win_bg.png";
-import lossBg from "../../../museum_break_final_assets/result/loss_bg.png";
 
 export default function ResultScreen({
   state,
@@ -24,12 +22,10 @@ export default function ResultScreen({
   const secs = Math.floor(state.timer % 60);
 
   return (
-    <div className="flex flex-col items-center justify-center w-[100dvw] h-[100dvh] bg-background relative overflow-hidden px-2 py-2 md:px-0 md:py-0">
-      <img
-        src={isWin ? winBg : lossBg}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none"
-      />
+    <div
+      className={`ops-debrief ${isWin ? "ops-debrief-success" : "ops-debrief-failure"} flex flex-col items-center justify-center w-[100dvw] h-[100dvh] relative overflow-hidden px-2 py-2 md:px-0 md:py-0`}
+    >
+      <div className="ops-debrief-grid" aria-hidden="true" />
       {/* Ambient glow */}
       <div
         className={`absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[280px] rounded-full blur-[130px] pointer-events-none ${isWin ? "bg-primary/8" : "bg-accent/8"}`}

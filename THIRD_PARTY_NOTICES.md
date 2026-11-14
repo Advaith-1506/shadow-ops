@@ -14,18 +14,19 @@ The retained engine modules, map geometry, collision, guard AI/pathfinding integ
 
 ## Asset review
 
-The upstream repository distributed these assets with its MIT license:
+The upstream repository distributed the imported assets under its MIT notice. After the resource audit, the retained subset is:
 
-| Material                                                                                    | Location                       | Notices retained                                              |
-| ------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------- |
-| Top-down tiles, characters, cameras, hazards, and interface sprites                         | `topdown_stealth_sprite_pack/` | Original pack README and font README                          |
-| Animated game sprites, atlases, effects, interface backgrounds, and bitmap-font placeholder | `museum_break_final_assets/`   | Original pack README, manifests, atlas and animation metadata |
-| Original raster screen backgrounds                                                          | `Background_images/`           | Original files and upstream repository notice                 |
-| Native application icons and splash graphics                                                | `android/` and `ios/`          | Original files and upstream repository notice                 |
+| Material                                                                                  | Location                       | Notices retained                                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| Used tiles, doors, plates, vent, shadow and extraction vehicle                            | `topdown_stealth_sprite_pack/` | Original pack README and font README                            |
+| Used character/guard animation strips, props, camera/laser sprites and animation metadata | `museum_break_final_assets/`   | Original pack README, subset manifest and player/guard metadata |
+| Native icons, splashes, platform variants and configuration                               | `android/` and `ios/`          | Original resources and upstream repository notice               |
 
-The two pack READMEs describe generated prototype/original assets; no additional asset-specific license or credit requirement was found in those bundled text/metadata files. This records the terms supplied by the upstream distribution, not an independent verification of every asset's creation history. We retain the source notices and do not relabel those imported graphics as independently created team artwork. Unused legacy logos and filenames remain as source/provenance artifacts and are not Shadow Ops branding.
+The pack READMEs describe generated prototype/original assets; no separate asset-specific license or credit requirement was found in their bundled text/metadata. This records the upstream distribution's terms, not an independent verification of every asset's creation history. Imported graphics are not relabeled as independent team artwork.
 
-No external font binary was added. The frontend uses system font fallbacks; it no longer downloads a Google Fonts stylesheet. The pack's recommendations of third-party font names are not bundled font licenses or claims that those fonts are included.
+Unused backgrounds, logos, atlas/font files, button states, duplicate sprites and unconsumed animations were removed. The original full bundle remains in published history. The three used pause/win/loss images were replaced with original Shadow Ops CSS gradients, borders and grid artwork; remaining imported sprites and required notices are retained. See [the resource audit](docs/ASSET_AUDIT.md) and [per-file inventory](docs/asset-audit.json) for exact dispositions, references and baseline hashes. The subset manifest intentionally lists only files still shipped; original pack/font READMEs describe the historical full pack.
+
+No external font binary was added. The frontend uses system fallbacks rather than a Google Fonts download. Original font recommendations in pack documentation are not a claim that those font files are included. Native graphics remain conservative replacement candidates until platform builds can be validated.
 
 ## npm dependencies
 

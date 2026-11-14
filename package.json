@@ -26,7 +26,8 @@
     "lan:host": "node scripts/lan-host.js",
     "test": "vitest",
     "test:run": "vitest run --coverage",
-    "build:native": "vite build --mode native"
+    "build:native": "vite build --mode native",
+    "assets:audit": "node scripts/audit-assets.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
