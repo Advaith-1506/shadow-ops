@@ -125,8 +125,3 @@ const removeProvider = registerInputProvider("webcam", () => ({
 
 Providers merge with existing keyboard and touch input. They cannot provide coordinates, scores, or mission state; LAN actions still pass server validation. No camera access, OpenCV runtime, or MediaPipe dependency is required or requested today.
 
-## Attribution and license
-
-Based on **MuseumBridge / Museum Break** by **NandhuRajRK and Museum Break Contributors**: https://github.com/NandhuRajRK/MuseumBridge. Original imported revision: `16fabb1` (see `QA.md` for the full source revision). The original **MIT License** and `Copyright (c) 2026 Museum Break Contributors` remain unchanged in [LICENSE](LICENSE). Original game code, map, sprite packs, and asset documentation are retained under the upstream distribution; no new third-party art was added. Shadow Ops customization is distributed under the same MIT license.
-
-The new repository has a clean import commit followed by customization commits. `origin` targets Shadow Ops. The original repository is retained as `upstream` with its push URL disabled.
