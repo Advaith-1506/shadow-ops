@@ -4,7 +4,7 @@
  * Orchestrates all system updates and checks win/loss conditions.
  */
 
-import { updateMissionWorld, updateMissionPlayer } from "./mission.js";
+import { updateMissionWorld, updateMissionPlayer, observeMissionEvents } from "./mission.js";
 import { MAX_ALARM } from "./constants.js";
 import {
   getP1Input,
@@ -70,6 +70,7 @@ export function updateGame(state, dt, inputByPlayer = null) {
   updateCameras(state, dt);
   updateLasers(state, dt);
   updateCrates(state, dt);
+  observeMissionEvents(state, dt);
 
   // ── Tutorial countdown ──────────────────────────────────────────────────────
   if (state.tutorialTimer > 0) state.tutorialTimer -= dt;

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   createShadowState,
   updateMissionPlayer,
-  missionStage,
+  observeMissionEvents,
 } from "../../src/lib/game/mission.js";
 import { updateGame } from "../../src/lib/game/gameLoop.js";
 import { isWinConditionMet } from "../../src/lib/game/gameState.js";
@@ -16,6 +16,7 @@ import {
   registerInputProvider,
   getLanInput,
 } from "../../src/lib/game/input.js";
+import { collectAccess } from "../helpers/missionActions.js";
 const fresh = () =>
   createShadowState([
     { id: 1, role: "Hacker" },
@@ -47,7 +48,9 @@ describe("Shadow Ops mission and authority", () => {
     at(q, s.mission.support);
     interact(s, p);
     expect(s.mission.securityOff).toBe(false);
-    s.mission.keys.forEach((k) => (k.collected = true));
+    collectAccess(s);
+    at(p, s.mission.terminal);
+    at(q, s.mission.support);
     q.role = "Hacker";
     interact(s, p);
     expect(s.mission.securityOff).toBe(false);
@@ -62,11 +65,8 @@ describe("Shadow Ops mission and authority", () => {
   it("progresses through complete cooperative mission and all-player extraction", () => {
     const s = fresh(),
       [p, q] = s.players;
-    for (const k of s.mission.keys) {
-      at(p, k);
-      interact(s, p);
-      expect(k.collected).toBe(true);
-    }
+    collectAccess(s);
+    expect(s.mission.keys.every((k) => k.collected)).toBe(true);
     at(p, s.mission.terminal);
     at(q, s.mission.support);
     interact(s, p);
@@ -81,6 +81,7 @@ describe("Shadow Ops mission and authority", () => {
     q.atVan = false;
     expect(isWinConditionMet(s)).toBe(false);
     q.atVan = true;
+    observeMissionEvents(s, 0);
     expect(isWinConditionMet(s)).toBe(true);
     q.downed = true;
     expect(isWinConditionMet(s)).toBe(false);
@@ -111,17 +112,17 @@ describe("Shadow Ops mission and authority", () => {
     expect(p.abilityCooldown).toBe(0);
     g.x = 330;
     updateMissionPlayer(s, p, { ability: true }, 0.01);
-    expect(g.stunned).toBe(5);
+    expect(g.stunned).toBe(10);
     g.stunned = 0;
     updateMissionPlayer(s, p, { ability: true }, 0.01);
     expect(g.stunned).toBe(0);
     p.abilityCooldown = 0;
     updateMissionPlayer(s, p, { ability: true }, 0.01);
-    expect(g.stunned).toBe(5);
+    expect(g.stunned).toBe(10);
     const x = g.x;
     updateGuards(s, 1);
     expect(g.x).toBe(x);
-    expect(g.stunned).toBe(4);
+    expect(g.stunned).toBe(9);
   });
   it("hacker camera suppression expires and cannot spam", () => {
     const s = fresh(),
@@ -137,9 +138,10 @@ describe("Shadow Ops mission and authority", () => {
     expect(s.cameras[0].disabled).toBe(9);
   });
   it("scout scanning has finite duration and cooldown", () => {
-    const s = fresh(),
-      p = s.players[0];
-    p.role = "Scout";
+    const s = createShadowState(
+        ["Hacker", "Assassin", "Scout"].map((role, i) => ({ id: i + 1, role })),
+      ),
+      p = s.players[2];
     updateMissionPlayer(s, p, { ability: true }, 0.01);
     expect(p.scanTime).toBe(6);
     expect(p.abilityCooldown).toBe(18);
@@ -174,7 +176,7 @@ describe("Shadow Ops mission and authority", () => {
       p.baseSpeed / 30,
     );
   });
-  it("the simulation declares victory and scores a carried artifact at extraction", () => {
+  it("forged legacy flags cannot bypass mandatory role events", () => {
     const s = fresh();
     s.mission.keys.forEach((k) => (k.collected = true));
     s.mission.securityOff = true;
@@ -186,8 +188,8 @@ describe("Shadow Ops mission and authority", () => {
       p.y = s.van.y + s.van.h / 2;
     });
     updateGame(s, 1 / 30, { 1: {}, 2: {} });
-    expect(s.screen).toBe("win");
-    expect(s.score).toBeGreaterThan(500);
+    expect(s.screen).toBe("playing");
+    expect(isWinConditionMet(s)).toBe(false);
   });
   it("time and alert cause loss", () => {
     for (const kind of ["timer", "alarm"]) {
@@ -197,20 +199,15 @@ describe("Shadow Ops mission and authority", () => {
       expect(s.screen).toBe("loss");
     }
   });
-  it("supports duplicate roles for four players", () => {
-    const s = createShadowState([
-      { id: 1, role: "Hacker" },
-      { id: 2, role: "Assassin" },
-      { id: 3, role: "Scout" },
-      { id: 4, role: "Scout" },
-    ]);
-    expect(s.players.map((p) => p.role)).toEqual([
-      "Hacker",
-      "Assassin",
-      "Scout",
-      "Scout",
-    ]);
-    expect(missionStage(s)).toMatch(/keys/);
+  it("rejects duplicate roles for four players", () => {
+    expect(() =>
+      createShadowState(
+        ["Hacker", "Assassin", "Scout", "Scout"].map((role, i) => ({
+          id: i + 1,
+          role,
+        })),
+      ),
+    ).toThrow(/unique roles/);
   });
   it("revives close teammates but not remote ones", () => {
     const s = fresh(),

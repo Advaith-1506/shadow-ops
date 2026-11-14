@@ -92,7 +92,7 @@ describe("real WebSocket room protocol", () => {
     send(b, "ready", { ready: true });
     await new Promise((r) => setTimeout(r, 30));
     send(a, "host_start");
-    expect((await receive(a, "join_error")).message).toMatch(/different role/);
+    expect((await receive(a, "join_error")).message).toMatch(/Hacker and an Assassin/);
   });
   it("role changes revoke ready status and reject unknown roles", async () => {
     const { a } = await pair();

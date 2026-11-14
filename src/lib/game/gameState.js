@@ -13,6 +13,7 @@ import {
   REQUIRED_ARTIFACTS,
   REQUIRED_HIGH_VALUE,
 } from "./constants.js";
+import { requiredMissionsComplete } from "./missionConfig.js";
 import * as MAP from "./mapData.js";
 
 // Deep-clone helper (works for plain JSON-serialisable objects)
@@ -107,6 +108,8 @@ export function getSolids(state) {
 export function isWinConditionMet(state) {
   if (state.mission)
     return (
+      requiredMissionsComplete(state) &&
+      (!state.mission.config || state.mission.objectives.some(o=>o.id==='extract'&&o.status==='complete')) &&
       state.mission.securityOff &&
       state.vaultUnlocked &&
       (state.loot.some((a) => a.id === "art_crown") ||
