@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TouchControls from "./TouchControls";
 import { ROLE_INFO } from "@/lib/game/roles";
-import { objectiveSummary } from "@/lib/game/mission";
+import { objectiveSummary, currentRolePrompt } from "@/lib/game/mission";
 export default function ControllerScreen({ net, onInput, onLeave }) {
   const [haptics, setHaptics] = useState(false);
   const s = net.liveState,
@@ -26,11 +26,17 @@ export default function ControllerScreen({ net, onInput, onLeave }) {
         </span>
       </header>
       <section className="controller-mission">
-        <b>{s?.mission?.message || "Awaiting mission"}</b>
+        <b>{s && p ? currentRolePrompt(s, p) : "Awaiting mission"}</b>
+        {s?.mission?.config && (
+          <small className="ops-copy">{s.mission.config.variant}</small>
+        )}
         <span>ALERT {Math.floor(s?.alarm || 0)}%</span>
         <div className="controller-alert">
           <i style={{ width: `${s?.alarm || 0}%` }} />
         </div>
+        {s?.events?.at(-1) && s.elapsedTime - s.events.at(-1).at < 5 && (
+          <p role="status">{s.events.at(-1).text}</p>
+        )}
         {p?.downed && (
           <p className="capture-warning">
             CAPTURED · teammate must revive you within{" "}

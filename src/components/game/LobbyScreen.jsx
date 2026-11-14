@@ -1,15 +1,14 @@
 import React from "react";
 import RoleCards from "./RoleCards";
+import { validateComposition } from "@/lib/game/missionConfig";
 import PartyInvite from "./PartyInvite";
 export default function LobbyScreen({ net, onBack, entry = "join" }) {
   const { players, kind, myPlayerId, hostId, roomCode } = net;
   const me = players.find((p) => p.id === myPlayerId);
   const host = kind === "host" || (kind === "player" && myPlayerId === hostId);
+  const composition = validateComposition(players);
   const canStart =
-    players.length >= 2 &&
-    players.every((p) => p.ready && p.connected) &&
-    players.some((p) => p.role === "Hacker") &&
-    players.some((p) => p.role !== "Hacker");
+    composition.valid && players.every((p) => p.ready && p.connected);
   return (
     <main className="ops-shell ops-lobby">
       <div className="ops-grid" />
@@ -204,9 +203,9 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
               {host && (
                 <>
                   <p className="ops-copy">
-                    Encourage one of each role for four players. Duplicates are
-                    welcome. A Hacker and one different role are required; two
-                    players can complete the mission.
+                    Duo: Hacker + Assassin. Trio: add Scout OR Decoy. Full
+                    Squad: all four unique roles. Each selected role unlocks a
+                    required mission objective.
                   </p>
                   <button
                     className="ops-primary deploy-button"
@@ -217,8 +216,13 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
                   </button>
                   {!canStart && (
                     <p className="ops-copy">
-                      Need 2–4 connected, ready players with a Hacker + a
-                      different role.
+                      {!composition.valid
+                        ? composition.message
+                        : "Every operative must be connected and ready."}
+                      {composition.missing.length > 0 &&
+                        ` Missing: ${composition.missing.join(", ")}.`}
+                      {composition.duplicates.length > 0 &&
+                        ` Duplicate roles: ${composition.duplicates.join(", ")}.`}
                     </p>
                   )}
                 </>
