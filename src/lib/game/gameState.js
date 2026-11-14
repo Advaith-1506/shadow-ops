@@ -6,7 +6,6 @@
  */
 
 import {
-  GAME_TIME,
   P1_BASE_SPEED,
   P2_BASE_SPEED,
   PLAYER_R,
@@ -62,7 +61,7 @@ export function createGameState(playerCount = 2) {
     lossReason: "",
 
     // ── HUD data ────────────────────────────────────────────────────────────
-    timer: GAME_TIME,
+    elapsedTime: 0,
     alarm: 0,
     loot: [], // artifacts deposited at van
     score: 0,
@@ -128,7 +127,6 @@ export function calculateScore(state) {
     ? state.players.filter((p) => p.holding).map((p) => p.holding)
     : [];
   const lootVal = [...state.loot, ...carried].reduce((s, a) => s + a.value, 0);
-  const timeBonus = Math.floor(state.timer * 2);
   const alarmPen = Math.floor(state.alarm * 1.5);
-  return Math.max(0, lootVal + timeBonus - alarmPen);
+  return Math.max(0, lootVal - alarmPen);
 }

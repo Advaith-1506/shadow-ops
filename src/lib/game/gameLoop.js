@@ -23,14 +23,8 @@ import {
 import { isWinConditionMet, calculateScore } from "./gameState.js";
 
 export function updateGame(state, dt, inputByPlayer = null) {
+  state.elapsedTime += dt;
   updateMissionWorld(state, dt);
-  // ── Countdown timer ─────────────────────────────────────────────────────────
-  state.timer -= dt;
-  if (state.timer <= 0) {
-    state.timer = 0;
-    _endGame(state, "loss", "Time's up! The safehouse went into lockdown.");
-    return;
-  }
 
   // ── Alarm limit ─────────────────────────────────────────────────────────────
   if (state.alarm >= MAX_ALARM) {

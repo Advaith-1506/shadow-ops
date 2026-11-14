@@ -72,7 +72,7 @@ export function updateMissionPlayer(s, p, input, dt) {
     if (p.role === "Assassin") {
       const g = s.guards.find((g) => near(s, p, g, 62) && !(g.stunned > 0));
       if (g) {
-        g.stunned = 5;
+        g.stunned = 10;
         if (p.stats) p.stats.takedowns++;
         used = true;
       }
@@ -210,7 +210,7 @@ function recordMissionEvent(s, p, text, stat) {
     id: ++s.eventSequence,
     text,
     by: p.nickname || `P${p.id}`,
-    at: s.timer,
+    at: s.elapsedTime,
   });
   s.events = s.events.slice(-8);
 }

@@ -31,7 +31,7 @@ import { isWinConditionMet } from "../../src/lib/game/gameState";
 
 function mkState() {
   return {
-    timer: 10,
+    elapsedTime: 0,
     alarm: 0,
     screen: "playing",
     lossReason: "",
@@ -46,12 +46,11 @@ describe("gameLoop.updateGame", () => {
     vi.clearAllMocks();
   });
 
-  it("ends game on timer timeout", () => {
+  it("tracks elapsed mission time without ending the game", () => {
     const s = mkState();
     updateGame(s, 99);
-    expect(s.timer).toBe(0);
-    expect(s.screen).toBe("loss");
-    expect(s.lossReason).toMatch(/Time's up/i);
+    expect(s.elapsedTime).toBe(99);
+    expect(s.screen).toBe("playing");
   });
 
   it("ends game on alarm overflow", () => {

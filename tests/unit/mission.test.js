@@ -111,17 +111,17 @@ describe("Shadow Ops mission and authority", () => {
     expect(p.abilityCooldown).toBe(0);
     g.x = 330;
     updateMissionPlayer(s, p, { ability: true }, 0.01);
-    expect(g.stunned).toBe(5);
+    expect(g.stunned).toBe(10);
     g.stunned = 0;
     updateMissionPlayer(s, p, { ability: true }, 0.01);
     expect(g.stunned).toBe(0);
     p.abilityCooldown = 0;
     updateMissionPlayer(s, p, { ability: true }, 0.01);
-    expect(g.stunned).toBe(5);
+    expect(g.stunned).toBe(10);
     const x = g.x;
     updateGuards(s, 1);
     expect(g.x).toBe(x);
-    expect(g.stunned).toBe(4);
+    expect(g.stunned).toBe(9);
   });
   it("hacker camera suppression expires and cannot spam", () => {
     const s = fresh(),
@@ -187,15 +187,16 @@ describe("Shadow Ops mission and authority", () => {
     });
     updateGame(s, 1 / 30, { 1: {}, 2: {} });
     expect(s.screen).toBe("win");
-    expect(s.score).toBeGreaterThan(500);
+    expect(s.score).toBe(500);
   });
-  it("time and alert cause loss", () => {
-    for (const kind of ["timer", "alarm"]) {
-      const s = fresh();
-      s[kind] = kind === "timer" ? 0 : 100;
-      updateGame(s, 1 / 30, {});
-      expect(s.screen).toBe("loss");
-    }
+  it("alert causes loss independently of elapsed mission time", () => {
+    const s = fresh();
+    s.elapsedTime = 60 * 60;
+    updateGame(s, 1 / 30, {});
+    expect(s.screen).toBe("playing");
+    s.alarm = 100;
+    updateGame(s, 1 / 30, {});
+    expect(s.screen).toBe("loss");
   });
   it("supports duplicate roles for four players", () => {
     const s = createShadowState([

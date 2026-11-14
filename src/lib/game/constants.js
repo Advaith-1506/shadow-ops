@@ -6,7 +6,6 @@ export const CANVAS_H = ACTIVE_LEVEL.bounds.h;
 export const TILE = 32;
 
 // ─── Game rules ───────────────────────────────────────────────────────────────
-export const GAME_TIME = 600;        // seconds (10 minutes)
 export const MAX_ALARM = 100;
 export const ALARM_DECAY_RATE = 3;   // alarm / sec while nobody is detecting a player
 export const REQUIRED_ARTIFACTS = 3;

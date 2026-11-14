@@ -18,8 +18,8 @@ export default function ResultScreen({
     recovered.length > 0
       ? recovered.reduce((b, a) => (a.value > b.value ? a : b), recovered[0])
       : null;
-  const mins = Math.floor(state.timer / 60);
-  const secs = Math.floor(state.timer % 60);
+  const mins = Math.floor(state.elapsedTime / 60);
+  const secs = Math.floor(state.elapsedTime % 60);
 
   return (
     <div
@@ -90,7 +90,7 @@ export default function ResultScreen({
               col: "text-foreground",
             },
             {
-              label: "TIME LEFT",
+              label: "MISSION TIME",
               value: `${mins}:${secs.toString().padStart(2, "0")}`,
               col: "text-foreground",
             },
@@ -139,8 +139,7 @@ export default function ResultScreen({
         {state.players && (
           <div className="party-results">
             <p>
-              ELAPSED {Math.floor((600 - state.timer) / 60)}m{" "}
-              {Math.floor((600 - state.timer) % 60)}s · TEAM SCORE {state.score}
+              ELAPSED {mins}m {secs}s · TEAM SCORE {state.score}
             </p>
             {state.players.map((p) => (
               <p key={p.id}>

@@ -27,11 +27,7 @@ export default function ControllerScreen({ net, onInput, onLeave }) {
       </header>
       <section className="controller-mission">
         <b>{s?.mission?.message || "Awaiting mission"}</b>
-        <span>
-          ALERT {Math.floor(s?.alarm || 0)}% ·{" "}
-          {Math.floor((s?.timer || 0) / 60)}:
-          {String(Math.floor((s?.timer || 0) % 60)).padStart(2, "0")}
-        </span>
+        <span>ALERT {Math.floor(s?.alarm || 0)}%</span>
         <div className="controller-alert">
           <i style={{ width: `${s?.alarm || 0}%` }} />
         </div>

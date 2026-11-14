@@ -29,7 +29,7 @@ export default function InstructionsScreen({ onBack }) {
         </ol>
         <p className="ops-copy">
           Move with WASD or arrows. E / Enter: interact or hold to revive. Q:
-          role ability. Assassin stuns a nearby guard for 5s (12s cooldown).
+          role ability. Assassin stuns a nearby guard for 10s (12s cooldown).
           Hacker disables a nearby camera for 10s or unlocks a side door (16s
           cooldown). Scout highlights nearby threats for 6s (18s cooldown).
         </p>
@@ -41,9 +41,8 @@ export default function InstructionsScreen({ onBack }) {
         </p>
         <p className="ops-copy">
           Avoid vision cones, use walls for cover, and revive captured teammates
-          before 20 seconds elapse. Lockdown at 100% alert or the ten-minute
-          deadline ends the mission. A disconnected teammate freezes LAN play
-          for up to 30 seconds.
+          before 20 seconds elapse. Lockdown at 100% alert ends the mission. A
+          disconnected teammate freezes LAN play for up to 30 seconds.
         </p>
         <button onClick={onBack}>← RETURN TO COMMAND</button>
       </section>

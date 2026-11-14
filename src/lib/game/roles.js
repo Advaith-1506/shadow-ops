@@ -4,7 +4,7 @@ export const ROLE_INFO = {
     ability: "Silent Takedown",
     strength: "Stealth combat",
     description:
-      "Stun a close guard for 5 seconds. Stay within 62px and in clear sight.",
+      "Stun a close guard for 10 seconds. Stay within 62px and in clear sight.",
     cooldown: 12,
   },
   Hacker: {

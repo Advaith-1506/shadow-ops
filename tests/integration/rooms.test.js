@@ -144,9 +144,9 @@ describe("real WebSocket room protocol", () => {
     await once(b, "close");
     await new Promise((r) => setTimeout(r, 50));
     const r = server.rooms.get(created.roomCode),
-      timer = r.state.timer;
+      elapsedTime = r.state.elapsedTime;
     await new Promise((r) => setTimeout(r, 80));
-    expect(r.state.timer).toBe(timer);
+    expect(r.state.elapsedTime).toBe(elapsedTime);
     const bad = await client();
     send(bad, "resume", { roomCode: created.roomCode, token: "0".repeat(64) });
     expect((await receive(bad, "join_error")).message).toMatch(/session/);

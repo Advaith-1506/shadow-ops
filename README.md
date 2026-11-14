@@ -45,7 +45,7 @@ Portrait remains usable; landscape provides a wider gamepad layout. Touch surfac
 
 | Role         | Ability                                                                                                         | Duration / cooldown             | Cooperation                                |
 | ------------ | --------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------ |
-| **Assassin** | Silent Takedown: stun a guard within 62px and clear line of sight                                               | 5s / 12s                        | Create a safe window for the team          |
+| **Assassin** | Silent Takedown: stun a guard within 62px and clear line of sight                                               | 10s / 12s                       | Create a safe window for the team          |
 | **Hacker**   | System Override: disable a camera within 100px or unlock a side door within 65px                                | Camera 10s; door persists / 16s | Operate the main security terminal         |
 | **Scout**    | Recon Pulse: highlight nearby guards, cameras and laser hazards within 360px                                    | 6s / 18s                        | Reveal threats around teammates            |
 | **Decoy**    | Noise Maker: place noise at your current valid position; nearby guards within 260px investigate via pathfinding | 5s / 16s                        | Draw patrols away, then move out of danger |
@@ -65,7 +65,7 @@ The first level is **Maple Row Safehouse**, a compact L-shaped residence shown a
 
 Objectives distinguish active, blocked and complete tasks. The support pad reports occupancy, and completed objectives produce shared notifications. The HUD locates keys, terminal, vault, teammates and extraction. Role-colored overhead names identify each operative.
 
-Guards patrol, investigate, chase and capture. Use cover, coordinate abilities and hold Interact nearby to revive a captured teammate before the **20-second custody timer** expires. At **100% alert** or the **10-minute deadline**, the mission fails. Results show the shared score, elapsed time and actually recorded objective/ability contributions.
+Guards patrol, investigate, chase and capture. Use cover, coordinate abilities and hold Interact nearby to revive a captured teammate before the **20-second custody timer** expires. At **100% alert**, the mission fails; there is no mission deadline. Results show the shared score, elapsed time and actually recorded objective/ability contributions.
 
 ## Controls and sessions
 
