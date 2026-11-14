@@ -1,7 +1,6 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const { pathToFileURL } = require("node:url");
-const os = require("node:os");
 const isDev = !app.isPackaged;
 let lanServer = null;
 async function startLanServer() {
@@ -9,14 +8,14 @@ async function startLanServer() {
     const { createRoomServer } = await import(
       pathToFileURL(path.join(__dirname, "../server/roomServer.js")).href
     );
-    const serverIp =
-      Object.values(os.networkInterfaces())
-        .flat()
-        .find((n) => n?.family === "IPv4" && !n.internal)?.address ||
-      "127.0.0.1";
+    const { getLanAddresses } = await import(
+      pathToFileURL(path.join(__dirname, "../server/lanAddresses.js")).href
+    );
+    const lanAddresses = getLanAddresses();
     lanServer = createRoomServer({
       port: Number(process.env.PORT || 8787),
-      serverIp,
+      serverIp: lanAddresses[0]?.address || "127.0.0.1",
+      lanAddresses,
     });
     lanServer.wss.on("error", (err) =>
       console.warn("LAN server unavailable:", err.message),

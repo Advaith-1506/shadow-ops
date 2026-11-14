@@ -2,9 +2,10 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   logLevel: "error",
-  base: "./",
+  server: { host: "0.0.0.0", port: 5173, strictPort: true },
+  base: mode === "native" ? "./" : "/",
   test: {
     environment: "node",
     globals: true,
@@ -12,9 +13,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: [
-        "src/lib/game/**/*.js",
-      ],
+      include: ["src/lib/game/**/*.js"],
     },
   },
   resolve: {
@@ -22,7 +21,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  plugins: [
-    react(),
-  ],
-});
+  plugins: [react()],
+}));

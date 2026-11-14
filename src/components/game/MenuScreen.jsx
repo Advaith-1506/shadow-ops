@@ -6,8 +6,16 @@ import {
   Crosshair,
   Cpu,
   Radar,
+  Volume2,
 } from "lucide-react";
-export default function MenuScreen({ onStart, onInstructions, onLan }) {
+export default function MenuScreen({
+  onStart,
+  onInstructions,
+  onHost,
+  onJoin,
+  localPlayers = 4,
+  setLocalPlayers,
+}) {
   return (
     <main className="ops-shell">
       <div className="ops-grid" />
@@ -35,10 +43,23 @@ export default function MenuScreen({ onStart, onInstructions, onLan }) {
               sleeps. Assemble your team and make every move count.
             </p>
             <div className="ops-actions">
-              <button className="ops-primary" onClick={onLan}>
-                ASSEMBLE SQUAD <ArrowUpRight size={20} />
+              <button className="ops-primary" onClick={onHost}>
+                HOST GAME <ArrowUpRight size={20} />
               </button>
+              <button onClick={onJoin}>JOIN GAME</button>
               <button onClick={onStart}>LOCAL CO-OP</button>
+              <label className="local-player-choice">
+                LOCAL PLAYERS{" "}
+                <select
+                  aria-label="Local player count"
+                  value={localPlayers}
+                  onChange={(e) => setLocalPlayers(Number(e.target.value))}
+                >
+                  {[2, 3, 4].map((n) => (
+                    <option key={n}>{n}</option>
+                  ))}
+                </select>
+              </label>
               <button onClick={onInstructions}>BRIEFING</button>
             </div>
           </section>
@@ -67,6 +88,7 @@ export default function MenuScreen({ onStart, onInstructions, onLan }) {
             [Crosshair, "ASSASSIN", "Close-range guard takedowns"],
             [Cpu, "HACKER", "Override facility security"],
             [Radar, "SCOUT", "Reveal threats around the team"],
+            [Volume2, "DECOY", "Draw patrols away from the team"],
           ].map(([Icon, name, text]) => (
             <div key={name}>
               <Icon size={22} />
@@ -77,7 +99,7 @@ export default function MenuScreen({ onStart, onInstructions, onLan }) {
             </div>
           ))}
           <span className="ops-footer-note">
-            <Users size={16} /> BUILT FOR LAN CO-OP
+            <Users size={16} /> SCAN · JOIN · PLAY TOGETHER
           </span>
         </footer>
       </div>

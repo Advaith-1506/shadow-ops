@@ -1,27 +1,10 @@
 import React from "react";
-import { ROLES } from "@/lib/game/mission";
-export default function LobbyScreen({
-  players,
-  myPlayerId,
-  hostId,
-  sendLobby,
-  wsUrl,
-  setWsUrl,
-  joinCode,
-  setJoinCode,
-  onHost,
-  onJoin,
-  onDiscover,
-  discoveredRooms,
-  onBack,
-  status,
-  roomCode,
-  inviteLink,
-  error,
-  lanMaxPlayers,
-  setLanMaxPlayers,
-}) {
+import RoleCards from "./RoleCards";
+import PartyInvite from "./PartyInvite";
+export default function LobbyScreen({ net, onBack, entry = "join" }) {
+  const { players, kind, myPlayerId, hostId, roomCode } = net;
   const me = players.find((p) => p.id === myPlayerId);
+  const host = kind === "host" || (kind === "player" && myPlayerId === hostId);
   const canStart =
     players.length >= 2 &&
     players.every((p) => p.ready && p.connected) &&
@@ -30,134 +13,252 @@ export default function LobbyScreen({
   return (
     <main className="ops-shell ops-lobby">
       <div className="ops-grid" />
-      <section className="ops-panel">
-        <p className="ops-eyebrow">SHADOW OPS / SQUAD COMMAND</p>
-        <h1>ASSEMBLE SQUAD</h1>
-        <p className="ops-copy">
-          Connect to the host laptop’s server. Choose a role, then ready up.
+      <section
+        className={`ops-panel party-lobby ${roomCode && host ? "host-lobby" : ""}`}
+      >
+        <p className="ops-eyebrow">
+          SHADOW OPS 2.0 /{" "}
+          {kind === "display"
+            ? "SHARED DISPLAY"
+            : entry === "host"
+              ? "PARTY COMMAND"
+              : "SQUAD CONNECTION"}
         </p>
+        <h1>
+          {roomCode
+            ? host
+              ? "YOUR PHONES. ONE MISSION."
+              : "ASSEMBLE SQUAD"
+            : entry === "host"
+              ? "HOST PARTY MODE"
+              : "JOIN THE OPERATION"}
+        </h1>
         {!roomCode ? (
           <>
+            <p className="ops-copy">
+              {entry === "host"
+                ? "Put this laptop on the big screen. Up to four phones become controllers; this display uses no player slot."
+                : "Scan the host QR or enter a room code. Choose how you want to play."}
+            </p>
             <label>
-              SERVER ADDRESS
+              WEBSOCKET SERVER
               <input
                 aria-label="Server address"
-                value={wsUrl}
-                onChange={(e) => setWsUrl(e.target.value)}
-                placeholder="ws://192.168.1.10:8787"
+                value={net.wsUrl}
+                onChange={(e) => net.setWsUrl(e.target.value)}
               />
             </label>
-            <div className="ops-form-row">
-              <label>
-                SQUAD SIZE
-                <select
-                  value={lanMaxPlayers}
-                  onChange={(e) => setLanMaxPlayers(Number(e.target.value))}
-                >
-                  {[2, 3, 4].map((n) => (
-                    <option key={n}>{n}</option>
-                  ))}
-                </select>
-              </label>
-              <button className="ops-primary" onClick={onHost}>
-                HOST ROOM
-              </button>
-            </div>
-            <div className="ops-form-row">
-              <label>
-                ROOM CODE
-                <input
-                  aria-label="Room code"
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                  maxLength={6}
-                  placeholder="ABC234"
-                />
-              </label>
-              <button onClick={onJoin}>JOIN ROOM</button>
-            </div>
-            <button onClick={onDiscover}>FIND ROOMS ON THIS SERVER</button>
-            {discoveredRooms.map((r) => (
-              <button key={r.roomCode} onClick={() => setJoinCode(r.roomCode)}>
-                {r.roomCode} · {r.players}/{r.maxPlayers}
-              </button>
-            ))}
-          </>
-        ) : (
-          <>
-            <div className="ops-room">
-              ROOM <strong>{roomCode}</strong>
-              <small>{inviteLink}</small>
-            </div>
-            <div className="ops-roster">
-              {players.map((p) => (
-                <div key={p.id}>
-                  <b>
-                    P{p.id} {p.id === hostId ? " / HOST" : ""}
-                    {p.id === myPlayerId ? " / YOU" : ""}
-                  </b>
-                  <span>{p.role}</span>
-                  <span className={p.ready ? "ops-live" : ""}>
-                    {!p.connected ? "OFFLINE" : p.ready ? "READY" : "PREPARING"}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="ops-copy">
-              Choose your specialty. A Hacker + one different role are required.
-              Duplicate roles are allowed.
-            </p>
-            <div className="ops-role-picks">
-              {ROLES.map((role) => (
-                <button
-                  aria-pressed={me?.role === role}
-                  className={me?.role === role ? "selected" : ""}
-                  key={role}
-                  onClick={() => sendLobby("select_role", { role })}
-                >
-                  {role}
-                </button>
-              ))}
-            </div>
-            <p className="ops-copy">
-              {me?.role === "Hacker"
-                ? "Q: disable a nearby camera for 10s or unlock a nearby side door. Cooldown 16s."
-                : me?.role === "Assassin"
-                  ? "Q: stun a guard within 62px for 5s. Cooldown 12s."
-                  : "Q: highlight guards and hazards within 360px for 6s. Cooldown 18s."}
-            </p>
-            <div className="ops-actions">
-              <button onClick={() => sendLobby("ready", { ready: !me?.ready })}>
-                {me?.ready ? "CANCEL READY" : "READY UP"}
-              </button>
-              {myPlayerId === hostId && (
+            {entry === "host" ? (
+              <>
+                <label>
+                  MAX PLAYERS
+                  <select
+                    value={net.lanMaxPlayers}
+                    onChange={(e) =>
+                      net.setLanMaxPlayers(Number(e.target.value))
+                    }
+                  >
+                    {[2, 3, 4].map((n) => (
+                      <option key={n}>{n}</option>
+                    ))}
+                  </select>
+                </label>
                 <button
                   className="ops-primary"
-                  disabled={!canStart}
-                  onClick={() => sendLobby("host_start")}
+                  onClick={() => net.hostLanGame(true)}
                 >
-                  DEPLOY SQUAD
+                  CREATE PARTY ROOM
                 </button>
-              )}
-            </div>
-            {!canStart && (
-              <p className="ops-copy">
-                Deployment needs 2–4 ready operatives, including a Hacker and a
-                different role.
-              </p>
+                <details className="party-advanced">
+                  <summary>Host and play with this keyboard instead</summary>
+                  <label>
+                    YOUR NICKNAME
+                    <input
+                      value={net.nickname}
+                      onChange={(e) => net.setNickname(e.target.value)}
+                      maxLength={20}
+                    />
+                  </label>
+                  <button
+                    onClick={() => {
+                      net.changeViewMode("game");
+                      net.hostLanGame(false);
+                    }}
+                  >
+                    HOST AS A PLAYER
+                  </button>
+                </details>
+              </>
+            ) : (
+              <>
+                <div className="ops-form-row">
+                  <label>
+                    ROOM CODE
+                    <input
+                      aria-label="Join room code"
+                      value={net.joinCode}
+                      onChange={(e) =>
+                        net.setJoinCode(e.target.value.toUpperCase())
+                      }
+                      maxLength={6}
+                    />
+                  </label>
+                  <label>
+                    NICKNAME
+                    <input
+                      aria-label="Nickname"
+                      value={net.nickname}
+                      onChange={(e) => net.setNickname(e.target.value)}
+                      maxLength={20}
+                      autoComplete="nickname"
+                      placeholder="Your callsign"
+                    />
+                  </label>
+                </div>
+                <RoleCards
+                  selected={net.selectedRole}
+                  onSelect={net.setSelectedRole}
+                />
+                <ModeToggle mode={net.viewMode} onChange={net.changeViewMode} />
+                <button className="ops-primary" onClick={net.joinLanGame}>
+                  JOIN ROOM
+                </button>
+                <details className="party-advanced">
+                  <summary>Find rooms on this server</summary>
+                  <button onClick={net.discoverLanGames}>FIND ROOMS</button>
+                  {net.discoveredRooms.map((r) => (
+                    <button
+                      key={r.roomCode}
+                      onClick={() => net.setJoinCode(r.roomCode)}
+                    >
+                      {r.roomCode} · {r.players}/{r.maxPlayers}
+                    </button>
+                  ))}
+                </details>
+              </>
             )}
           </>
+        ) : (
+          <div className={host ? "party-host-grid" : ""}>
+            {host && <PartyInvite net={net} />}
+            <section>
+              <div className="party-roster">
+                <p className="ops-eyebrow">
+                  ROOM {roomCode} · {players.length}/{net.lanMaxPlayers}{" "}
+                  OPERATIVES · {net.displayCount} EXTRA DISPLAYS
+                </p>
+                {Array.from(
+                  { length: net.lanMaxPlayers },
+                  (_, i) => players[i] || { id: `empty-${i}` },
+                ).map((p, i) => (
+                  <div key={p.id} className="party-slot">
+                    <span className="slot-number">0{i + 1}</span>
+                    <span>
+                      <b>
+                        {p.nickname || "Waiting for a phone…"}
+                        {p.id === myPlayerId ? " / YOU" : ""}
+                      </b>
+                      <small>{p.role || "Scan to join"}</small>
+                    </span>
+                    <strong className={p.ready ? "ops-live" : ""}>
+                      {!p.nickname
+                        ? "EMPTY"
+                        : !p.connected
+                          ? "RECONNECTING"
+                          : p.ready
+                            ? "READY"
+                            : "CHOOSING"}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+              {me && (
+                <>
+                  <RoleCards
+                    selected={me.role}
+                    players={players}
+                    onSelect={(role) => net.sendLobby("select_role", { role })}
+                  />
+                  <ModeToggle
+                    mode={net.viewMode}
+                    onChange={net.changeViewMode}
+                  />
+                  <button
+                    className={me.ready ? "" : "ops-primary"}
+                    onClick={() => net.sendLobby("ready", { ready: !me.ready })}
+                  >
+                    {me.ready ? "CANCEL READY" : "READY UP"}
+                  </button>
+                  <p className="ops-copy">
+                    {me.ready
+                      ? "Ready. Waiting for the host to deploy."
+                      : "Choose a role and ready up. Role changes cancel ready status."}
+                  </p>
+                </>
+              )}
+              {kind === "display" && (
+                <p className="ops-copy">
+                  Read-only display · waiting for the host to deploy.
+                </p>
+              )}
+              {host && (
+                <>
+                  <p className="ops-copy">
+                    Encourage one of each role for four players. Duplicates are
+                    welcome. A Hacker and one different role are required; two
+                    players can complete the mission.
+                  </p>
+                  <button
+                    className="ops-primary deploy-button"
+                    disabled={!canStart}
+                    onClick={() => net.sendLobby("host_start")}
+                  >
+                    DEPLOY SQUAD
+                  </button>
+                  {!canStart && (
+                    <p className="ops-copy">
+                      Need 2–4 connected, ready players with a Hacker + a
+                      different role.
+                    </p>
+                  )}
+                </>
+              )}
+            </section>
+          </div>
         )}
         <p role="status" className="ops-copy">
-          {status}
+          {net.netStatus}
+          {net.kind === "host"
+            ? " · Host authorized · shared screen · no player slot"
+            : ""}
         </p>
-        {error && (
+        {net.netError && (
           <p role="alert" className="ops-error">
-            {error}
+            {net.netError}
           </p>
         )}
-        <button onClick={onBack}>← RETURN TO COMMAND</button>
+        <button onClick={onBack}>← LEAVE / MAIN MENU</button>
       </section>
     </main>
+  );
+}
+export function ModeToggle({ mode, onChange }) {
+  return (
+    <div className="party-mode-toggle" aria-label="Phone play mode">
+      <button
+        aria-pressed={mode === "controller"}
+        className={mode === "controller" ? "selected" : ""}
+        onClick={() => onChange("controller")}
+      >
+        CONTROLLER MODE
+      </button>
+      <button
+        aria-pressed={mode === "game"}
+        className={mode === "game" ? "selected" : ""}
+        onClick={() => onChange("game")}
+      >
+        PLAY ON THIS PHONE
+      </button>
+    </div>
   );
 }

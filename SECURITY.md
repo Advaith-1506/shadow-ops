@@ -1,35 +1,57 @@
-# Shadow Ops security design
+# Shadow Ops security architecture
 
-## Authority and threat model
+## Authoritative simulation
 
-For LAN matches, the Node.js WebSocket server runs the original game simulation at a fixed 30Hz. The browser hosting the lobby is a normal client with permission to start the match; it cannot submit simulation state. Local keyboard co-op runs in the browser and provides no anti-cheat boundary. Electron uses the same shared server implementation as the CLI.
+One Node.js/ws process runs each room's simulation at a fixed 30Hz. Clients submit booleans, never dt, coordinates, speed, scores or mission outcomes. Movement normalization, collisions, world bounds, role restrictions, interaction distance/line of sight, ability cooldowns, mission prerequisites, capture/revive, score and team extraction are server-owned. The browser hosting the party does not run a second simulation. Local keyboard co-op runs in the browser and has no anti-cheat boundary.
 
-The deliberate security measure is server-side action validation. It protects an honest server against clients attempting to move too fast, impersonate other players, bypass objectives/cooldowns, assign scores, or declare victory. It does **not** protect against an operator modifying the server or inspecting its memory. A malicious host controls the authoritative simulation.
+This protects an honest server against dishonest clients. It does **not** protect against a malicious server operator who can change the simulation, inspect tokens, stop the process or alter time. HTTP/ws LAN traffic is unencrypted.
 
-## Input and simulation validation
+## Three connection types
 
-`server/roomServer.js::validateMessage` implements explicit runtime schemas and an action allowlist. Non-object JSON, malformed JSON, unknown actions/fields, invalid roles, wrong boolean types, malformed room codes/tokens, and unexpected identity or state fields are rejected. Frames, positions, speed, scores, and mission-complete messages have no accepted schema. The WebSocket maximum payload is 2KiB. Oversized frames are closed by ws.
+| Session    | Authority                                                                                                | Capacity                                     |
+| ---------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Player     | Input for its bound actor; own role/ready changes in lobby; explicit leave                               | 2–4 players; one active socket per actor     |
+| Party host | Create/manage room, start after all ready, return ended mission to lobby, authorize displays, close room | Uses zero player slots                       |
+| Display    | Receive roster and snapshots; leave display session                                                      | Up to four extra displays; zero player slots |
 
-The server associates the socket with its room and player and verifies that the currently registered socket owns that membership. Clients never select an acting player ID. One socket cannot create/join multiple rooms. Full/started/unknown rooms are rejected. Only the room host starts, with 2–4 connected ready players, a Hacker, and a different role. Role changes clear ready status.
+Legacy desktop host-as-player remains supported: its currently authenticated player socket owns host permissions, and hosting consumes one player slot. When that host permanently leaves or its lobby reservation expires, host permission can pass to another player. Party host authority is never transferred to public phone or display sessions.
 
-Only directional booleans, interaction, and ability buttons reach simulation. The server supplies dt=1/30; input packets do not cause extra ticks. Movement speed, diagonal normalization, collision, and world bounds are computed in `playerLogic.js`. Inputs expire after 250ms without refresh. Ability cooldowns and distances, role restrictions, line-of-sight checks against walls, key prerequisites, the cooperative terminal requirement, vault lock, and all-player extraction are evaluated by the simulation. Final scores and win/loss screens derive exclusively from server state.
+Display joins require a separate cryptographically random read-only capability issued privately to the authorized host. Its link places that capability in the URL fragment. It grants no movement, ability, role, ready, start or reset permissions. Anyone given the display link can view the room until it closes, so share it intentionally. It is not a player/host reconnect credential. At most four extra displays connect. Player QR invitations contain only a reachable website hostname and room code—never host, player or display credentials.
 
-Each socket is limited to 80 messages in a one-second fixed window. Excess traffic receives an error and closes with 1008. WebSocket buffering is bounded before sending snapshots; slow consumers skip outgoing frames. At most 100 rooms exist. These limits mitigate ordinary action spam, not distributed denial of service. There is no per-IP connection limit, account authentication, or public matchmaking service.
+Room codes are discoverable convenience identifiers, **not authentication secrets**. They allow joining an open lobby, not taking over an existing actor or becoming Party Mode administrator. Multiple independent clients may join legitimately; the system does not offer account identity or prevent all Sybil behavior.
 
-## Reconnection and identity
+## Schemas, rate limits and anti-cheat
 
-Initial join and successful resume return a private 32-byte cryptographic token (Node crypto.randomBytes). It is sent only to that player's socket and stored in browser memory. Public roster and simulation objects never contain tokens. Disconnected members retain their place for 30 seconds; their input clears immediately and the mission freezes. Only a disconnected session with its matching unexpired token can resume, and each success rotates the token. An active socket cannot be displaced by a token replay. Invalid, expired, or unknown tokens are rejected. Page reloads do not preserve the token. A disconnect exceeding the grace period, or an explicit leave, fails an active mission rather than relaxing extraction requirements.
+`validateMessage` rejects non-object/malformed JSON, unknown actions/fields, invalid types, malformed room codes/tokens, unknown roles and invalid nicknames. Nicknames are bounded to 20 characters, exclude control characters and angle brackets, and render through React/Canvas text. The server binds session kind, room and actor identity to the socket. Claimed player IDs and arbitrary state have no accepted schema.
 
-Room codes are cryptographically random convenience identifiers, **not passwords**. Rooms are discoverable on the server. Anyone on the network who learns the room code can join an open lobby. A player can create multiple independent clients; the protocol prevents duplicate membership on one socket, not Sybil identities across sockets.
+- Maximum incoming payload: **2KiB**; oversized frames close through ws.
+- Rate limit: **80 messages per one-second fixed window per socket**; excess closes with 1008.
+- Room limit: **100**; player limit: **4**; extra-display limit: **4** per room.
+- Stale inputs expire after **250ms**. Input packets do not advance simulation time.
+- Outgoing snapshots are skipped when socket buffering exceeds 1MB.
+- Only the authenticated host starts/resets; all players must be connected/ready, with a Hacker and a different role. Role changes clear ready status.
+- A display or slot-free host sending player actions is rejected. A client cannot declare victory, set score, bypass vault requirements or nominate a remote Decoy position. Decoy noise spawns at the authoritative player position and guards choose valid investigation behavior server-side; a live chase takes priority.
 
-## Transport and deployment limitations
+These controls mitigate ordinary action abuse, not distributed denial of service. There is no per-IP connection quota, Internet account service or fog-of-war enforcement. Full snapshots expose world/enemy information to modified clients.
 
-Development LAN traffic uses plain HTTP and ws. A network observer can read state and session tokens; do not use this configuration on an untrusted network or expose it to the Internet. For Internet hosting, add HTTPS/WSS, allowed-origin checks, firewall/proxy rules, per-IP connection limits, authentication, persistent monitoring, and a dependency/security review. Snapshot delivery reveals the full map and enemy state to clients, so modified clients can render extra information. This is not fog-of-war enforcement.
+## Refresh, reconnect and duplicate tabs
 
-The host can stop the process, alter time/state, or inspect private tokens. Reconnection does not survive a server restart; state is in memory. Tokens are never committed to disk or included in logs by this implementation. Avoid adding raw message logging.
+Player and Party host credentials use `crypto.randomBytes(32)` and rotate on every successful attach/resume. Credentials are returned only to their owning socket; rosters/snapshots exclude them. Only a disconnected socket with the current unexpired credential can resume. A token cannot displace an active socket, and replaying an old rotated token is rejected.
 
-Inherited dependencies include older desktop/mobile tooling. npm audit reports known advisories in the inherited tree; see QA.md. Automated tests cover gameplay validation, not the security of all upstream packages. Electron/mobile release packaging and Internet deployment require separate verification.
+The browser stores reconnect metadata in **sessionStorage** so refresh can restore the actor, role and mode. It is scoped to the active browsing session and origin, not localStorage. Client metadata is ignored after 30 minutes; server authorization is stricter: the disconnected session is resumable for **30 seconds** only. Blocking sessionStorage degrades refresh recovery but live in-memory reconnect remains possible. Explicit leave clears the saved session and differs from pagehide/accidental disconnect. Duplicate tabs cannot control the same active actor. Possession of a valid private credential remains the security boundary.
+
+WebSocket ping/pong heartbeats detect half-open connections (up to roughly 10 seconds); stale movement still stops after 250ms. During a missing player's 30-second grace, the entire active mission freezes, input is zeroed and the actor is reserved. Exceeding grace or explicitly leaving fails the mission rather than relaxing full-team extraction. Lobby reservations also survive refresh for 30 seconds and then expire. The Party host can reconnect independently without reserving an actor. Closing a Party host explicitly closes its room. A server restart loses all in-memory rooms and sessions.
+
+Controller input releases on blur, hidden pages, pointer cancellation, disconnect, unmount and view changes; the server timeout is a second line of defense. Changing controller/full-game views uses the same connection and actor, without resending a join.
+
+## Trusted-LAN deployment limitations
+
+Default HTTP/ws does not encrypt tokens or game state. A network observer or malicious same-origin script may steal credentials; sessionStorage is not protection against XSS. Do not expose these development servers to the Internet. Untrusted networks require HTTPS/WSS, suitable origin allowlists, authentication, per-IP connection limits, firewall/proxy rules, monitoring and a dependency review. The QR endpoint derives from the scanned hostname; LAN candidates can be manually corrected because interface detection cannot prove cross-device reachability.
+
+Private credentials are not deliberately logged. Do not add raw message logging. Display fragments may remain in browser history; they grant read access until room closure. The public player QR has no such capability. Packaged native builds, public/TLS deployment and physical-device behavior require their own validation. Inherited dependency advisories remain documented in [QA.md](QA.md).
 
 ## Verification and reporting
 
-Run `npm run test:run`. `tests/integration/rooms.test.js` uses actual WebSocket clients for identity, schemas, state forgery, room restrictions, rate limiting, movement, token isolation, and reconnect tests. `tests/unit/mission.test.js` covers range/line-of-sight, prerequisites, cooldowns, role cooperation, and extraction. Report issues through this repository's GitHub issues without including active tokens or private credentials.
+Run `npm run test:run`. Tests exercise actual WebSocket host, display and four-player connections, unauthorized actions, token isolation/rotation, duplicate-controller rejection, refresh/lobby reservation, authoritative state consistency, Decoy behavior and existing mission/ability restrictions. Unit tests cover normalized multitouch input, release safety, short taps, invite construction and session storage. See [QA.md](QA.md) for browser evidence and the manual device checklist.
+
+Report issues in this repository without active credentials or private data. Required upstream and dependency acknowledgments remain in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSE](LICENSE).
