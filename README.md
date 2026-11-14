@@ -123,6 +123,7 @@ npm run preview -- --port 5173  # use alongside lan:server
 ```bash
 npm run test:run
 npm run lint
+npm run assets:audit
 npm run build
 ```
 
@@ -135,6 +136,10 @@ Electron and Capacitor scaffolding remains in the repository with Shadow Ops dis
 ## Future gesture controls
 
 `src/lib/game/input.js` provides `registerInputProvider(name, provider)` for optional boolean movement/interact/ability events. Keyboard and touch remain available, and all LAN actions still pass server validation. No OpenCV, MediaPipe or webcam permission is required today.
+
+## Resource inventory and original artwork
+
+Unused imported resources have been removed, and the pause and result screens use original CSS tactical artwork. Used gameplay sprites and required native resources remain intact. [ASSET_AUDIT.md](docs/ASSET_AUDIT.md) documents every disposition, retained-resource replacement opportunities and size measurements; `npm run assets:audit` checks import/manifest integrity. Required upstream notices remain below.
 
 ## License and notices
 

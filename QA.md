@@ -86,3 +86,13 @@ Web production builds use root-relative assets for nested join/display URLs; nat
 - Native Electron installers and Android/iOS packages are inherited scaffolding and were not built or device-tested. Native names were updated without migrating bundle identifiers.
 - HTTP/ws is unencrypted; this is a trusted-LAN project. No protection against a malicious host, Internet DoS or client-side extra world visualization is claimed.
 - Existing dependency advisories remain: the previous compatible patch pass left two moderate production React Router advisories and additional inherited development/native-tooling advisories. No unrelated major framework migration was attempted. Run `npm audit` for current results.
+
+## Resource cleanup validation
+
+The audit starts from merged main `1ee69d1`, already containing both teams' player additions. A fresh fetch/merge reported no conflicts; P3/P4 local controls remain intact. The pre-cleanup baseline passed all 83 tests and the production build.
+
+Removed 98 unused files and replaced three used pause/result raster assets with original CSS artwork. Retained 34 runtime resources/metadata, three original pack documents, a pruned subset manifest and 42 native resources/configurations. See `docs/ASSET_AUDIT.md` and `docs/asset-audit.json` for per-file evidence and accurate size accounting. Required notices and LICENSE remain intact. New artwork changes presentation only; native graphics and gameplay sprite/frame contracts are unchanged.
+
+Validation commands: `npm run assets:audit`, `npm run test:run`, `npm run lint`, `npm run build`. Native packaging and physical phones remain outside this resource-cleanup verification. UI preview fixtures used for pause/win/loss inspection are presentation samples, not a claim of manual mission completion.
+
+Browser checks after cleanup: inspected pause/success/failure CSS previews, launched four-player local gameplay with retained sprites, and exercised live pause/resume. Browser error logs were empty. Temporary visual fixtures were removed before commit. These checks do not claim a full manual mission victory or native-device validation.
