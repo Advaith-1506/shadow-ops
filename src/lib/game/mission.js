@@ -105,13 +105,33 @@ export function currentRolePrompt(s, p) {
     return p?.role === "Hacker"
       ? "Go to TERMINAL and press INTERACT while a teammate stands on SUPPORT PAD."
       : "Stand on SUPPORT PAD. Stay there while Hacker presses INTERACT at TERMINAL.";
+  if (
+    m.checkpoint?.windowRemaining > 0 &&
+    !complete(s, "checkpoint") &&
+    ["Hacker", "Assassin"].includes(p?.role)
+  )
+    return `RELAY OPEN ${Math.ceil(m.checkpoint.windowRemaining)}s — press INTERACT at the Living Room checkpoint now!`;
+  const prerequisiteNames = {
+    credential: "Assassin credentials",
+    electronic_key: "electronic ALPHA",
+    recon: "Scout discovery",
+    checkpoint: "Decoy checkpoint",
+  };
   const own = m.objectives.find(
     (o) => o.requiredRole === p?.role && o.status !== "complete",
   );
   if (own?.id === "checkpoint" && m.checkpoint.windowRemaining > 0)
     return `Guard lured! Stay clear; Hacker/Assassin must INTERACT at checkpoint (${Math.ceil(m.checkpoint.windowRemaining)}s).`;
   return own
-    ? `${own.label}${own.status === "locked" ? " — waiting for " + own.prerequisites.filter((id) => !complete(s, id)).join(", ") : ""}`
+    ? `${own.label}${
+        own.status === "locked"
+          ? " — waiting for " +
+            own.prerequisites
+              .filter((id) => !complete(s, id))
+              .map((id) => prerequisiteNames[id] || id)
+              .join(", ")
+          : ""
+      }`
     : missionStage(s);
 }
 function complete(s, id) {
@@ -132,7 +152,7 @@ function finish(s, id, p, text, stat) {
   if (!o || o.status === "complete" || !available(s, id)) return false;
   o.status = "complete";
   o.completedBy = p.id;
-  o.completedAt = s.timer;
+  o.completedAt = s.elapsedTime;
   o.visibility = "visible";
   o.contributions = [{ playerId: p.id, role: p.role, action: o.condition }];
   recordMissionEvent(s, p, text, stat);
@@ -443,7 +463,7 @@ function recordMissionEvent(s, p, text, stat) {
     id: ++s.eventSequence,
     text,
     by: p.nickname || `P${p.id}`,
-    at: s.timer,
+    at: s.elapsedTime,
   });
   s.events = s.events.slice(-8);
 }
@@ -478,12 +498,6 @@ export function observeMissionEvents(s, dt) {
   if (!s.mission?.config) return;
   const m = s.mission,
     c = m.checkpoint;
-  const quiet =
-    s.players.every((p) => !p.downed && !(p.detected > 0)) &&
-    s.guards.every((g) => g.mode !== "chase" && !(g.alertTimer > 0));
-  m.quietTime = quiet ? (m.quietTime || 0) + dt : 0;
-  if (m.quietTime >= m.config.balance.quietRecoveryDelay)
-    s.alarm = Math.max(0, s.alarm - m.config.balance.quietRecoveryRate * dt);
   if (c && !complete(s, "checkpoint")) {
     c.windowRemaining = Math.max(0, c.windowRemaining - dt);
     const guard = s.guards.find(

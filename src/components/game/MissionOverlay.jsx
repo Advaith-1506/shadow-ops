@@ -30,7 +30,7 @@ export default function MissionOverlay({ state, shared = false }) {
           ))}
         </div>
       </details>
-      {latest && state.timer > latest.at - 5 && (
+      {latest && state.elapsedTime - latest.at < 5 && (
         <p role="status" className="mission-toast">
           {latest.text} · {latest.by}
         </p>

@@ -328,6 +328,17 @@ export function runLiveMission(roles) {
     );
   }
 
+  if (roles.length === 4) {
+    // Regroup after the long four-role infiltration. This is ordinary movement
+    // and waiting for main's real alert recovery, not an alarm assignment.
+    many(
+      { 1: [148, 620], 2: [184, 660], 3: [124, 580], 4: [120, 660] },
+      () => s.players.every((p) => p.atVan && !p.downed),
+      6000,
+    );
+    for (let i = 0; i < 900; i++) tick({});
+  }
+
   many({ 1: [1122, 668], 2: [1000, 668] }, () => s.mission.securityOff);
   if (roles.includes("Decoy")) {
     huntId = "g2";

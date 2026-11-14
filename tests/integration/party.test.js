@@ -206,9 +206,9 @@ it("clears inputs on disconnect, freezes and resumes a started mission", async (
   await once(b.ws, "close");
   await pause();
   expect(room.players.get(2).input.right).toBe(false);
-  const timer = room.state.timer;
+  const elapsedTime = room.state.elapsedTime;
   await pause(80);
-  expect(room.state.timer).toBe(timer);
+  expect(room.state.elapsedTime).toBe(elapsedTime);
   const resumed = await client();
   send(resumed, "resume", {
     roomCode: welcome.roomCode,
@@ -217,7 +217,7 @@ it("clears inputs on disconnect, freezes and resumes a started mission", async (
   await read(resumed, "joined_room");
   await read(resumed, "game_start");
   await pause();
-  expect(room.state.timer).toBeLessThan(timer);
+  expect(room.state.elapsedTime).toBeGreaterThan(elapsedTime);
 });
 it("returns the same squad to lobby only on host authorization after mission end", async () => {
   const { host, welcome, room } = await party();

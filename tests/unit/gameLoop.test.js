@@ -31,7 +31,7 @@ import { isWinConditionMet } from "../../src/lib/game/gameState";
 
 function mkState() {
   return {
-    timer: 10,
+    elapsedTime: 0,
     alarm: 0,
     screen: "playing",
     lossReason: "",
@@ -46,12 +46,11 @@ describe("gameLoop.updateGame", () => {
     vi.clearAllMocks();
   });
 
-  it("ends game on timer timeout", () => {
+  it("tracks elapsed mission time without ending the game", () => {
     const s = mkState();
     updateGame(s, 99);
-    expect(s.timer).toBe(0);
-    expect(s.screen).toBe("loss");
-    expect(s.lossReason).toMatch(/Time's up/i);
+    expect(s.elapsedTime).toBe(99);
+    expect(s.screen).toBe("playing");
   });
 
   it("ends game on alarm overflow", () => {
@@ -71,6 +70,27 @@ describe("gameLoop.updateGame", () => {
     expect(updateCameras).toHaveBeenCalledWith(s, 0.1);
     expect(updateLasers).toHaveBeenCalledWith(s, 0.1);
     expect(updateCrates).toHaveBeenCalledWith(s, 0.1);
+  });
+
+  it("gradually lowers alarm during quiet time", () => {
+    const s = mkState();
+    s.alarm = 20;
+    updateGame(s, 1);
+    expect(s.alarm).toBe(17);
+
+    s.alarm = 1;
+    updateGame(s, 1);
+    expect(s.alarm).toBe(0);
+  });
+
+  it("does not lower alarm on a tick with active detection", () => {
+    const s = mkState();
+    s.alarm = 20;
+    updateGuards.mockImplementationOnce((state) => {
+      state.alarm += 4;
+    });
+    updateGame(s, 1);
+    expect(s.alarm).toBe(24);
   });
 
   it("ends game when custody timer expires", () => {

@@ -22,6 +22,8 @@ npm run build
 npm run assets:audit
 ```
 
+**Final local result:** 136 tests passed across 13 suites, including four complete live-simulation victories. `npm ci`, coverage tests, lint, production build and the asset audit passed. After the final phone-prompt wording adjustment, its focused 26-test suite, lint and production build passed again.
+
 Socket tests bind ephemeral loopback ports. Coverage reports are generated under `coverage/` and remain untracked.
 
 - Composition cases cover both valid Trio variants, Duo, Full Squad, missing roles, duplicate roles and duplicate participant identities. Server tests independently enforce deployment rules; hosts/displays do not count as players.
@@ -34,11 +36,11 @@ Socket tests bind ephemeral loopback ports. Coverage reports are generated under
 
 The feature retains main's 10-second normal Assassin stun and 12-second cooldown. The captain's first credential takedown provides a 20-second infiltration opening; subsequent stuns remain normal. A valid checkpoint noise lasts 12 seconds and opens a 10-second relay opportunity only after actual sentry movement/clearance; chase, stun and expired noise close it. Normal noise remains 5 seconds with a 16-second cooldown.
 
-Main's latest unlimited mission time, elapsed-time results, alert recovery and phone/UI improvements are preserved. Alert lockdown and the 20-second capture/revive requirement still apply. Four live completion paths remain the acceptance proof; unlimited duration does not bypass role gates or all-player extraction.
+Main's latest unlimited mission time, elapsed-time results, 3-points/second quiet-tick alert recovery and phone/UI improvements are preserved; alert recovery is not stacked with another system. Alert lockdown and the 20-second capture/revive requirement still apply. Four live completion paths remain the acceptance proof; unlimited duration does not bypass role gates or all-player extraction.
 
 ## Browser smoke evidence
 
-Browser smoke testing uses the actual local frontend and authoritative backend with a slot-free Party host and four independent player tabs. Verified QR invitation/room setup, four unique roles, Ready cancellation on role change, duplicate-Scout/missing-Decoy deployment rejection, valid Full Squad deployment, synchronized objective states and Scout-specific controller prompts. Switched a player from Controller Mode to full phone gameplay with the same actor. Screenshots are in `docs/screenshots/`.
+Browser smoke testing uses the actual local frontend and authoritative backend with a slot-free Party host and four independent player tabs. Verified QR invitation/room setup, four unique roles, Ready cancellation on role change, duplicate-Scout/missing-Decoy deployment rejection, valid Full Squad deployment, synchronized objective states and Scout-specific controller prompts. Switched a player from Controller Mode to full phone gameplay with the same actor. Screenshots are in `docs/screenshots/`. Confirmed a real Scout button press starts the authoritative cooldown while a pulse outside the recon zone leaves discovery incomplete. Refresh preserved the same Scout session and cooldown; controller-to-Canvas-to-controller switching kept its role. The browser remained at 1280×720 when a viewport override was requested, so this run makes no small-viewport verification claim.
 
 This is a browser smoke test, not a manual full-heist victory. Complete victories are established by the live simulation tests above. Physical phones, QR camera scanning, Wi-Fi reachability, iOS Safari/Android Chrome behavior, hardware multitouch and haptics remain unverified. Native packages were not built. Inherited npm dependency advisories were not addressed by unrelated dependency upgrades.
 

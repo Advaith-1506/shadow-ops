@@ -30,15 +30,11 @@ export default function ControllerScreen({ net, onInput, onLeave }) {
         {s?.mission?.config && (
           <small className="ops-copy">{s.mission.config.variant}</small>
         )}
-        <span>
-          ALERT {Math.floor(s?.alarm || 0)}% ·{" "}
-          {Math.floor((s?.timer || 0) / 60)}:
-          {String(Math.floor((s?.timer || 0) % 60)).padStart(2, "0")}
-        </span>
+        <span>ALERT {Math.floor(s?.alarm || 0)}%</span>
         <div className="controller-alert">
           <i style={{ width: `${s?.alarm || 0}%` }} />
         </div>
-        {s?.events?.at(-1) && s.timer > s.events.at(-1).at - 5 && (
+        {s?.events?.at(-1) && s.elapsedTime - s.events.at(-1).at < 5 && (
           <p role="status">{s.events.at(-1).text}</p>
         )}
         {p?.downed && (

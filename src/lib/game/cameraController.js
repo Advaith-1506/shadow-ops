@@ -14,7 +14,19 @@ import { computeHudLayout, fitBounds } from './viewLayout.js';
  */
 export function computeLevelView({ cssW, cssH, dpr = 1, touch = false, playerCount = 2, bounds = LEVEL.bounds }) {
   const layout = computeHudLayout(cssW, cssH, { touch, playerCount, bounds });
-  const fit = fitBounds(layout.play, bounds, dpr);
+  const baseFit = fitBounds(layout.play, bounds, dpr);
+  const mobileLandscape = touch && cssW > cssH && cssH <= 600;
+  const zoom = baseFit.zoom * (mobileLandscape ? 0.9 : 1);
+  const drawW = bounds.w * zoom;
+  const drawH = bounds.h * zoom;
+  const snap = (v) => Math.round(v * dpr) / dpr;
+  const fit = {
+    zoom,
+    drawW,
+    drawH,
+    offsetX: snap(layout.play.x + (layout.play.w - drawW) / 2),
+    offsetY: snap(layout.play.y + (layout.play.h - drawH) / 2),
+  };
   return {
     layout,
     zoomCss: fit.zoom,

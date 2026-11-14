@@ -72,7 +72,7 @@ describe("gameplay integration", () => {
     });
     expect(payload.frame).toBe(8);
     updateGame(state, 0.1, payload.inputs);
-    expect(state.timer).toBeLessThan(600);
+    expect(state.elapsedTime).toBeGreaterThan(0);
   });
 
   it("input payload sanitizer normalizes noisy input before host relay", () => {

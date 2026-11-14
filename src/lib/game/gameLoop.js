@@ -4,8 +4,12 @@
  * Orchestrates all system updates and checks win/loss conditions.
  */
 
-import { updateMissionWorld, updateMissionPlayer, observeMissionEvents } from "./mission.js";
-import { MAX_ALARM } from "./constants.js";
+import {
+  updateMissionWorld,
+  updateMissionPlayer,
+  observeMissionEvents,
+} from "./mission.js";
+import { ALARM_DECAY_RATE, MAX_ALARM } from "./constants.js";
 import {
   getP1Input,
   getP2Input,
@@ -23,14 +27,8 @@ import {
 import { isWinConditionMet, calculateScore } from "./gameState.js";
 
 export function updateGame(state, dt, inputByPlayer = null) {
+  state.elapsedTime += dt;
   updateMissionWorld(state, dt);
-  // ── Countdown timer ─────────────────────────────────────────────────────────
-  state.timer -= dt;
-  if (state.timer <= 0) {
-    state.timer = 0;
-    _endGame(state, "loss", "Time's up! The safehouse went into lockdown.");
-    return;
-  }
 
   // ── Alarm limit ─────────────────────────────────────────────────────────────
   if (state.alarm >= MAX_ALARM) {
@@ -65,12 +63,17 @@ export function updateGame(state, dt, inputByPlayer = null) {
   }
 
   // ── Update entities ─────────────────────────────────────────────────────────
+  const alarmBeforeEntities = state.alarm;
   updatePressurePlates(state); // run first so doors update before collision
   updateGuards(state, dt);
   updateCameras(state, dt);
   updateLasers(state, dt);
   updateCrates(state, dt);
   observeMissionEvents(state, dt);
+  // Preserve main's quiet-tick alert recovery without stacking another decay.
+  if (state.alarm <= alarmBeforeEntities) {
+    state.alarm = Math.max(0, state.alarm - ALARM_DECAY_RATE * dt);
+  }
 
   // ── Tutorial countdown ──────────────────────────────────────────────────────
   if (state.tutorialTimer > 0) state.tutorialTimer -= dt;

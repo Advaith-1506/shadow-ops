@@ -197,6 +197,7 @@ describe("authoritative role events and gates", () => {
       28,
     );
     expect(s.mission.checkpoint.windowRemaining).toBeGreaterThan(0);
+    expect(currentRolePrompt(s, h)).toMatch(/RELAY OPEN.*INTERACT/);
     position(h, s.mission.config.anchors.checkpoint);
     g.stunned = 1;
     interact(s, h);
@@ -246,24 +247,5 @@ describe("authoritative role events and gates", () => {
       expect(s.guards.find((g) => g.id === id).patrol.length).toBeGreaterThan(
         1,
       );
-  });
-  it("recovers alert only after the whole team is safe and the quiet delay passes", () => {
-    const s = fresh([]);
-    s.alarm = 40;
-    observeMissionEvents(s, 2);
-    expect(s.alarm).toBe(40);
-    observeMissionEvents(s, 1);
-    expect(s.alarm).toBe(38);
-    s.guards[0].mode = "chase";
-    observeMissionEvents(s, 4);
-    expect(s.alarm).toBe(38);
-    s.guards[0].mode = "patrol";
-    s.players[0].detected = 1;
-    observeMissionEvents(s, 4);
-    expect(s.alarm).toBe(38);
-    s.players[0].detected = 0;
-    s.players[1].downed = true;
-    observeMissionEvents(s, 4);
-    expect(s.alarm).toBe(38);
   });
 });

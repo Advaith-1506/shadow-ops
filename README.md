@@ -75,7 +75,7 @@ Objectives show their required role, locked/available/in-progress/complete state
 
 The Safehouse's existing walls, solid furniture, spawns, fixed whole-level camera and patrol routes are preserved. The new network node and relay are procedural markers on reachable floor along the infiltration route.
 
-Guards still patrol, investigate, chase and capture; noise never overrides an active chase. Hold Interact near a captured teammate to revive them before the **20-second custody timer** expires. At **100% alert** or the **10-minute deadline**, the mission fails. For the longer cooperative chain, takedowns now provide a 10s opening (20s on the captain's first credential takedown). After **3 seconds with every operative safe and undetected and no guard chasing/alerted**, alert recovers by **2 points/second** so the team can regroup. Cooldowns, patrol geometry and the mission deadline remain intact.
+Guards still patrol, investigate, chase and capture; noise never overrides an active chase. Hold Interact near a captured teammate to revive them before the **20-second custody timer** expires. At **100% alert**, the mission fails. Following the team's latest main-branch update, **there is no mission deadline**; results use elapsed time. Takedowns provide a 10s opening (20s on the captain's first credential takedown). Main's alert recovery is retained: **3 points/second on ticks with no detection/contact alarm increase**. Cooldowns and patrol geometry remain intact.
 
 ## Controls and sessions
 

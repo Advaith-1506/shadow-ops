@@ -13,7 +13,8 @@ describe("complete dynamic missions with active guards and real button inputs", 
       const s = runLiveMission(roles);
       expect(s.screen).toBe("win");
       expect(s.alarm).toBeLessThan(100);
-      expect(s.timer).toBeGreaterThan(0);
+      expect(s.elapsedTime).toBeGreaterThan(0);
+      expect(s.elapsedTime).toBeLessThan(600); // benchmark, not a mission deadline
       expect(s.players.every((p) => p.atVan && !p.downed)).toBe(true);
       expect(s.mission.objectives.every((o) => o.status === "complete")).toBe(
         true,

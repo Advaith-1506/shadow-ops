@@ -143,8 +143,6 @@ export function createMissionConfig(roster, level) {
       }),
     ),
     balance: {
-      quietRecoveryDelay: 3,
-      quietRecoveryRate: 2,
       stunDuration: 10,
       captainStunDuration: 20,
       scanRadius: 120,

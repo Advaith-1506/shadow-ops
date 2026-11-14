@@ -191,13 +191,14 @@ describe("Shadow Ops mission and authority", () => {
     expect(s.screen).toBe("playing");
     expect(isWinConditionMet(s)).toBe(false);
   });
-  it("time and alert cause loss", () => {
-    for (const kind of ["timer", "alarm"]) {
-      const s = fresh();
-      s[kind] = kind === "timer" ? 0 : 100;
-      updateGame(s, 1 / 30, {});
-      expect(s.screen).toBe("loss");
-    }
+  it("alert causes loss independently of elapsed mission time", () => {
+    const s = fresh();
+    s.elapsedTime = 60 * 60;
+    updateGame(s, 1 / 30, {});
+    expect(s.screen).toBe("playing");
+    s.alarm = 100;
+    updateGame(s, 1 / 30, {});
+    expect(s.screen).toBe("loss");
   });
   it("rejects duplicate roles for four players", () => {
     expect(() =>

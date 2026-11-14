@@ -1,7 +1,7 @@
 /*
  * HUD
  * Screen-space status around the fixed level view: a top status bar
- * (objective, alert, time, connection state) and a player panel (role,
+ * (objective, alert, connection state) and a player panel (role,
  * status, ability readiness). Never drawn over the gameplay rectangle.
  */
 
@@ -102,19 +102,9 @@ function _topBar(ctx, s, layout, hud) {
     x += compact ? 92 : 150;
   }
 
-  // Time
-  const timeW = tiny ? 46 : 62;
-  const timeX = right - timeW;
-  const mins = Math.floor(Math.max(0, s.timer) / 60);
-  const secs = Math.floor(Math.max(0, s.timer) % 60);
-  ctx.textAlign = 'right';
-  ctx.font = `700 ${tiny ? 16 : compact ? 20 : 24}px ${FONT}`;
-  ctx.fillStyle = s.timer < 30 ? '#ff6b6b' : s.timer < 60 ? '#ffcf6e' : INK;
-  ctx.fillText(`${mins}:${String(secs).padStart(2, '0')}`, right, H / 2 + 1);
-
   // Alert meter
   const alertW = Math.round(Math.max(90, Math.min(220, top.w * 0.16)));
-  const ax = timeX - 14 - alertW;
+  const ax = right - 14 - alertW;
   const frac = Math.max(0, Math.min(1, s.alarm / MAX_ALARM));
   const col = frac < 0.4 ? '#6fd38a' : frac < 0.7 ? '#ffb547' : '#ff5a5a';
   ctx.textAlign = 'left';
