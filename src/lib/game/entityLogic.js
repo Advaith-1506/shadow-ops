@@ -280,7 +280,7 @@ function _guardDetection(guard, state, dt, blockers) {
 
 // ─── Cameras ──────────────────────────────────────────────────────────────────
 export function updateCameras(state, dt) {
-  if (state.mission?.securityOff) return;
+  if (state.mission?.securityOff || state.mission?.cameraNetworkOff) return;
   for (const cam of state.cameras) {
     if (cam.disabled > 0) {
       cam.disabled = Math.max(0, cam.disabled - dt);

@@ -1,13 +1,14 @@
 import React from "react";
 import {
-  Shield,
-  ArrowUpRight,
   Users,
-  Crosshair,
-  Cpu,
-  Radar,
-  Volume2,
+  ScanLine,
+  Monitor,
+  BookOpen,
+  ArrowRight,
+  Radio,
 } from "lucide-react";
+import Logo from "./Logo";
+import { MissionIntel, commandKeyCapture } from "./CommandUI";
 export default function MenuScreen({
   onStart,
   onInstructions,
@@ -17,90 +18,71 @@ export default function MenuScreen({
   setLocalPlayers,
 }) {
   return (
-    <main className="ops-shell">
+    <main
+      onKeyDownCapture={commandKeyCapture}
+      className="ops-shell command-ui command-landing"
+    >
       <div className="ops-grid" />
-      <div className="ops-menu">
-        <header className="ops-top">
+      <div className="command-frame">
+        <header className="landing-top">
+          <span>THETA TAU / HACKATHON OPERATIONS</span>
           <span>
-            <Shield size={18} /> THETA TAU / FIELD OPERATIONS
+            <Radio size={14} /> COOPERATIVE STEALTH / 02–04
           </span>
-          <span className="ops-live">● SYSTEM ONLINE</span>
         </header>
-        <div className="ops-hero">
-          <section>
-            <p className="ops-eyebrow">
-              COOPERATIVE STEALTH / 02–04 OPERATIVES
-            </p>
-            <h1>
-              SHADOW
+        <div className="landing-grid">
+          <section className="landing-hero">
+            <div className="hero-identity">
+              <Logo hero />
+              <p className="ops-eyebrow">ENTER UNSEEN. LEAVE TOGETHER.</p>
+            </div>
+            <h1 className="landing-tagline">
+              Assemble your squad.
               <br />
-              <em>OPS</em>
-              <span className="ops-dot">.</span>
+              Breach the safehouse.
+              <br />
+              <em>Extract together.</em>
             </h1>
-            <p className="ops-lead">Enter unseen. Leave together.</p>
-            <p className="ops-copy">
-              Two access keys. One protected artifact. A facility that never
-              sleeps. Assemble your team and make every move count.
-            </p>
-            <div className="ops-actions">
-              <button className="ops-primary" onClick={onHost}>
-                HOST GAME <ArrowUpRight size={20} />
-              </button>
-              <button onClick={onJoin}>JOIN GAME</button>
-              <button onClick={onStart}>LOCAL CO-OP</button>
-              <label className="local-player-choice">
-                LOCAL PLAYERS{" "}
-                <select
-                  aria-label="Local player count"
-                  value={localPlayers}
-                  onChange={(e) => setLocalPlayers(Number(e.target.value))}
+            <nav className="command-navigation" aria-label="Main navigation">
+              {[
+                [Users, "HOST GAME", onHost, true],
+                [ScanLine, "JOIN GAME", onJoin],
+                [Monitor, "LOCAL PLAY", onStart],
+                [BookOpen, "HOW TO PLAY", onInstructions],
+              ].map(([Icon, text, action, primary]) => (
+                <button
+                  key={text}
+                  className={primary ? "ops-primary" : ""}
+                  onClick={action}
                 >
-                  {[2, 3, 4].map((n) => (
-                    <option key={n}>{n}</option>
-                  ))}
-                </select>
-              </label>
-              <button onClick={onInstructions}>BRIEFING</button>
-            </div>
+                  <Icon size={24} />
+                  <span>{text}</span>
+                  <ArrowRight className="nav-arrow" size={20} />
+                </button>
+              ))}
+            </nav>
+            <label className="local-player-choice">
+              LOCAL SQUAD SIZE{" "}
+              <select
+                aria-label="Local player count"
+                value={localPlayers}
+                onChange={(e) => setLocalPlayers(Number(e.target.value))}
+              >
+                {[2, 3, 4].map((n) => (
+                  <option key={n}>{n}</option>
+                ))}
+              </select>
+              <span>One keyboard · shared screen</span>
+            </label>
           </section>
-          <aside className="ops-intel">
-            <div className="ops-eyebrow">OPERATION 001 / CROWN JEWEL</div>
-            <div className="ops-radar">
-              <div />
-              <Crosshair size={78} />
-              <span>SECURE FACILITY</span>
-            </div>
-            <div className="ops-intel-row">
-              <span>OBJECTIVE</span>
-              <b>INFILTRATE & EXTRACT</b>
-            </div>
-            <div className="ops-intel-row">
-              <span>THREAT LEVEL</span>
-              <b className="ops-live">ELEVATED</b>
-            </div>
-            <p>
-              All operatives must reach extraction. Nobody gets left behind.
-            </p>
-          </aside>
+          <MissionIntel />
         </div>
-        <footer className="ops-roles">
-          {[
-            [Crosshair, "ASSASSIN", "Close-range guard takedowns"],
-            [Cpu, "HACKER", "Override facility security"],
-            [Radar, "SCOUT", "Reveal threats around the team"],
-            [Volume2, "DECOY", "Draw patrols away from the team"],
-          ].map(([Icon, name, text]) => (
-            <div key={name}>
-              <Icon size={22} />
-              <span>
-                <b>{name}</b>
-                <small>{text}</small>
-              </span>
-            </div>
-          ))}
-          <span className="ops-footer-note">
-            <Users size={16} /> SCAN · JOIN · PLAY TOGETHER
+        <footer className="landing-footer">
+          <span>
+            <i /> PARTY MODE READY
           </span>
+          <span>SCAN. JOIN. COORDINATE.</span>
+          <span>ALL OPERATIVES EXTRACT TOGETHER ↗</span>
         </footer>
       </div>
     </main>

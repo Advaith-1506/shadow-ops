@@ -4,7 +4,7 @@ export const ROLE_INFO = {
     ability: "Silent Takedown",
     strength: "Stealth combat",
     description:
-      "Stun a close guard for 10 seconds (captain: 20s). Recover captain credentials within 62px and clear sight.",
+      "Stun a close guard for 10 seconds (captain: 20s). Neutralize the captain within 62px and clear sight. Team keys are separate.",
     cooldown: 12,
   },
   Hacker: {
@@ -12,7 +12,7 @@ export const ROLE_INFO = {
     ability: "System Override",
     strength: "Security control",
     description:
-      "Suppress a nearby camera for 10 seconds or unlock a side door. Operate the main terminal.",
+      "Unlock the Garage electronic door and override the Living Room camera network. Both actions are mandatory; then operate the team terminal.",
     cooldown: 16,
   },
   Scout: {

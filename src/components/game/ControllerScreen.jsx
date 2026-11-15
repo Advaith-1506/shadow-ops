@@ -30,7 +30,10 @@ export default function ControllerScreen({ net, onInput, onLeave }) {
         {s?.mission?.config && (
           <small className="ops-copy">{s.mission.config.variant}</small>
         )}
-        <span>ALERT {Math.floor(s?.alarm || 0)}%</span>
+        <span>
+          ALERT {Math.floor(s?.alarm || 0)}% · TEAM KEYS{" "}
+          {s?.mission?.keys.filter((k) => k.collected).length || 0}/2
+        </span>
         <div className="controller-alert">
           <i style={{ width: `${s?.alarm || 0}%` }} />
         </div>

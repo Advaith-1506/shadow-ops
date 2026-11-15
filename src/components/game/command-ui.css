@@ -1,0 +1,1389 @@
+/* Menu-only command center. Deliberately scoped away from Canvas/HUD/phone controls. */
+.ops-shell.command-ui {
+  --command-bg: #06131b;
+  --command-panel: #0b2029;
+  --command-cyan: #00e5e5;
+  --command-green: #42f56c;
+  --command-text: #f1f7fa;
+  --command-muted: #9fbac3;
+  box-sizing: border-box;
+  color: var(--command-text);
+  font-family: "Rajdhani", Arial, sans-serif;
+  background:
+    radial-gradient(ellipse at 65% 0%, #06424a55, transparent 55%),
+    linear-gradient(135deg, #02090d, #06131b 55%, #02090d);
+  padding: 30px;
+  align-items: flex-start;
+  isolation: isolate;
+}
+.ops-shell.command-ui *,
+.ops-shell.command-ui *::before,
+.ops-shell.command-ui *::after {
+  box-sizing: border-box;
+}
+.ops-shell.command-ui .ops-grid {
+  position: fixed;
+  background-size: 34px 34px;
+  opacity: 0.45;
+  mask-image: linear-gradient(#0008, transparent);
+}
+.ops-shell.command-ui .command-frame {
+  position: relative;
+  width: min(1180px, 100%);
+  margin: auto;
+  border: 1px solid #19717a;
+  padding: 28px 34px;
+  background: linear-gradient(125deg, #06151cbb, #02090de8);
+  box-shadow:
+    0 0 0 6px #00e5e508,
+    inset 0 1px #00e5e541;
+  min-width: 0;
+}
+.ops-shell.command-ui .command-frame::before,
+.ops-shell.command-ui .command-frame::after {
+  content: "";
+  position: absolute;
+  width: 75px;
+  height: 4px;
+  background: var(--command-cyan);
+  pointer-events: none;
+  transform: skewX(-40deg);
+}
+.ops-shell.command-ui .command-frame::before {
+  left: 18px;
+  top: -2px;
+}
+.ops-shell.command-ui .command-frame::after {
+  right: 18px;
+  bottom: -2px;
+}
+.ops-shell.command-ui .ops-eyebrow {
+  color: #57cdd1;
+  font:
+    600 11px/1.5 "Rajdhani",
+    Arial,
+    sans-serif;
+  letter-spacing: 2px;
+}
+.ops-shell.command-ui .ops-copy {
+  max-width: none;
+  color: var(--command-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ops-shell.command-ui h1,
+.ops-shell.command-ui h2,
+.ops-shell.command-ui h3,
+.ops-shell.command-ui p {
+  margin-top: 0;
+}
+.ops-shell.command-ui h2 {
+  font-size: 26px;
+  line-height: 1.12;
+  letter-spacing: 0.5px;
+}
+.ops-shell.command-ui button,
+.ops-shell.command-ui .party-button {
+  min-height: 46px;
+  border: 1px solid #24606b;
+  border-radius: 0;
+  background: linear-gradient(125deg, #0c303b, #061820);
+  color: var(--command-text);
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+  gap: 12px;
+  text-decoration: none;
+}
+.ops-shell.command-ui button:hover,
+.ops-shell.command-ui .party-button:hover {
+  transform: none;
+  background: #0e3741;
+  border-color: #00e5e5;
+  box-shadow: inset 0 0 18px #00e5e512;
+}
+.ops-shell.command-ui button.ops-primary {
+  color: #effff3;
+  border-color: var(--command-green);
+  background: linear-gradient(120deg, #075a39, #073323);
+  box-shadow:
+    inset 0 0 16px #42f56c19,
+    0 0 16px #42f56c12;
+}
+.ops-shell.command-ui button.ops-primary:hover {
+  background: linear-gradient(120deg, #0b7648, #094f32);
+  box-shadow: 0 0 22px #42f56c33;
+}
+.ops-shell.command-ui button:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.ops-shell.command-ui :is(button, a, input, select, summary):focus-visible {
+  outline: 3px solid #d2ffff;
+  outline-offset: 4px;
+}
+.ops-shell.command-ui input,
+.ops-shell.command-ui select {
+  background: #031117;
+  color: #f1f7fa;
+  border: 1px solid #285763;
+  border-radius: 2px;
+  min-height: 44px;
+  max-width: 100%;
+  font-family: inherit;
+  font-size: 16px;
+}
+.ops-shell.command-ui label {
+  color: #9fbac3;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.ops-shell.command-ui .ops-live {
+  color: var(--command-green);
+}
+.ops-shell.command-ui .ops-error {
+  color: #ff8390;
+}
+.ops-shell.command-ui .command-logo {
+  display: block;
+  width: 100px;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  flex-shrink: 0;
+}
+.ops-shell.command-ui .command-logo-hero {
+  width: clamp(210px, 28vw, 340px);
+  margin: auto;
+  filter: drop-shadow(0 0 18px #00dfe21c);
+}
+.ops-shell.command-ui .landing-top,
+.ops-shell.command-ui .landing-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  color: #78b3bd;
+  align-items: center;
+}
+.ops-shell.command-ui .landing-top {
+  padding-bottom: 17px;
+  border-bottom: 1px solid #184451;
+}
+.ops-shell.command-ui .landing-top > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ops-shell.command-ui .landing-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 50px;
+  align-items: center;
+  padding: 18px 0 30px;
+}
+.ops-shell.command-ui .hero-identity {
+  text-align: center;
+}
+.ops-shell.command-ui .hero-identity .ops-eyebrow {
+  margin: -16px 0 15px;
+  font-size: 10px;
+  letter-spacing: 2.6px;
+}
+.ops-shell.command-ui .landing-tagline {
+  font-size: clamp(25px, 3vw, 39px);
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  line-height: 1.12;
+  margin-bottom: 26px;
+}
+.ops-shell.command-ui .landing-tagline em {
+  font-style: normal;
+  color: #6effaa;
+}
+.ops-shell.command-ui .command-navigation {
+  display: grid;
+  gap: 10px;
+}
+.ops-shell.command-ui .command-navigation button {
+  justify-content: flex-start;
+  min-height: 59px;
+  font-size: 21px;
+  padding: 14px 24px;
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%,
+    0 12px
+  );
+  border: 0;
+  box-shadow: inset 0 0 0 1px #27828a;
+  background: linear-gradient(120deg, #0a2b35, #04131a);
+}
+.ops-shell.command-ui .command-navigation button.ops-primary {
+  box-shadow:
+    inset 0 0 0 2px #42f56c,
+    inset 0 0 26px #42f56c29;
+  background: linear-gradient(120deg, #075536, #063024);
+}
+.ops-shell.command-ui .command-navigation .nav-arrow {
+  margin-left: auto;
+  color: #7aeebb;
+}
+.ops-shell.command-ui .local-player-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  font-size: 10px;
+}
+.ops-shell.command-ui .local-player-choice select {
+  min-height: 33px;
+  width: 62px;
+  padding: 3px 8px;
+}
+.ops-shell.command-ui .local-player-choice > span {
+  letter-spacing: 0;
+  color: #6e939e;
+}
+.ops-shell.command-ui .tactical-card {
+  background: linear-gradient(145deg, #0a252dcc, #06131bdd);
+  border: 1px solid #205967;
+  position: relative;
+  min-width: 0;
+  padding: 23px;
+  box-shadow: inset 0 2px #00e5e50b;
+}
+.ops-shell.command-ui .section-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #22515b;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+  color: #65d6db;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+.ops-shell.command-ui .command-intel h2 span {
+  display: block;
+  color: var(--command-cyan);
+}
+.ops-shell.command-ui .command-intel > p {
+  color: #a8c2c9;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.ops-shell.command-ui .command-intel .section-label {
+  font-size: 9px;
+}
+.ops-shell.command-ui .command-mission-graphic {
+  height: 210px;
+  position: relative;
+  border: 1px solid #195b67;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      #00e5e512 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 23px,
+      #00e5e512 24px
+    ),
+    radial-gradient(ellipse, #07555a66, #020e16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #62e5d7;
+  gap: 18px;
+  overflow: hidden;
+  margin: 22px 0;
+}
+.ops-shell.command-ui .intel-crosshair {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border: 1px solid #17a6ae55;
+  border-radius: 50%;
+  outline: 1px dashed #17a6ae44;
+  outline-offset: 18px;
+}
+.ops-shell.command-ui .command-mission-graphic > svg,
+.ops-shell.command-ui .command-mission-graphic > span {
+  z-index: 1;
+}
+.ops-shell.command-ui .command-mission-graphic > span {
+  font-size: 10px;
+  letter-spacing: 2px;
+  background: #06131b;
+  padding: 4px;
+}
+.ops-shell.command-ui .command-mission-graphic i {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  font-style: normal;
+  color: #5e949e;
+}
+.ops-shell.command-ui .intel-features {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 15px;
+  margin: 22px 0;
+}
+.ops-shell.command-ui .intel-features li {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  font-size: 14px;
+  color: #c6dfe3;
+}
+.ops-shell.command-ui .intel-features svg {
+  color: #43cbd1;
+  flex-shrink: 0;
+}
+.ops-shell.command-ui .intel-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid #18434d;
+  font-size: 9px;
+  letter-spacing: 1.1px;
+  color: #689ca7;
+}
+.ops-shell.command-ui .landing-footer {
+  border-top: 1px solid #184451;
+  padding-top: 18px;
+  font-size: 9px;
+}
+.ops-shell.command-ui .landing-footer > span:first-child {
+  color: #65ec9c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ops-shell.command-ui .landing-footer i {
+  width: 6px;
+  height: 6px;
+  background: #42f56c;
+  border-radius: 50%;
+}
+.ops-shell.command-ui .command-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid #24606a;
+  margin-bottom: 26px;
+  padding-bottom: 18px;
+}
+.ops-shell.command-ui .command-header h1 {
+  font-size: clamp(22px, 3vw, 32px);
+  margin: 3px 0;
+  letter-spacing: 1px;
+}
+.ops-shell.command-ui .command-header .ops-eyebrow {
+  margin: 0;
+  font-size: 9px;
+}
+.ops-shell.command-ui .command-header .command-subtitle {
+  font-size: 12px;
+  color: #84b3bf;
+  margin: 4px 0 0;
+}
+.ops-shell.command-ui .command-header-mark {
+  color: #15b9c3;
+  font-weight: 900;
+  font-size: 32px;
+  margin-left: auto;
+  letter-spacing: -8px;
+}
+.ops-shell.command-ui button.command-back {
+  padding: 9px 13px;
+  font-size: 22px;
+  min-height: 40px;
+}
+.ops-shell.command-ui .party-lobby {
+  max-width: 1180px;
+  max-height: none;
+  width: 100%;
+  padding: 28px 34px;
+  border: 1px solid #19717a;
+  border-radius: 0;
+  background: #04131beb;
+  box-shadow: 0 0 0 6px #00e5e508;
+  overflow: visible;
+  position: relative;
+}
+.ops-shell.command-ui.command-lobby {
+  align-items: flex-start;
+}
+.ops-shell.command-ui.command-lobby .party-host-grid {
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+.ops-shell.command-ui.command-lobby .party-invite {
+  background: #061d25;
+  border: 1px solid #205967;
+  border-radius: 0;
+  padding: 20px;
+  min-width: 0;
+}
+.ops-shell.command-ui.command-lobby .party-qr {
+  width: 190px;
+  height: 190px;
+  margin: 16px auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 3px;
+}
+.ops-shell.command-ui.command-lobby .party-invite-url {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  color: #80e5e8;
+  display: block;
+}
+.ops-shell.command-ui .room-code-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.ops-shell.command-ui .room-code-row > div {
+  display: grid;
+  gap: 6px;
+}
+.ops-shell.command-ui .room-code-row span {
+  color: #73c9d2;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.ops-shell.command-ui .room-code-row strong {
+  font-size: 32px;
+  letter-spacing: 4px;
+  line-height: 1.2;
+}
+.ops-shell.command-ui .room-code-row button {
+  padding: 8px;
+  font-size: 11px;
+  min-height: 36px;
+}
+.ops-shell.command-ui.command-lobby .party-invite .ops-actions {
+  gap: 8px;
+  margin-top: 15px;
+}
+.ops-shell.command-ui.command-lobby .party-invite .ops-actions button,
+.ops-shell.command-ui.command-lobby .party-button {
+  padding: 10px;
+  font-size: 10px;
+  width: 100%;
+}
+.ops-shell.command-ui.command-lobby .party-invite label {
+  margin-top: 16px;
+  display: grid;
+  gap: 7px;
+}
+.ops-shell.command-ui.command-lobby .party-invite input,
+.ops-shell.command-ui.command-lobby .party-invite select {
+  width: 100%;
+  padding: 10px;
+  font-size: 13px;
+}
+.ops-shell.command-ui.command-lobby .party-invite .ops-copy {
+  font-size: 11px;
+}
+.ops-shell.command-ui.command-lobby .party-roster {
+  background: #061d25;
+  border: 1px solid #205967;
+  border-radius: 0;
+  padding: 18px;
+}
+.ops-shell.command-ui.command-lobby .party-roster > .ops-eyebrow {
+  font-size: 10px;
+  margin-bottom: 17px;
+}
+.ops-shell.command-ui.command-lobby .party-slot {
+  border: 1px solid #183d48;
+  border-radius: 0;
+  background: #071923;
+  padding: 13px;
+  margin: 8px 0;
+  gap: 12px;
+  grid-template-columns: 35px minmax(0, 1fr) auto;
+}
+.ops-shell.command-ui.command-lobby .party-slot b {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.ops-shell.command-ui.command-lobby .party-slot small {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+.ops-shell.command-ui.command-lobby .slot-number {
+  color: #52cfd7;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+.ops-shell.command-ui.command-lobby .party-slot strong {
+  font-size: 10px;
+  border: 1px solid #315461;
+  padding: 7px;
+  color: #8ca8b3;
+}
+.ops-shell.command-ui.command-lobby .slot-ready {
+  border-color: #27674a;
+}
+.ops-shell.command-ui.command-lobby .slot-ready strong {
+  color: #67ff9b;
+  border-color: #258655;
+  background: #0a3828;
+}
+.ops-shell.command-ui.command-lobby .slot-disconnected {
+  border-style: dashed;
+  opacity: 0.7;
+}
+.ops-shell.command-ui.command-lobby .deploy-button {
+  width: 100%;
+  font-size: 23px;
+  min-height: 62px;
+  margin-top: 16px;
+}
+.ops-shell.command-ui.command-lobby .party-role-grid {
+  margin: 22px 0;
+}
+.ops-shell.command-ui.command-lobby .role-card {
+  min-width: 0;
+  align-items: flex-start;
+  gap: 9px;
+  background: #081e28;
+  border-color: #254953;
+  border-radius: 0;
+  padding: 15px;
+  text-align: left;
+  letter-spacing: 0;
+}
+.ops-shell.command-ui.command-lobby .role-card.chosen {
+  border-color: var(--role);
+  box-shadow: inset 3px 0 var(--role);
+}
+.ops-shell.command-ui.command-lobby .role-card-top b {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 16px;
+}
+.ops-shell.command-ui.command-lobby .role-card > span:not(.role-card-top) {
+  font-size: 12px;
+  color: #a9c2ca;
+  line-height: 1.5;
+}
+.ops-shell.command-ui.command-lobby .role-card strong {
+  font-size: 13px;
+  color: var(--role);
+}
+.ops-shell.command-ui.command-lobby .role-card small {
+  font-size: 10px;
+}
+.ops-shell.command-ui.command-lobby .party-mode-toggle {
+  margin: 16px 0;
+}
+.ops-shell.command-ui.command-lobby .party-advanced {
+  margin: 20px 0;
+  color: #84aab8;
+  font-size: 12px;
+}
+.ops-shell.command-ui.command-lobby .party-advanced summary {
+  cursor: pointer;
+  padding: 12px 0;
+}
+.ops-shell.command-ui.command-lobby .ops-form-row {
+  gap: 20px;
+}
+.ops-shell.command-ui.command-lobby .ops-form-row label {
+  min-width: 0;
+}
+.ops-shell.command-ui.command-lobby .ops-panel > label {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+.ops-shell.command-ui.command-lobby .ops-panel > label input,
+.ops-shell.command-ui.command-lobby .ops-panel > label select {
+  padding: 12px;
+}
+.ops-shell.command-ui.command-lobby .ops-panel > button:last-child {
+  margin-top: 20px;
+}
+.ops-shell.command-ui .mission-briefing {
+  margin-top: 20px;
+  padding: 20px;
+}
+.ops-shell.command-ui .mission-briefing h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.ops-shell.command-ui .mission-briefing .section-label {
+  font-size: 10px;
+}
+.ops-shell.command-ui .briefing-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+.ops-shell.command-ui .briefing-roles span {
+  border: 1px solid #25545f;
+  color: #a3eff0;
+  background: #09262d;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+.ops-shell.command-ui .mission-briefing ol {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ops-shell.command-ui .mission-briefing li {
+  display: flex;
+  gap: 8px;
+  color: #b7cdd5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ops-shell.command-ui .mission-briefing li > span {
+  color: #00e5e5;
+}
+.ops-shell.command-ui .manual-layout {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 24px;
+  min-height: 450px;
+}
+.ops-shell.command-ui .manual-tabs {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+.ops-shell.command-ui .manual-tabs button {
+  justify-content: flex-start;
+  padding: 14px;
+  font-size: 15px;
+}
+.ops-shell.command-ui .manual-tabs button > svg:last-child {
+  margin-left: auto;
+}
+.ops-shell.command-ui .manual-tabs .selected {
+  border-color: #00e5e5;
+  color: #9efff5;
+  background: #0a3c44;
+}
+.ops-shell.command-ui .manual-content {
+  padding: 30px;
+}
+.ops-shell.command-ui .manual-content h2 {
+  font-size: 28px;
+}
+.ops-shell.command-ui .manual-lead {
+  font-size: 22px;
+  line-height: 1.5;
+  color: #d3e6eb;
+  max-width: 650px;
+}
+.ops-shell.command-ui .manual-role-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 35px 0;
+  gap: 15px;
+}
+.ops-shell.command-ui .manual-role-strip > div {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  color: #67e7d9;
+  border: 1px solid #1a4e59;
+  padding: 22px 8px;
+  font-size: 13px;
+}
+.ops-shell.command-ui .manual-callout {
+  border-left: 3px solid #42f56c;
+  padding: 14px 18px;
+  background: #42f56c09;
+  margin-top: 25px;
+  color: #9cfdba;
+  font-size: 16px;
+}
+.ops-shell.command-ui .manual-roles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.ops-shell.command-ui .manual-roles article {
+  border: 1px solid #244c58;
+  border-top: 2px solid var(--role);
+  padding: 18px;
+}
+.ops-shell.command-ui .manual-roles article > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--role);
+}
+.ops-shell.command-ui .manual-roles h3 {
+  margin: 0;
+  font-size: 21px;
+}
+.ops-shell.command-ui .manual-roles p {
+  font-size: 14px;
+  color: #a2bdc7;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+.ops-shell.command-ui .manual-roles small {
+  color: #7ba7b6;
+}
+.ops-shell.command-ui .manual-objectives {
+  list-style: none;
+  padding: 0;
+}
+.ops-shell.command-ui .manual-objectives li {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #193c48;
+  padding: 15px 0;
+}
+.ops-shell.command-ui .manual-objectives b {
+  color: #00e5e5;
+  font-size: 22px;
+}
+.ops-shell.command-ui .manual-objectives p {
+  color: #bfd4dc;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 16px;
+}
+.ops-shell.command-ui .control-table {
+  display: grid;
+  gap: 0;
+  margin: 20px 0;
+  overflow-wrap: anywhere;
+}
+.ops-shell.command-ui .control-table > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 15px;
+  padding: 13px 5px;
+  border-bottom: 1px solid #19404c;
+  font-size: 14px;
+}
+.ops-shell.command-ui .control-table b {
+  color: #54d4da;
+  font-size: 11px;
+}
+.ops-shell.command-ui .manual-tips {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 22px;
+  margin: 30px 0;
+}
+.ops-shell.command-ui .manual-tips li {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+  color: #c4dce3;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.ops-shell.command-ui .manual-tips svg {
+  flex-shrink: 0;
+  color: #42f56c;
+  margin-top: 3px;
+}
+.ops-shell.command-ui .manual-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #70a9b7;
+}
+.ops-shell.command-ui.command-results .command-frame {
+  max-width: 1050px;
+}
+.ops-shell.command-ui .result-heading {
+  text-align: center;
+  padding: 20px 0 24px;
+}
+.ops-shell.command-ui .result-heading > svg {
+  color: #42f56c;
+  margin-bottom: 15px;
+}
+.ops-shell.command-ui .result-heading h1 {
+  color: #62ff8b;
+  font-size: clamp(35px, 5vw, 58px);
+  letter-spacing: 1px;
+  margin: 10px 0;
+}
+.ops-shell.command-ui .result-heading > p:last-child {
+  color: #ccdee4;
+  font-size: 19px;
+}
+.ops-shell.command-ui.result-failure .result-heading h1,
+.ops-shell.command-ui.result-failure .result-heading > svg {
+  color: #ff5263;
+}
+.ops-shell.command-ui .result-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.ops-shell.command-ui .result-stats > div {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+}
+.ops-shell.command-ui .result-stats svg {
+  color: #56c5d3;
+}
+.ops-shell.command-ui .result-stats small {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #91b4bf;
+}
+.ops-shell.command-ui .result-stats b {
+  font-size: 30px;
+  font-weight: 600;
+}
+.ops-shell.command-ui .debrief-columns {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+}
+.ops-shell.command-ui .debrief-player {
+  display: flex;
+  gap: 13px;
+  border-bottom: 1px solid #1a3d49;
+  padding: 15px 0;
+}
+.ops-shell.command-ui .debrief-player > svg {
+  color: #43d4d7;
+  flex-shrink: 0;
+}
+.ops-shell.command-ui .debrief-player > div {
+  min-width: 0;
+}
+.ops-shell.command-ui .debrief-player b {
+  display: block;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.ops-shell.command-ui .debrief-player small {
+  color: #83b3bf;
+  font-size: 11px;
+}
+.ops-shell.command-ui .debrief-player p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #9ebac5;
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+.ops-shell.command-ui .debrief-objectives {
+  list-style: none;
+  display: grid;
+  gap: 15px;
+  padding: 0;
+  margin: 0;
+}
+.ops-shell.command-ui .debrief-objectives li {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: #779ba8;
+  line-height: 1.4;
+}
+.ops-shell.command-ui .debrief-objectives .done {
+  color: #9de8be;
+}
+.ops-shell.command-ui .debrief-objectives span {
+  color: #42f56c;
+}
+.ops-shell.command-ui .result-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+.ops-shell.command-ui .result-actions button {
+  padding: 14px 25px;
+  font-size: 15px;
+}
+.ops-shell.command-ui .result-wait {
+  text-align: center;
+  margin: 18px 0 0;
+  color: #8faeb9;
+}
+@media (min-width: 1600px) {
+  .ops-shell.command-ui.command-landing .command-frame {
+    margin: 25px auto;
+  }
+  .ops-shell.command-ui .landing-grid {
+    padding: 25px 0 40px;
+  }
+  .ops-shell.command-ui .command-logo-hero {
+    width: 350px;
+  }
+}
+@media (max-width: 950px) {
+  .ops-shell.command-ui {
+    padding: 18px;
+  }
+  .ops-shell.command-ui .command-frame,
+  .ops-shell.command-ui .party-lobby {
+    padding: 22px;
+  }
+  .ops-shell.command-ui .landing-grid {
+    gap: 25px;
+  }
+  .ops-shell.command-ui .landing-top {
+    font-size: 9px;
+  }
+  .ops-shell.command-ui .landing-top > span:last-child {
+    letter-spacing: 0.7px;
+  }
+  .ops-shell.command-ui.command-lobby .party-host-grid {
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 18px;
+  }
+  .ops-shell.command-ui.command-lobby .party-slot {
+    grid-template-columns: 26px minmax(0, 1fr);
+    padding: 10px;
+  }
+  .ops-shell.command-ui.command-lobby .party-slot strong {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .ops-shell.command-ui .mission-briefing ol {
+    grid-template-columns: 1fr;
+  }
+  .ops-shell.command-ui.command-lobby .party-invite {
+    padding: 15px;
+  }
+  .ops-shell.command-ui .command-header {
+    gap: 14px;
+  }
+  .ops-shell.command-ui .manual-layout {
+    grid-template-columns: 145px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .ops-shell.command-ui .manual-content {
+    padding: 22px;
+  }
+  .ops-shell.command-ui .command-intel .section-label span:last-child {
+    display: none;
+  }
+}
+@media (max-width: 650px) {
+  .ops-shell.command-ui {
+    padding: 12px;
+    display: block;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+  .ops-shell.command-ui .command-frame,
+  .ops-shell.command-ui .party-lobby {
+    padding: 18px 15px;
+    margin: 0 auto;
+  }
+  .ops-shell.command-ui .landing-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding-top: 4px;
+  }
+  .ops-shell.command-ui .command-logo-hero {
+    width: 220px;
+  }
+  .ops-shell.command-ui .hero-identity .ops-eyebrow {
+    margin-top: -8px;
+  }
+  .ops-shell.command-ui .landing-tagline {
+    font-size: 29px;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .ops-shell.command-ui .landing-top {
+    font-size: 8px;
+    letter-spacing: 0.8px;
+  }
+  .ops-shell.command-ui .landing-top > span:last-child {
+    display: none;
+  }
+  .ops-shell.command-ui .command-navigation button {
+    min-height: 54px;
+    font-size: 18px;
+    padding: 13px 19px;
+  }
+  .ops-shell.command-ui .landing-footer {
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 8px;
+    line-height: 1.6;
+  }
+  .ops-shell.command-ui .landing-footer > span:last-child {
+    display: none;
+  }
+  .ops-shell.command-ui .command-intel {
+    padding: 20px;
+  }
+  .ops-shell.command-ui .command-intel h2 span {
+    display: inline;
+  }
+  .ops-shell.command-ui .command-mission-graphic {
+    height: 170px;
+  }
+  .ops-shell.command-ui .command-header {
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+  }
+  .ops-shell.command-ui .command-header .command-logo {
+    width: 65px;
+  }
+  .ops-shell.command-ui .command-header h1 {
+    font-size: 21px;
+  }
+  .ops-shell.command-ui .command-header .ops-eyebrow {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .ops-shell.command-ui .command-header .command-subtitle {
+    font-size: 11px;
+  }
+  .ops-shell.command-ui .command-header-mark {
+    display: none;
+  }
+  .ops-shell.command-ui.command-lobby .party-host-grid {
+    grid-template-columns: 1fr;
+  }
+  .ops-shell.command-ui.command-lobby .party-invite .party-qr {
+    width: 200px;
+    height: 200px;
+  }
+  .ops-shell.command-ui.command-lobby .party-slot {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+  .ops-shell.command-ui.command-lobby .party-slot strong {
+    grid-column: auto;
+    font-size: 9px;
+    padding: 5px;
+  }
+  .ops-shell.command-ui.command-lobby .party-role-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ops-shell.command-ui.command-lobby .role-card {
+    padding: 12px;
+  }
+  .ops-shell.command-ui.command-lobby .role-card-top {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ops-shell.command-ui.command-lobby .role-card-top b {
+    font-size: 15px;
+  }
+  .ops-shell.command-ui.command-lobby .ops-form-row {
+    flex-direction: column;
+    display: flex;
+    gap: 14px;
+  }
+  .ops-shell.command-ui.command-lobby .party-mode-toggle {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .ops-shell.command-ui.command-lobby .party-mode-toggle button {
+    flex: 1;
+    font-size: 11px;
+    padding: 12px 8px;
+  }
+  .ops-shell.command-ui.command-lobby .deploy-button {
+    font-size: 19px;
+  }
+  .ops-shell.command-ui .manual-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .ops-shell.command-ui .manual-tabs {
+    display: flex;
+    overflow-x: auto;
+    padding: 4px 2px 10px;
+    gap: 7px;
+  }
+  .ops-shell.command-ui .manual-tabs button {
+    min-height: 41px;
+    padding: 10px;
+    font-size: 12px;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+  .ops-shell.command-ui .manual-tabs button > svg:last-child {
+    display: none;
+  }
+  .ops-shell.command-ui .manual-content {
+    padding: 20px 16px;
+  }
+  .ops-shell.command-ui .manual-content h2 {
+    font-size: 24px;
+  }
+  .ops-shell.command-ui .manual-lead {
+    font-size: 18px;
+  }
+  .ops-shell.command-ui .manual-role-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 22px 0;
+  }
+  .ops-shell.command-ui .manual-role-strip > div {
+    padding: 15px 8px;
+  }
+  .ops-shell.command-ui .manual-roles {
+    grid-template-columns: 1fr;
+  }
+  .ops-shell.command-ui .manual-objectives li {
+    gap: 13px;
+  }
+  .ops-shell.command-ui .manual-objectives p {
+    font-size: 14px;
+  }
+  .ops-shell.command-ui .control-table > div {
+    gap: 8px;
+    font-size: 11px;
+    grid-template-columns: 1fr 1fr 1.2fr;
+  }
+  .ops-shell.command-ui .manual-tips li {
+    font-size: 15px;
+  }
+  .ops-shell.command-ui .manual-footer {
+    gap: 10px;
+    font-size: 8px;
+  }
+  .ops-shell.command-ui .manual-footer button {
+    font-size: 11px;
+    padding: 10px;
+  }
+  .ops-shell.command-ui .command-header .command-back {
+    order: -1;
+  }
+  .ops-shell.command-ui .result-heading {
+    padding: 10px 0 20px;
+  }
+  .ops-shell.command-ui .result-heading h1 {
+    font-size: 33px;
+  }
+  .ops-shell.command-ui .result-heading > p:last-child {
+    font-size: 16px;
+  }
+  .ops-shell.command-ui .result-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .ops-shell.command-ui .result-stats > div {
+    padding: 15px;
+  }
+  .ops-shell.command-ui .result-stats b {
+    font-size: 25px;
+  }
+  .ops-shell.command-ui .debrief-columns {
+    grid-template-columns: 1fr;
+  }
+  .ops-shell.command-ui .result-actions {
+    flex-direction: column;
+  }
+  .ops-shell.command-ui .result-actions button {
+    width: 100%;
+  }
+  .ops-shell.command-ui.command-results .tactical-card {
+    padding: 17px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ops-shell.command-ui *,
+  .ops-shell.command-ui *::before,
+  .ops-shell.command-ui *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Keep primary navigation above the fold on ordinary laptop displays. */
+@media (min-width: 951px) {
+  .ops-shell.command-ui .landing-hero {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: center;
+  }
+  .ops-shell.command-ui .landing-hero .command-logo-hero {
+    width: 210px;
+  }
+  .ops-shell.command-ui .landing-tagline {
+    font-size: 29px;
+    letter-spacing: -0.6px;
+    margin-bottom: 12px;
+  }
+  .ops-shell.command-ui .hero-identity .ops-eyebrow {
+    font-size: 8px;
+    letter-spacing: 1px;
+    margin-top: -8px;
+  }
+  .ops-shell.command-ui .command-navigation,
+  .ops-shell.command-ui .landing-hero .local-player-choice {
+    grid-column: 1/-1;
+  }
+  .ops-shell.command-ui .command-navigation {
+    margin-top: 18px;
+  }
+  .ops-shell.command-ui .command-intel .command-mission-graphic {
+    height: 175px;
+  }
+  .ops-shell.command-ui .command-intel {
+    padding: 23px;
+  }
+  .ops-shell.command-ui .landing-grid {
+    padding: 25px 0;
+    gap: 36px;
+  }
+  .ops-shell.command-ui .command-intel > p {
+    font-size: 14px;
+  }
+  .ops-shell.command-ui .intel-features {
+    gap: 12px;
+  }
+}
+.ops-shell.command-ui .party-network-settings {
+  font-size: 11px;
+  color: #7bced4;
+  margin-top: 14px;
+}
+.ops-shell.command-ui .party-network-settings summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.ops-shell.command-ui .tactical-card {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+}
+
+.ops-shell.command-ui.command-lobby .party-slot > span:nth-child(2) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.ops-shell.command-ui.command-lobby .party-slot {
+  padding: 10px 12px;
+  margin: 7px 0;
+  min-height: 48px;
+}
+.ops-shell.command-ui.command-lobby .command-header .command-logo {
+  width: 76px;
+}
+.ops-shell.command-ui .mission-briefing {
+  padding: 16px 20px;
+}
+.ops-shell.command-ui .mission-briefing details summary {
+  cursor: pointer;
+  color: #6ededf;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 8px 0;
+}
+.ops-shell.command-ui .mission-briefing .section-label {
+  margin-bottom: 12px;
+  padding-bottom: 9px;
+}
+.ops-shell.command-ui .mission-briefing .briefing-roles {
+  margin: 8px 0;
+}
+.ops-shell.command-ui .lobby-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.ops-shell.command-ui .lobby-footer > p {
+  margin: 0;
+  font-size: 11px;
+}
+.ops-shell.command-ui .lobby-footer > button {
+  font-size: 11px;
+  min-height: 40px;
+  padding: 10px 15px;
+}
+@media (max-width: 650px) {
+  .ops-shell.command-ui.command-lobby .command-header .command-logo {
+    width: 65px;
+  }
+  .ops-shell.command-ui .lobby-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .ops-shell.command-ui.command-lobby .party-slot > span:nth-child(2) {
+    display: grid;
+    gap: 3px;
+  }
+}
+
+.ops-shell.command-ui .result-heading > svg {
+  margin-left: auto;
+  margin-right: auto;
+}
+.ops-shell.command-ui .result-heading h1 {
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+/* The game document is intentionally non-scrolling. Menus own their scroll
+   viewport so long lobbies/manuals/results remain reachable by wheel or touch. */
+.ops-shell.command-ui {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

@@ -193,7 +193,7 @@ function _topBar(ctx, s, layout, hud) {
     : 0;
   const prefix =
     s.mission && !showSteps ? `${stepIdx + 1}/${steps.length} ` : "";
-  const text = `${prefix}${objectiveText(s)}${!s.mission?.config && stage === "keys" ? `  [${keysDone}/2]` : ""}`;
+  const text = `${s.mission?.config ? `KEYS ${keysDone}/2 · ` : ""}${prefix}${objectiveText(s)}${!s.mission?.config && stage === "keys" ? `  [${keysDone}/2]` : ""}`;
   ctx.fillText(fitText(ctx, text, objW), objX, showSteps ? H * 0.7 : H / 2 + 1);
 }
 

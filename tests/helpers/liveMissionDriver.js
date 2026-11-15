@@ -9,6 +9,7 @@ import {
 // inputs at 30Hz. They never teleport actors, change NPCs, grant objectives,
 // remove hazards, alter cooldowns or assign victory. Captures use real revive.
 export function runLiveMission(roles) {
+  let phase = "infiltration";
   let rescueId = null,
     huntId = null;
   const s = createShadowState(roles.map((role, i) => ({ id: i + 1, role }))),
@@ -31,12 +32,28 @@ export function runLiveMission(roles) {
       Object.fromEntries(
         s.players.map((p) => [
           p.id,
-          { ability: p.role === "Assassin", ...input[p.id] },
+          { ability: p.role === "Assassin", interact: true, ...input[p.id] },
         ]),
       ),
     );
     if (s.screen === "loss")
-      throw Error("lost " + s.lossReason + " " + s.alarm);
+      throw Error(
+        "lost " +
+          s.lossReason +
+          " " +
+          s.alarm +
+          " phase=" +
+          phase +
+          " " +
+          JSON.stringify(
+            s.players.map((p) => ({
+              id: p.id,
+              x: p.x,
+              y: p.y,
+              down: p.downed,
+            })),
+          ),
+      );
   }
   let geometryKey = null;
   let geometry = null;
@@ -95,7 +112,9 @@ export function runLiveMission(roles) {
       if (!(g.stunned > 1)) {
         const radius =
           p.role === "Assassin" &&
-          (!s.mission.keys[1].collected || g.id === huntId) &&
+          (!s.mission.objectives.find((o) => o.id === "credential")
+            .completedBy ||
+            g.id === huntId) &&
           p.abilityCooldown < 0.1
             ? 0
             : p.id === rescueId
@@ -298,49 +317,197 @@ export function runLiveMission(roles) {
   }
 
   go(2, 462, 430, 48);
-  for (let i = 0; i < 900 && !s.mission.keys[1].collected; i++) {
+  for (
+    let i = 0;
+    i < 900 &&
+    !s.mission.objectives.find((o) => o.id === "credential").completedBy;
+    i++
+  ) {
     const g = s.guards.find((g) => g.id === "g6");
     go(2, g.x, g.y, 50);
     tick({ 2: { ability: true } });
   }
   go(2, 184, 660);
+  if (roles.includes("Scout") && roles.length === 4) {
+    phase = "scout";
+    const route = (points) => {
+      for (const [x, y] of points) {
+        let arrived = false;
+        for (let i = 0; i < 900; i++) {
+          const p = s.players[2];
+          if (Math.abs(p.x - x) < 3 && Math.abs(p.y - y) < 3) {
+            arrived = true;
+            break;
+          }
+          tick({ 3: toward(p, x, y) });
+        }
+        if (!arrived) throw Error("Scout route blocked");
+      }
+    };
+    route([
+      [100, 752],
+      [100, 620],
+      [208, 620],
+      [312, 620],
+      [312, 400],
+    ]);
+    tick({ 3: { ability: true } });
+    route([
+      [312, 620],
+      [208, 620],
+      [124, 580],
+    ]);
+  }
   go(1, 164, 136);
   tick({ 1: { interact: true } });
   go(1, 128, 660);
-  if (roles.includes("Scout")) {
+  phase = "camera";
+  go(1, 560, 380);
+  go(1, 128, 660);
+  if (roles.includes("Scout") && roles.length === 3) {
     go(3, 312, 400);
     tick({ 3: { ability: true } });
     go(3, 124, 580);
   }
+  // BRAVO is again in the Study. The Assassin retrieves it with real
+  // movement, interaction and takedowns; the map/AI are not modified by tests.
+  phase = "study-key";
+  huntId = "g4";
+  go(
+    2,
+    s.mission.keys.find((k) => k.id === "BRAVO").x,
+    s.mission.keys.find((k) => k.id === "BRAVO").y,
+  );
+  tick({ 2: { interact: true, ability: true } });
+  go(2, 184, 650);
+  huntId = null;
+  phase = "decoy";
   if (roles.includes("Decoy")) {
     const id = s.players.find((p) => p.role === "Decoy").id;
-    go(id, 840, 430);
-    tick({ [id]: { ability: true } });
-    many(
-      { 1: [560, 430], [id]: [840, 560] },
-      () => s.mission.checkpoint.cleared,
-      6000,
-    );
-    many(
-      { 1: [800, 420], [id]: [120, 660] },
-      () => s.players[id - 1].atVan,
-      6000,
-    );
+    if (roles.length >= 3) {
+      const route = (points) => {
+        for (const [x, y] of points) {
+          let ok = false;
+          for (let i = 0; i < 900; i++) {
+            const p = s.players[id - 1];
+            if (Math.abs(p.x - x) < 3 && Math.abs(p.y - y) < 3) {
+              ok = true;
+              break;
+            }
+            tick({ [id]: toward(p, x, y) });
+          }
+          if (!ok)
+            throw Error(
+              "Decoy route blocked " +
+                x +
+                "," +
+                y +
+                " " +
+                JSON.stringify(
+                  s.players.map((p) => ({
+                    id: p.id,
+                    x: p.x,
+                    y: p.y,
+                    down: p.downed,
+                  })),
+                ),
+            );
+        }
+      };
+      route([
+        [216, 752],
+        [216, 620],
+        [312, 620],
+        [312, 430],
+      ]);
+      let opening = false;
+      for (let i = 0; i < 1800; i++) {
+        const captain = s.guards.find((g) => g.id === "g6"),
+          sentry = s.guards.find((g) => g.id === "g2");
+        if (captain.y > 560 && captain.facing > 0 && sentry.y > 620) {
+          opening = true;
+          break;
+        }
+        tick({});
+      }
+      if (!opening) throw Error("No patrol opening");
+      route([
+        [540, 430],
+        [540, 410],
+        [850, 410],
+        [850, 400],
+      ]);
+      let cast = false;
+      for (let i = 0; i < 1800; i++) {
+        const g = s.guards.find((g) => g.id === "g2");
+        if (
+          g.mode !== "chase" &&
+          g.x < 740 &&
+          g.y < 510 &&
+          Math.hypot(g.x - 850, g.y - 400) < 260
+        ) {
+          tick({ [id]: { ability: true } });
+          cast = true;
+          break;
+        }
+        tick({});
+      }
+      if (!cast) throw Error("No sentry lure opening");
+      huntId = "g6";
+      many(
+        { 2: [560, 430], [id]: [850, 560] },
+        () => s.mission.checkpoint.cleared,
+        6000,
+      );
+      huntId = null;
+      many(
+        { 2: [184, 650], [id]: [120, 620] },
+        () => s.players[1].atVan && s.players[id - 1].atVan,
+        6000,
+      );
+    } else {
+      go(id, 840, 430);
+      tick({ [id]: { ability: true } });
+      many(
+        { 1: [560, 430], [id]: [840, 560] },
+        () => s.mission.checkpoint.cleared,
+        6000,
+      );
+      many(
+        { 1: [800, 420], [id]: [120, 660] },
+        () => s.players[id - 1].atVan,
+        6000,
+      );
+    }
   }
-
-  if (roles.length === 4) {
+  if (roles.length >= 3) {
     // Regroup after the long four-role infiltration. This is ordinary movement
     // and waiting for main's real alert recovery, not an alarm assignment.
     many(
-      { 1: [148, 620], 2: [184, 660], 3: [124, 580], 4: [120, 660] },
+      {
+        1: [148, 620],
+        2: [184, 660],
+        ...Object.fromEntries(
+          s.players
+            .filter((p) => p.id > 2)
+            .map((p) => [p.id, p.role === "Scout" ? [124, 580] : [120, 660]]),
+        ),
+      },
       () => s.players.every((p) => p.atVan && !p.downed),
       6000,
     );
-    for (let i = 0; i < 900; i++) tick({});
+    for (
+      let i = 0;
+      i < (roles.length === 3 && roles.includes("Scout") ? 450 : 900);
+      i++
+    )
+      tick({});
   }
 
+  phase = "terminal";
   many({ 1: [1122, 668], 2: [1000, 668] }, () => s.mission.securityOff);
-  if (roles.includes("Decoy")) {
+  phase = "vault";
+  if (roles.length >= 3) {
     huntId = "g2";
     many(
       {

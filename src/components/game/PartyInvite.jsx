@@ -20,11 +20,13 @@ export default function PartyInvite({ net }) {
       active = false;
     };
   }, [net.inviteLink]);
-  const copy = async () => {
+  const copy = async (roomOnly = false) => {
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(net.inviteLink);
-        setNotice("Invite copied");
+        await navigator.clipboard.writeText(
+          roomOnly ? net.roomCode : net.inviteLink,
+        );
+        setNotice(roomOnly ? "Room code copied" : "Invite copied");
       } else setNotice("Select and copy the invite URL below.");
     } catch {
       setNotice("Select and copy the invite URL below.");
@@ -34,6 +36,16 @@ export default function PartyInvite({ net }) {
     `${new URL(net.inviteLink).origin}/display/${net.roomCode}#access=${net.displayKey}`;
   return (
     <section className="party-invite">
+      <div className="section-label">NETWORK / INVITATION</div>
+      <div className="room-code-row">
+        <div>
+          <span>ROOM CODE</span>
+          <strong>{net.roomCode}</strong>
+        </div>
+        <button aria-label="Copy room code" onClick={() => copy(true)}>
+          COPY
+        </button>
+      </div>
       <p className="ops-eyebrow">SCAN TO JOIN · NO APP NEEDED</p>
       {qr ? (
         <img
@@ -46,14 +58,11 @@ export default function PartyInvite({ net }) {
           {net.inviteError || "Choose the host Wi-Fi address below."}
         </div>
       )}
-      <div className="party-code" aria-label="Room code">
-        {net.roomCode}
-      </div>
       <a className="party-invite-url" href={net.inviteLink || undefined}>
         {net.inviteLink || "LAN address needed"}
       </a>
       <div className="ops-actions">
-        <button onClick={copy} disabled={!net.inviteLink}>
+        <button onClick={() => copy(false)} disabled={!net.inviteLink}>
           COPY INVITE LINK
         </button>
         {net.displayKey && net.inviteLink && (
@@ -67,30 +76,36 @@ export default function PartyInvite({ net }) {
           </a>
         )}
       </div>
-      <label>
-        ADVERTISED LAPTOP ADDRESS
-        <input
-          aria-label="Advertised LAN address"
-          value={net.advertisedHost}
-          onChange={(e) => net.setAdvertisedHost(e.target.value)}
-        />
-      </label>
-      {net.lanAddresses.length > 0 && (
+      <p className="ops-copy">
+        LAN: {net.advertisedHost || "Choose an address"} · Room active
+      </p>
+      <details className="party-network-settings">
+        <summary>NETWORK SETTINGS</summary>
         <label>
-          NETWORK INTERFACE
-          <select
-            aria-label="Network interface"
+          ADVERTISED LAPTOP ADDRESS
+          <input
+            aria-label="Advertised LAN address"
             value={net.advertisedHost}
             onChange={(e) => net.setAdvertisedHost(e.target.value)}
-          >
-            {net.lanAddresses.map((n) => (
-              <option key={n.address} value={n.address}>
-                {n.name} · {n.address}
-              </option>
-            ))}
-          </select>
+          />
         </label>
-      )}
+        {net.lanAddresses.length > 0 && (
+          <label>
+            NETWORK INTERFACE
+            <select
+              aria-label="Network interface"
+              value={net.advertisedHost}
+              onChange={(e) => net.setAdvertisedHost(e.target.value)}
+            >
+              {net.lanAddresses.map((n) => (
+                <option key={n.address} value={n.address}>
+                  {n.name} · {n.address}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </details>
       <p className="ops-copy">
         Use the same Wi-Fi or hotspot. VPNs and guest networks may block
         pairing. The QR gives player access only.

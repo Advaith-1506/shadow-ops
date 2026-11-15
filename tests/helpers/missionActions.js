@@ -15,6 +15,20 @@ export function collectAccess(s) {
   );
   position(assassin, captain);
   updateMissionPlayer(s, assassin, { ability: true }, 0.05);
-  position(hacker, s.mission.keys[0]);
-  interact(s, hacker);
+  for (const key of s.mission.keys) {
+    position(hacker, key);
+    interact(s, hacker);
+  }
+  const door = s.doors.find(
+    (d) => d.id === s.mission.config.anchors.electronicDoorId,
+  );
+  position(hacker, { x: door.x + door.w / 2, y: door.y + door.h + 20 });
+  hacker.abilityCooldown = 0;
+  updateMissionPlayer(s, hacker, { ability: true }, 0.05);
+  const camera = s.cameras.find(
+    (c) => c.id === s.mission.config.anchors.networkCameraId,
+  );
+  position(hacker, { x: camera.x + 20, y: camera.y });
+  hacker.abilityCooldown = 0;
+  updateMissionPlayer(s, hacker, { ability: true }, 0.05);
 }

@@ -37,3 +37,7 @@ QR codes are generated locally using **qrcode**; no third-party QR website recei
 ## Published history
 
 The initial import commit remains in Git history. Future commits describe the features or maintenance work they actually perform; history is not rewritten to hide provenance. GitHub shows the latest commit affecting each individual file, so an unchanged imported file may continue to show an older import message until a real change touches it.
+
+## UI 3.0 supplied branding
+
+`src/assets/shadow-ops-logo.png` is the official Shadow Ops logo supplied by the project owner for this redesign. It is separate from the upstream game assets. Its PNG image data is preserved with lossless container compression; CSS preserves its aspect ratio and blends the source background. No separate license or creator attribution was supplied for this branding; the upstream MIT notices do not establish authorship of this image.

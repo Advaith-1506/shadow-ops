@@ -61,20 +61,19 @@ export function createShadowState(roster) {
       x: k.x,
       y: k.y,
       collected: false,
-      requiredRole: k.id === "ALPHA" ? "Hacker" : "Assassin",
-      method: k.id === "ALPHA" ? "electronic" : "captain",
+      requiredRole: "Team",
+      method: "pickup",
     })),
     terminal: { x: missionLayout.terminal.x, y: missionLayout.terminal.y },
     support: { x: missionLayout.support.x, y: missionLayout.support.y },
     lock: { x: missionLayout.lock.x, y: missionLayout.lock.y },
     securityOff: false,
+    cameraNetworkOff: false,
     message: "Collect ALPHA and BRAVO access keys",
   };
-  const credential = s.mission.keys.find((k) => k.id === "BRAVO");
   const captain = s.guards.find((g) => g.id === config.anchors.captainId);
   if (!captain) throw Error("Security captain not present on map");
-  credential.x = captain.x;
-  credential.y = captain.y;
+
   s.mission.message = missionStage(s);
   return s;
 }
@@ -91,6 +90,8 @@ export function missionStage(s) {
     );
     if (first?.id === "checkpoint" && s.mission.checkpoint.windowRemaining > 0)
       return `CHECKPOINT OPEN ${Math.ceil(s.mission.checkpoint.windowRemaining)}s — Hacker/Assassin: INTERACT at relay`;
+    if (first?.id === "shared_keys")
+      return `Team keys: ${s.mission.keys.filter((k) => k.collected).length}/2 — any operative can collect`;
     return first?.label || "Mission complete";
   }
   return "Complete the team mission";
@@ -113,13 +114,19 @@ export function currentRolePrompt(s, p) {
     return `RELAY OPEN ${Math.ceil(m.checkpoint.windowRemaining)}s — press INTERACT at the Living Room checkpoint now!`;
   const prerequisiteNames = {
     credential: "Assassin credentials",
-    electronic_key: "electronic ALPHA",
+    shared_keys: "both team keys",
+    electronic_door: "electronic door unlock",
+    camera_network: "camera network shutdown",
     recon: "Scout discovery",
     checkpoint: "Decoy checkpoint",
   };
   const own = m.objectives.find(
     (o) => o.requiredRole === p?.role && o.status !== "complete",
   );
+  if (own?.id === "electronic_door")
+    return "Unlock electronic security door — use Ability beside the Garage pantry door.";
+  if (own?.id === "camera_network")
+    return "Disable camera network — use Ability beside the Living Room camera.";
   if (own?.id === "checkpoint" && m.checkpoint.windowRemaining > 0)
     return `Guard lured! Stay clear; Hacker/Assassin must INTERACT at checkpoint (${Math.ceil(m.checkpoint.windowRemaining)}s).`;
   return own
@@ -195,11 +202,10 @@ export function updateMissionPlayer(s, p, input, dt) {
             s,
             "credential",
             p,
-            "Assassin secured captain credentials!",
-            "keys",
+            "Assassin neutralized the security captain!",
+            "credentials",
           )
         ) {
-          m.keys.find((k) => k.id === "BRAVO").collected = true;
           g.stunned = m.config.balance.captainStunDuration;
         }
         used = true;
@@ -209,6 +215,11 @@ export function updateMissionPlayer(s, p, input, dt) {
       const c = s.cameras.find((c) => near(s, p, c, 100) && !(c.disabled > 0));
       if (c) {
         c.disabled = 10;
+        if (
+          c.id === m.config.anchors.networkCameraId &&
+          finish(s, "camera_network", p, "Camera network disabled!", "networks")
+        )
+          m.cameraNetworkOff = true;
         if (p.stats) p.stats.overrides++;
         used = true;
       }
@@ -222,6 +233,14 @@ export function updateMissionPlayer(s, p, input, dt) {
         d.open = true;
         if (p.stats) p.stats.overrides++;
         d.requiredBy = null;
+        if (d.id === m.config.anchors.electronicDoorId)
+          finish(
+            s,
+            "electronic_door",
+            p,
+            "Electronic security door unlocked!",
+            "doors",
+          );
         used = true;
       }
     }
@@ -246,7 +265,7 @@ export function updateMissionPlayer(s, p, input, dt) {
           s,
           "recon",
           p,
-          "Scout discovered the hidden control network!",
+          "Recon complete — Security layout revealed.",
           "recon",
         )
       ) {
@@ -301,9 +320,7 @@ export function updateMissionPlayer(s, p, input, dt) {
   }
   let action = null,
     prompt = "";
-  const key = m.keys.find(
-    (k) => k.method === "electronic" && !k.collected && near(s, p, k),
-  );
+  const key = m.keys.find((k) => !k.collected && near(s, p, k));
   const relay = m.config.anchors.checkpoint;
   if (relay && !complete(s, "checkpoint") && near(s, p, relay)) {
     const guard = s.guards.find(
@@ -359,23 +376,28 @@ export function updateMissionPlayer(s, p, input, dt) {
         }
       };
   } else if (key) {
-    prompt =
-      p.role === "Hacker"
-        ? "HACKER: activate electronic ALPHA key"
-        : "HACKER REQUIRED — electronic access key";
-    if (p.role === "Hacker")
-      action = () => {
-        if (
-          finish(
-            s,
-            "electronic_key",
-            p,
-            "Hacker activated electronic ALPHA key!",
-            "keys",
-          )
-        )
-          key.collected = true;
-      };
+    prompt = `Collect team key ${key.id}`;
+    action = () => {
+      if (key.collected) return;
+      key.collected = true;
+      recordMissionEvent(
+        s,
+        p,
+        `${key.id} secured — ${m.keys.filter((k) => k.collected).length}/2 team keys`,
+        "keys",
+      );
+      const o = m.objectives.find((o) => o.id === "shared_keys");
+      o.contributions.push({
+        playerId: p.id,
+        role: p.role,
+        action: `collected_${key.id}`,
+      });
+      if (m.keys.every((k) => k.collected)) {
+        const contributors = o.contributions;
+        finish(s, "shared_keys", p, "Both team keys secured!", "keySets");
+        o.contributions = contributors;
+      }
+    };
   } else if (!m.securityOff && near(s, p, m.terminal)) {
     const helper = s.players.find(
       (q) =>
@@ -485,11 +507,13 @@ export function objectiveSummary(s) {
           : "active",
     phase: o.status,
     label:
-      o.id === "extract"
-        ? `Team: extract together · ${s.players.filter((p) => p.atVan && !p.downed).length}/${s.players.length} at van`
-        : o.id === "checkpoint" && s.mission.checkpoint.windowRemaining > 0
-          ? `CHECKPOINT OPEN ${Math.ceil(s.mission.checkpoint.windowRemaining)}s · Hacker/Assassin: interact`
-          : o.label,
+      o.id === "shared_keys"
+        ? `Team: collect both keys (${s.mission.keys.filter((k) => k.collected).length}/2)`
+        : o.id === "extract"
+          ? `Team: extract together · ${s.players.filter((p) => p.atVan && !p.downed).length}/${s.players.length} at van`
+          : o.id === "checkpoint" && s.mission.checkpoint.windowRemaining > 0
+            ? `CHECKPOINT OPEN ${Math.ceil(s.mission.checkpoint.windowRemaining)}s · Hacker/Assassin: interact`
+            : o.label,
   }));
 }
 
