@@ -1306,3 +1306,245 @@ canvas {
     0 20px 90px #0009,
     inset 0 3px 0 #6eefb5;
 }
+
+/* Bright handheld controller theme. Scoped to the dedicated phone screen so
+   the canvas game and its compact touch overlay stay unchanged. */
+.phone-controller {
+  color: #43372d;
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 13% 18%, #fff8 0 3px, transparent 4px),
+    radial-gradient(circle at 84% 76%, #ffe26e 0 3px, transparent 4px),
+    linear-gradient(90deg, #ffffff12 50%, transparent 50%),
+    linear-gradient(#ffffff12 50%, transparent 50%),
+    #91bd70;
+  background-size: auto, auto, 72px 72px, 72px 72px, auto;
+  padding: max(12px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+}
+.phone-controller::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, #557e3f 0 4px, transparent 5px),
+    radial-gradient(circle, #b5dc8d 0 4px, transparent 5px);
+  background-position: 0 0, 18px 18px;
+  background-size: 36px 36px;
+  opacity: 0.28;
+  animation: controller-lawn-drift 18s linear infinite;
+}
+.phone-controller > * {
+  position: relative;
+  z-index: 1;
+}
+.phone-controller .controller-header,
+.phone-controller .controller-mission,
+.phone-controller .controller-footer {
+  background: #fff7dc;
+  border: 4px solid #604b38;
+  border-radius: 16px;
+  box-shadow: 0 6px 0 #6c513a, inset 0 0 0 3px #ead5a6;
+}
+.phone-controller .controller-header {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.phone-controller .controller-header h1 {
+  color: #43372d;
+  font-size: clamp(19px, 5vw, 25px);
+  font-weight: 900;
+  letter-spacing: -0.4px;
+}
+.phone-controller .controller-header h1 span {
+  color: var(--role-color);
+  background: color-mix(in srgb, var(--role-color) 18%, #fff8dc);
+  border: 2px solid var(--role-color);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-weight: 900;
+}
+.phone-controller .controller-header .ops-eyebrow {
+  color: #337b8e;
+  font-weight: 900;
+}
+.phone-controller .controller-header > .ops-live {
+  color: #267b3e;
+  background: #c9e9ae;
+  border: 2px solid #5a9b55;
+  border-radius: 999px;
+  padding: 7px 9px;
+  animation: controller-status-pulse 2s ease-in-out infinite;
+}
+.phone-controller .controller-mission {
+  padding: 12px 14px 14px;
+  margin-bottom: 8px;
+}
+.phone-controller .controller-mission > b {
+  color: #3e6f46;
+  font-size: 15px;
+}
+.phone-controller .controller-mission > small,
+.phone-controller .controller-mission > span,
+.phone-controller .controller-mission > p:not(.capture-warning) {
+  color: #776956;
+}
+.phone-controller .controller-alert {
+  height: 10px;
+  border: 2px solid #705641;
+  border-radius: 999px;
+  background: #dfc99c;
+  box-shadow: inset 0 2px #9d7b5533;
+}
+.phone-controller .controller-alert i {
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f3c856, #e36d53);
+  transition: width 0.3s ease;
+}
+.phone-controller .capture-warning {
+  color: #74372f;
+  background: #ffd1b8;
+  border: 3px solid #c76550;
+  border-radius: 11px;
+}
+.phone-controller .phone-controls {
+  margin: 8px 0 12px;
+  padding: 16px 8px;
+  border: 4px solid #604b38;
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, #ffffff0d 50%, transparent 50%),
+    linear-gradient(#ffffff0d 50%, transparent 50%),
+    #739d58;
+  background-size: 52px 52px;
+  box-shadow: 0 7px 0 #6c513a, inset 0 0 0 5px #a7cc7d;
+}
+.phone-controller .joystick-area > small {
+  color: #fff9df;
+  background: #473b32d9;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-weight: 900;
+}
+.phone-controller .phone-joystick {
+  border: 5px solid #604b38;
+  background:
+    radial-gradient(circle, transparent 0 42%, #ffffff24 43% 45%, transparent 46%),
+    repeating-conic-gradient(from 0deg, #604b381c 0 2deg, transparent 2deg 45deg),
+    radial-gradient(#f7e7b9 0 63%, #dfbd82 64% 70%, #936d46 71%);
+  box-shadow: 0 8px 0 #594534, inset 0 3px #fff8dd;
+}
+.phone-controller .phone-joystick.moving {
+  border-color: #3e8ea8;
+  box-shadow: 0 8px 0 #376e7f, 0 0 0 6px #85d6e755;
+}
+.phone-controller .joystick-guides {
+  color: #7c634c66;
+  font-weight: 900;
+}
+.phone-controller .joystick-knob {
+  border: 4px solid #604b38;
+  background: radial-gradient(circle at 35% 28%, #86d5ec, #4aa4c0 55%, #357a91);
+  box-shadow: 0 6px 0 #604b38, inset 0 3px #c6f5ff;
+}
+.phone-controller .phone-action {
+  color: #24482f;
+  border: 5px solid #604b38;
+  background: radial-gradient(circle at 36% 28%, #b5ef9c, #59c871 58%, #3d9e57);
+  box-shadow: 0 8px 0 #594534, inset 0 3px #dcffc9;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.phone-controller .phone-action.ability {
+  color: #3e342c;
+  border-color: #604b38;
+  background: radial-gradient(
+    circle at 36% 28%,
+    color-mix(in srgb, var(--role-color) 35%, white),
+    var(--role-color) 62%,
+    color-mix(in srgb, var(--role-color) 78%, #4d392e)
+  );
+  box-shadow: 0 8px 0 #594534, inset 0 3px #ffffff80;
+}
+.phone-controller .phone-action b {
+  color: inherit;
+  font-weight: 900;
+  text-shadow: 0 1px #fff8;
+}
+.phone-controller .phone-action small {
+  color: inherit;
+  font-weight: 800;
+}
+.phone-controller .phone-action.pressed {
+  filter: saturate(1.2) brightness(1.06);
+  transform: translateY(5px) scale(0.97);
+  box-shadow: 0 3px 0 #594534, inset 0 3px #ffffff80;
+}
+.phone-controller .ability-charge {
+  height: 5px;
+  border-radius: 999px;
+  background: #fff8dc;
+  box-shadow: 0 0 0 2px #604b38;
+}
+.phone-controller .controller-footer {
+  color: #6d604f;
+  padding: 12px 14px;
+}
+.phone-controller .controller-footer > p {
+  color: #6d604f;
+}
+.phone-controller .controller-footer button {
+  min-height: 40px;
+  color: #43372d;
+  background: #f1d7a6;
+  border: 3px solid #604b38;
+  border-radius: 10px;
+  box-shadow: 0 4px 0 #8b6a49;
+  font-weight: 900;
+}
+.phone-controller .controller-footer button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #8b6a49;
+}
+.phone-controller .controller-footer summary {
+  color: #337b8e;
+  font-weight: 900;
+}
+.phone-controller .objective-list .active {
+  color: #2f8b48;
+}
+.phone-controller .objective-list .complete {
+  color: #398c53;
+}
+.phone-controller .objective-list .blocked {
+  color: #8d806c;
+}
+@keyframes controller-status-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+@keyframes controller-lawn-drift {
+  to { background-position: 36px 36px, 54px 54px; }
+}
+@media (max-width: 760px) {
+  .phone-controller .phone-controls {
+    border-radius: 18px;
+    padding: 12px 5px;
+    gap: 10px;
+  }
+  .phone-controller .controller-header,
+  .phone-controller .controller-mission,
+  .phone-controller .controller-footer {
+    border-width: 3px;
+    border-radius: 13px;
+    box-shadow: 0 4px 0 #6c513a, inset 0 0 0 2px #ead5a6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-controller::before,
+  .phone-controller * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
