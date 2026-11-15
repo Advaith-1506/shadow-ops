@@ -33,6 +33,11 @@ const inner = (id, x, y, w, h) => ({ id, x, y, w, h, kind: 'inner' });
 export const SAFEHOUSE = {
   id: 'maple_row_safehouse',
   name: 'Maple Row Safehouse',
+  shortName: 'House',
+  difficulty: 'easy',
+  campaignIndex: 1,
+  campaignTotal: 3,
+  theme: 'residential',
   bounds: { x: 0, y: 0, w: 1280, h: 800 },
   wallThickness: { outer: OUTER, inner: INNER },
 

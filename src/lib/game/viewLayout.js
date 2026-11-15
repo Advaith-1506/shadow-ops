@@ -38,8 +38,11 @@ export function computeHudLayout(cssW, cssH, { touch = false, playerCount = 2, b
   const gap = tiny ? 4 : 8;
   const top = { x: 0, y: 0, w: W, h: topH };
   const count = clamp(playerCount, 1, 4);
-  const world = bounds || { w: 16, h: 10 };
-  const zoomFor = (r) => Math.min(r.w / world.w, r.h / world.h);
+  // Use a stable house-sized reference so HUD chrome (top bar / P1–P4 panel)
+  // stays identical across levels; only the map zoom inside `play` changes.
+  const layoutRef = { w: 1280, h: 800 };
+  const zoomFor = (r) => Math.min(r.w / layoutRef.w, r.h / layoutRef.h);
+  void bounds; // kept in signature for callers / future use
 
   if (touch && !portrait) {
     // The world runs behind the touch controls in landscape. This avoids the

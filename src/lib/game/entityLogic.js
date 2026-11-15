@@ -54,15 +54,109 @@ export function updateGuards(state, dt) {
         guard.path = null;
       }
       if (guard.mode === "investigate" && !noise && !current) {
-        guard.mode = "patrol";
+        guard.mode = "wander";
         guard.investigation = null;
         guard.noiseId = null;
         guard.path = null;
+        guard.wanderTarget = null;
       }
     }
+    _updateGuardIntent(guard, dt, state);
     _patrolGuard(guard, dt, solids, state.crates);
     _separateGuardFromCrates(guard, state.crates, solids);
     _guardDetection(guard, state, dt, blockers);
+  }
+}
+
+function _randRange(a, b) {
+  return a + Math.random() * (b - a);
+}
+
+function _pickInHome(guard) {
+  const h = guard.home;
+  if (!h) return guard.post || guard.patrol?.[0];
+  return {
+    x: _randRange(h.x0, h.x1),
+    y: _randRange(h.y0, h.y1),
+  };
+}
+
+function _pickRoamPost(guard, state) {
+  const posts = (state.guards || [])
+    .map((g) => g.post)
+    .filter(
+      (p) =>
+        p &&
+        !(p.x === guard.post?.x && p.y === guard.post?.y) &&
+        dist(p.x, p.y, guard.post.x, guard.post.y) > 100,
+    );
+  if (!posts.length) return _pickInHome(guard);
+  return posts[Math.floor(Math.random() * posts.length)];
+}
+
+/** Wander in-room, occasionally roam to another post, then return home. */
+function _updateGuardIntent(guard, dt, state) {
+  if (!guard.post || !guard.home) return;
+  if (guard.mode === "chase" || guard.mode === "investigate") return;
+
+  guard.roamCooldown = Math.max(0, (guard.roamCooldown || 0) - dt);
+  guard.pauseTimer = Math.max(0, (guard.pauseTimer || 0) - dt);
+  guard.lookTimer = Math.max(0, (guard.lookTimer || 0) - dt);
+
+  const near = (p, r = 14) => p && dist(guard.x, guard.y, p.x, p.y) < r;
+
+  if (guard.mode === "return") {
+    guard.wanderTarget = guard.post;
+    if (near(guard.post, 18)) {
+      guard.mode = "wander";
+      guard.wanderTarget = null;
+      guard.pauseTimer = _randRange(0.6, 1.6);
+      guard.roamCooldown = _randRange(6, 12);
+      guard.path = null;
+    }
+    return;
+  }
+
+  if (guard.mode === "roam") {
+    if (!guard.wanderTarget) guard.wanderTarget = _pickRoamPost(guard, state);
+    if (near(guard.wanderTarget, 18)) {
+      guard.mode = "return";
+      guard.wanderTarget = guard.post;
+      guard.pauseTimer = _randRange(0.4, 1.2);
+      guard.path = null;
+    }
+    return;
+  }
+
+  // wander / legacy patrol → in-room looking + short walks
+  if (guard.mode === "patrol") guard.mode = "wander";
+  if (guard.mode !== "wander") return;
+
+  if (guard.pauseTimer > 0) {
+    // Look around the room while paused at a spot.
+    if (guard.lookTimer <= 0) {
+      guard.facing = (guard.facing || 0) + _randRange(-1.1, 1.1);
+      guard.lookTimer = _randRange(0.35, 0.9);
+    }
+    guard.wanderTarget = { x: guard.x, y: guard.y };
+    return;
+  }
+
+  if (!guard.wanderTarget || near(guard.wanderTarget, 12)) {
+    if (guard.roamCooldown <= 0 && Math.random() < 0.55) {
+      guard.mode = "roam";
+      guard.wanderTarget = _pickRoamPost(guard, state);
+      guard.path = null;
+      return;
+    }
+    if (Math.random() < 0.4) {
+      guard.pauseTimer = _randRange(0.7, 2.2);
+      guard.wanderTarget = { x: guard.x, y: guard.y };
+      guard.path = null;
+      return;
+    }
+    guard.wanderTarget = _pickInHome(guard);
+    guard.path = null;
   }
 }
 
@@ -138,12 +232,20 @@ function _chooseNextPatrolIdx(guard, crates) {
 }
 
 function _patrolGuard(guard, dt, solids, crates) {
+  // Holding a look-around pause — don't path.
+  if (
+    (guard.mode === "wander" || guard.mode === "patrol") &&
+    (guard.pauseTimer || 0) > 0
+  ) {
+    return;
+  }
+
   const target =
     guard.mode === "investigate" && guard.investigation
       ? guard.investigation
       : guard.mode === "chase" && guard.chaseTarget
         ? guard.chaseTarget
-        : guard.patrol[guard.patrolIdx];
+        : guard.wanderTarget || guard.patrol[guard.patrolIdx];
   if (!target) return;
   guard.repathTimer = Math.max(0, (guard.repathTimer || 0) - dt);
   const needRepath =
@@ -178,12 +280,22 @@ function _patrolGuard(guard, dt, solids, crates) {
     }
     if (guard.mode === "investigate") return;
     if (guard.mode === "chase") {
-      guard.mode = "patrol";
+      guard.mode = "return";
       guard.chaseTarget = null;
+      guard.wanderTarget = guard.post || guard.patrol[0];
+      guard.path = null;
+      return;
+    }
+    // Wander/roam/return targets are refreshed by _updateGuardIntent.
+    if (guard.wanderTarget) {
+      guard.wanderTarget = null;
+      guard.path = null;
+      return;
     }
     guard.patrolIdx = _chooseNextPatrolIdx(guard, crates);
   } else {
-    const speedMul = guard.mode === "chase" ? 1.45 : 1;
+    const speedMul =
+      guard.mode === "chase" ? 1.45 : guard.mode === "roam" ? 1.05 : 1;
     const step = GUARD_SPEED * speedMul * dt;
     const ang = Math.atan2(dy, dx);
     const prevX = guard.x;
@@ -212,10 +324,15 @@ function _patrolGuard(guard, dt, solids, crates) {
           return;
         }
         if (guard.mode === "chase") {
-          guard.mode = "patrol";
+          guard.mode = "return";
           guard.chaseTarget = null;
+          guard.wanderTarget = guard.post || guard.patrol[0];
+        } else if (guard.mode === "roam" || guard.mode === "return") {
+          guard.mode = "return";
+          guard.wanderTarget = guard.post || guard.patrol[0];
+        } else {
+          guard.wanderTarget = _pickInHome(guard);
         }
-        guard.patrolIdx = _chooseNextPatrolIdx(guard, crates);
         guard.path = null;
         guard.stuckTimer = 0;
       }
@@ -276,8 +393,10 @@ function _guardDetection(guard, state, dt, blockers) {
     guard.mode = "chase";
     guard.chaseTarget = { x: bestVisible.x, y: bestVisible.y };
   } else if (guard.mode === "chase" && guard.alertTimer <= 0) {
-    guard.mode = "patrol";
+    guard.mode = "return";
     guard.chaseTarget = null;
+    guard.wanderTarget = guard.post || guard.patrol?.[0] || null;
+    guard.path = null;
   }
 }
 
@@ -307,6 +426,7 @@ function _sweepCamera(cam, dt) {
 }
 
 function _cameraDetection(cam, state, dt) {
+  const range = cam.range || CAM_DETECT_R;
   for (const player of state.players) {
     if (player.downed) continue;
     if (
@@ -317,7 +437,7 @@ function _cameraDetection(cam, state, dt) {
         cam.y,
         cam.angle,
         CAM_ARC_DEG,
-        CAM_DETECT_R,
+        range,
       )
     ) {
       state.alarm = Math.min(MAX_ALARM, state.alarm + CAM_ALARM_RATE * dt);

@@ -11,6 +11,7 @@ export function useGameRuntime({
   canvasRef,
   containerRef,
   screenRef,
+  screen,
   setScreen,
   stateRef,
   networkRef,
@@ -52,6 +53,8 @@ export function useGameRuntime({
 
   useEffect(() => {
     // Backing store = CSS size × devicePixelRatio so layout math stays in CSS px.
+    // Never size the buffer from world bounds (CANVAS_W/H) — that cropped the
+    // larger office map when React reset width/height attributes.
     const resize = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -71,6 +74,8 @@ export function useGameRuntime({
       canvas.style.height = `${cssH}px`;
     };
     resize();
+    // Re-fit after the shell becomes visible (menu → playing).
+    const raf = requestAnimationFrame(resize);
     window.addEventListener("resize", resize);
     const observer =
       typeof ResizeObserver !== "undefined" && containerRef.current
@@ -91,11 +96,12 @@ export function useGameRuntime({
     };
     watchDpr();
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       observer?.disconnect();
       dprQuery?.removeEventListener?.("change", onDprChange);
     };
-  }, [canvasRef, containerRef, viewMode]);
+  }, [canvasRef, containerRef, viewMode, screen]);
 
   useEffect(() => {
     if (viewMode === "controller") return;

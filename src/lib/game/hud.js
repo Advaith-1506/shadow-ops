@@ -55,7 +55,9 @@ function objectiveText(s) {
   });
   switch (stage) {
     case 'keys': return `Collect access keys: ${missing.join(' · ')}`;
-    case 'security': return 'Security room: Hacker at terminal + teammate on support pad';
+    case 'security': return LEVEL.theme === 'corporate'
+      ? 'Security room: Hacker at terminal + teammate on override plate'
+      : 'Security room: Hacker at terminal + teammate on support pad';
     case 'vault': return 'Unlock the vault door from the living room';
     case 'diamond': return 'Grab the Diamond from the vault';
     default: return 'Whole team to the extraction zone with the Diamond';
@@ -95,9 +97,13 @@ function _topBar(ctx, s, layout, hud) {
     if (!compact) {
       ctx.font = `600 11px ${FONT}`;
       ctx.fillStyle = MUTED;
-      ctx.fillText(LEVEL.name.toUpperCase(), x, H * 0.7);
+      const idx = LEVEL.campaignIndex || 1;
+      const total = LEVEL.campaignTotal || 3;
+      const diff = (LEVEL.difficulty || 'easy').toUpperCase();
+      const title = (LEVEL.shortName || LEVEL.name || 'LEVEL').toUpperCase();
+      ctx.fillText(`LEVEL ${idx} / ${total} — ${title}  ·  ${diff}`, x, H * 0.7);
     }
-    x += compact ? 92 : 150;
+    x += compact ? 92 : 220;
   }
 
   // Alert meter

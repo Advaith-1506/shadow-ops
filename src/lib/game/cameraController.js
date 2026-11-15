@@ -16,6 +16,7 @@ export function computeLevelView({ cssW, cssH, dpr = 1, touch = false, playerCou
   const layout = computeHudLayout(cssW, cssH, { touch, playerCount, bounds });
   const baseFit = fitBounds(layout.play, bounds, dpr);
   const mobileLandscape = touch && cssW > cssH && cssH <= 600;
+  // Same fit behavior as the house: whole level fills the play rect uniformly.
   const zoom = baseFit.zoom * (mobileLandscape ? 0.9 : 1);
   const drawW = bounds.w * zoom;
   const drawH = bounds.h * zoom;

@@ -15,6 +15,9 @@ export default function MenuScreen({
   onJoin,
   localPlayers = 4,
   setLocalPlayers,
+  localLevelId,
+  setLocalLevelId,
+  levels = [],
 }) {
   return (
     <main className="ops-shell">
@@ -60,6 +63,22 @@ export default function MenuScreen({
                   ))}
                 </select>
               </label>
+              {levels.length > 0 && setLocalLevelId && (
+                <label className="level-select-choice">
+                  <span className="level-select-label">TEST LEVEL</span>
+                  <select
+                    aria-label="Test level select"
+                    value={localLevelId}
+                    onChange={(e) => setLocalLevelId(e.target.value)}
+                  >
+                    {levels.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.label || `${l.campaignIndex} · ${l.shortName || l.name}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <button onClick={onInstructions}>BRIEFING</button>
             </div>
           </section>
