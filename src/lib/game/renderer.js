@@ -19,6 +19,10 @@ import { installRoundRect } from './canvasPolyfill.js';
 import { buildStaticLayers } from './levelArt.js';
 import { OBJECTIVE_COLORS, ROLE_GLYPH, missionStageId, playerColor } from './palette.js';
 
+function supportPadLabel() {
+  return LEVEL.theme === 'corporate' ? 'OVERRIDE PLATE' : 'TEAMMATE STAND HERE';
+}
+
 const OUTLINE = '#2a2019';
 const SUPPORT_R = 44;      // matches mission support-pad range
 
@@ -258,11 +262,12 @@ function _renderVision(ctx, state) {
   const camHalf = (CAM_ARC_DEG * Math.PI) / 180 / 2;
   for (const c of state.cameras) {
     if (c.disabled > 0) continue;
+    const range = c.range || CAM_DETECT_R;
     ctx.beginPath();
     ctx.moveTo(c.x, c.y);
-    ctx.arc(c.x, c.y, CAM_DETECT_R, c.angle - camHalf, c.angle + camHalf);
+    ctx.arc(c.x, c.y, range, c.angle - camHalf, c.angle + camHalf);
     ctx.closePath();
-    const grad = ctx.createRadialGradient(c.x, c.y, 2, c.x, c.y, CAM_DETECT_R);
+    const grad = ctx.createRadialGradient(c.x, c.y, 2, c.x, c.y, range);
     grad.addColorStop(0, 'rgba(255,150,60,0.5)');
     grad.addColorStop(1, 'rgba(255,150,60,0.14)');
     ctx.fillStyle = grad;
@@ -759,13 +764,15 @@ function _renderLabels(ctx, state, tick, stage, scale) {
     label(ctx, m.securityOff ? 'SECURITY OFF' : 'HACKER · INTERACT HERE', m.terminal.x, m.terminal.y - 24 * scale,
       m.securityOff ? '#6fe39a' : OBJECTIVE_COLORS.terminal, scale);
     if (!m.securityOff) {
-      label(ctx, 'TEAMMATE STAND HERE', m.support.x, m.support.y - 52 * scale, OBJECTIVE_COLORS.support, scale);
+      label(ctx, supportPadLabel(), m.support.x, m.support.y - 52 * scale, OBJECTIVE_COLORS.support, scale);
     }
     label(ctx, state.vaultUnlocked ? 'VAULT OPEN' : 'VAULT LOCK', m.lock.x - 24 * scale, m.lock.y - 24 * scale,
       state.vaultUnlocked ? '#6fe39a' : OBJECTIVE_COLORS.lock, scale);
     const a = state.artifacts[0];
     if (a && !a.pickedUp) label(ctx, 'DIAMOND', a.x, a.y + 30 * scale, OBJECTIVE_COLORS.diamond, scale);
     for (const p of state.pressurePlates || []) {
+      // Corporate office uses mission.support as OVERRIDE PLATE — skip duplicate plate labels.
+      if (LEVEL.theme === 'corporate') continue;
       if (!m.securityOff) label(ctx, p.label || 'PLATE', p.x + p.w / 2, p.y + p.h + 12 * scale, p.activated ? '#6fe39a' : '#d6dbe0', scale * 0.85);
     }
     for (const d of state.doors) {

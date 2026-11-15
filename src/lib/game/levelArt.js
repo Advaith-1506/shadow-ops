@@ -8,7 +8,8 @@
  * solid is exactly what collides and blocks sight.
  */
 
-const OUTLINE = '#4a3728';
+const OUTLINE_HOUSE = '#4a3728';
+const OUTLINE_OFFICE = '#2a3544';
 
 const PAL = {
   grass: '#8dbd66',
@@ -21,7 +22,25 @@ const PAL = {
   wallTopOuter: '#e8d3aa',
   wallSideOuter: '#a8825a',
   wallCap: '#f7ebd0',
+  // Corporate (Meridian Office)
+  asphalt: '#3a424c',
+  asphaltStripe: '#444d58',
+  sidewalk: '#8a939e',
+  curb: '#f0d45a',
+  officeWallTop: '#c5ced8',
+  officeWallSide: '#5c6b7a',
+  officeWallOuterTop: '#d2dae3',
+  officeWallOuterSide: '#4a5866',
+  officeWallCap: '#e8eef4',
 };
+
+function isCorporate(level) {
+  return level?.theme === 'corporate';
+}
+
+function outlineColor(level) {
+  return isCorporate(level) ? OUTLINE_OFFICE : OUTLINE_HOUSE;
+}
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -151,11 +170,63 @@ const FLOORS = {
     for (let y = r.y; y <= r.y + r.h; y += s) { ctx.moveTo(r.x, y + 0.5); ctx.lineTo(r.x + r.w, y + 0.5); }
     ctx.stroke();
   },
+  officeCarpet(ctx, r) {
+    ctx.fillStyle = '#6b7f96';
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.fillStyle = 'rgba(40,55,75,0.08)';
+    for (let y = r.y; y < r.y + r.h; y += 18) ctx.fillRect(r.x, y, r.w, 1);
+    for (let x = r.x; x < r.x + r.w; x += 18) ctx.fillRect(x, r.y, 1, r.h);
+  },
+  terrazzo(ctx, r, rand) {
+    ctx.fillStyle = '#c5ccd4';
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    for (let i = 0; i < (r.w * r.h) / 180; i += 1) {
+      ctx.fillStyle = rand() < 0.5 ? 'rgba(90,105,120,0.18)' : 'rgba(255,255,255,0.22)';
+      ctx.fillRect(r.x + rand() * r.w, r.y + rand() * r.h, 2 + rand() * 3, 2);
+    }
+  },
+  breakTile(ctx, r) {
+    const s = 28;
+    for (let y = r.y, j = 0; y < r.y + r.h; y += s, j += 1) {
+      for (let x = r.x, i = 0; x < r.x + r.w; x += s, i += 1) {
+        ctx.fillStyle = (i + j) % 2 ? '#9aa3ad' : '#b0b8c1';
+        ctx.fillRect(x, y, s, s);
+      }
+    }
+    ctx.strokeStyle = 'rgba(60,70,80,0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = r.x; x <= r.x + r.w; x += s) { ctx.moveTo(x + 0.5, r.y); ctx.lineTo(x + 0.5, r.y + r.h); }
+    for (let y = r.y; y <= r.y + r.h; y += s) { ctx.moveTo(r.x, y + 0.5); ctx.lineTo(r.x + r.w, y + 0.5); }
+    ctx.stroke();
+  },
+  serverFloor(ctx, r) {
+    ctx.fillStyle = '#2a313a';
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.strokeStyle = 'rgba(80,200,220,0.12)';
+    ctx.lineWidth = 1;
+    const s = 24;
+    ctx.beginPath();
+    for (let x = r.x; x <= r.x + r.w; x += s) { ctx.moveTo(x + 0.5, r.y); ctx.lineTo(x + 0.5, r.y + r.h); }
+    for (let y = r.y; y <= r.y + r.h; y += s) { ctx.moveTo(r.x, y + 0.5); ctx.lineTo(r.x + r.w, y + 0.5); }
+    ctx.stroke();
+  },
 };
 
 // ─── Exterior ─────────────────────────────────────────────────────────────────
 function drawExterior(ctx, level, rand) {
   const b = level.bounds;
+  if (isCorporate(level)) {
+    ctx.fillStyle = PAL.asphalt;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.fillStyle = PAL.asphaltStripe;
+    for (let y = b.y; y < b.y + b.h; y += 64) ctx.fillRect(b.x, y, b.w, 2);
+    for (let i = 0; i < 200; i += 1) {
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(b.x + rand() * b.w, b.y + rand() * b.h, 3, 2);
+    }
+    return;
+  }
   ctx.fillStyle = PAL.grass;
   ctx.fillRect(b.x, b.y, b.w, b.h);
   ctx.fillStyle = PAL.grassStripe;
@@ -290,6 +361,49 @@ const DECOR = {
     ctx.fillStyle = '#9ea8b2';
     ctx.fillRect(d.x + 6, d.y + 6, d.w - 12, d.h - 12);
   },
+  asphalt() {},
+  sidewalk(ctx, d) {
+    ctx.fillStyle = PAL.sidewalk;
+    ctx.fillRect(d.x, d.y, d.w, d.h);
+    ctx.strokeStyle = 'rgba(50,60,70,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = d.x; x < d.x + d.w; x += 48) {
+      ctx.moveTo(x + 0.5, d.y); ctx.lineTo(x + 0.5, d.y + d.h);
+    }
+    ctx.stroke();
+  },
+  loadingBay(ctx, d) {
+    ctx.fillStyle = '#2f3640';
+    ctx.fillRect(d.x, d.y, d.w, d.h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.strokeRect(d.x + 0.5, d.y + 0.5, d.w - 1, d.h - 1);
+  },
+  extractMark(ctx, d) {
+    ctx.strokeStyle = 'rgba(90,230,200,0.85)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    rr(ctx, d.x, d.y, d.w, d.h, 4);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(90,230,200,0.12)';
+    rr(ctx, d.x, d.y, d.w, d.h, 4);
+    ctx.fill();
+  },
+  parkingStripe(ctx, d) {
+    ctx.strokeStyle = 'rgba(230,230,240,0.55)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(d.x + 0.5, d.y + 0.5, d.w - 1, d.h - 1);
+    ctx.beginPath();
+    ctx.moveTo(d.x + d.w / 2, d.y + 6);
+    ctx.lineTo(d.x + d.w / 2, d.y + d.h - 6);
+    ctx.stroke();
+  },
+  curbYellow(ctx, d) {
+    ctx.fillStyle = PAL.curb;
+    ctx.fillRect(d.x, d.y, d.w, d.h);
+  },
+  entryLabel() {},
 };
 
 function drawPlinth(ctx, a) {
@@ -311,10 +425,19 @@ function drawRoomLabels(ctx, level) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
+  const corporate = isCorporate(level);
   for (const room of level.rooms) {
     if (!room.label) continue;
-    ctx.fillStyle = room.floor === 'steel' || room.floor === 'securityTile' ? 'rgba(30,45,60,0.35)' : 'rgba(70,40,20,0.30)';
+    ctx.fillStyle = corporate
+      ? (room.floor === 'steel' || room.floor === 'serverFloor' ? 'rgba(160,200,220,0.35)' : 'rgba(30,45,60,0.40)')
+      : (room.floor === 'steel' || room.floor === 'securityTile' ? 'rgba(30,45,60,0.35)' : 'rgba(70,40,20,0.30)');
     ctx.fillText(room.name.toUpperCase(), room.label.x, room.label.y);
+  }
+  if (corporate) {
+    ctx.fillStyle = 'rgba(200,220,240,0.55)';
+    ctx.fillText('ENTRY', 1200, 1008);
+    ctx.fillStyle = 'rgba(90,230,200,0.7)';
+    ctx.fillText('EXTRACTION', 1590, 130);
   }
   ctx.restore();
 }
@@ -360,31 +483,35 @@ function drawShadows(ctx, walls, footprint, scale, level) {
 }
 
 // ─── Walls ────────────────────────────────────────────────────────────────────
-function drawWalls(ctx, walls) {
+function drawWalls(ctx, walls, level) {
+  const corporate = isCorporate(level);
   const structural = walls.filter((w) => w.kind !== 'prop');
-  ctx.fillStyle = OUTLINE;
+  ctx.fillStyle = outlineColor(level);
   for (const w of structural) ctx.fillRect(w.x - 2, w.y - 2, w.w + 4, w.h + 4);
 
   const depth = (w) => (w.kind === 'outer' ? 9 : 7);
+  const sideOuter = corporate ? PAL.officeWallOuterSide : PAL.wallSideOuter;
+  const sideInner = corporate ? PAL.officeWallSide : PAL.wallSideInner;
+  const topOuter = corporate ? PAL.officeWallOuterTop : PAL.wallTopOuter;
+  const topInner = corporate ? PAL.officeWallTop : PAL.wallTopInner;
+  const cap = corporate ? PAL.officeWallCap : PAL.wallCap;
   for (const w of structural) {
     const d = Math.min(depth(w), w.h * 0.5);
-    ctx.fillStyle = w.kind === 'outer' ? PAL.wallSideOuter : PAL.wallSideInner;
+    ctx.fillStyle = w.kind === 'outer' ? sideOuter : sideInner;
     ctx.fillRect(w.x, w.y + w.h - d, w.w, d);
-    ctx.fillStyle = 'rgba(60,35,15,0.18)';
+    ctx.fillStyle = corporate ? 'rgba(20,30,40,0.22)' : 'rgba(60,35,15,0.18)';
     ctx.fillRect(w.x, w.y + w.h - 2, w.w, 2);
   }
   for (const w of structural) {
     const d = Math.min(depth(w), w.h * 0.5);
-    // Where another wall sits directly above, extend the top face over its
-    // south face so T-junctions read as one continuous wall.
     const joinAbove = structural.some(
       (o) => o !== w && Math.abs(o.y + o.h - w.y) < 1 && o.x < w.x + w.w && o.x + o.w > w.x,
     );
     const ext = joinAbove ? 9 : 0;
-    ctx.fillStyle = w.kind === 'outer' ? PAL.wallTopOuter : PAL.wallTopInner;
+    ctx.fillStyle = w.kind === 'outer' ? topOuter : topInner;
     ctx.fillRect(w.x, w.y - ext, w.w, w.h - d + ext);
   }
-  ctx.fillStyle = PAL.wallCap;
+  ctx.fillStyle = cap;
   for (const w of structural) {
     if (w.kind !== 'outer') continue;
     const d = Math.min(depth(w), w.h * 0.5);
@@ -394,8 +521,8 @@ function drawWalls(ctx, walls) {
 }
 
 // ─── Furniture ────────────────────────────────────────────────────────────────
-function box(ctx, p, top, side, { d = Math.min(9, p.h * 0.3), radius = 3 } = {}) {
-  ctx.fillStyle = OUTLINE;
+function box(ctx, p, top, side, { d = Math.min(9, p.h * 0.3), radius = 3, outline = OUTLINE_HOUSE } = {}) {
+  ctx.fillStyle = outline;
   rr(ctx, p.x - 1.5, p.y - 1.5, p.w + 3, p.h + 3, radius + 1.5);
   ctx.fill();
   ctx.fillStyle = side;
@@ -461,7 +588,7 @@ const PROPS = {
     }
   },
   car(ctx, p) {
-    ctx.fillStyle = OUTLINE;
+    ctx.fillStyle = OUTLINE_HOUSE;
     rr(ctx, p.x - 2, p.y - 2, p.w + 4, p.h + 4, 20); ctx.fill();
     wheel(ctx, p.x - 1, p.y + 24, 8, 26);
     wheel(ctx, p.x + p.w - 7, p.y + 24, 8, 26);
@@ -519,7 +646,7 @@ const PROPS = {
     ctx.fillRect(p.x + 22, t.y + 2, p.w - 44, t.h);
   },
   sofa(ctx, p) {
-    ctx.fillStyle = OUTLINE;
+    ctx.fillStyle = OUTLINE_HOUSE;
     rr(ctx, p.x - 1.5, p.y - 1.5, p.w + 3, p.h + 3, 8); ctx.fill();
     ctx.fillStyle = '#356b60';
     rr(ctx, p.x, p.y, p.w, p.h, 7); ctx.fill();
@@ -558,7 +685,7 @@ const PROPS = {
   },
   diningTable(ctx, p) {
     const chair = (x, y, w, h) => {
-      ctx.fillStyle = OUTLINE;
+      ctx.fillStyle = OUTLINE_HOUSE;
       rr(ctx, x - 1, y - 1, w + 2, h + 2, 3); ctx.fill();
       ctx.fillStyle = '#7c4f2e';
       rr(ctx, x, y, w, h, 3); ctx.fill();
@@ -663,7 +790,7 @@ const PROPS = {
     rr(ctx, p.x + p.w / 2 - 22, t.y + 4, 44, 8, 2); ctx.fill();
   },
   van(ctx, p) {
-    ctx.fillStyle = OUTLINE;
+    ctx.fillStyle = OUTLINE_HOUSE;
     rr(ctx, p.x - 2, p.y - 2, p.w + 4, p.h + 4, 14); ctx.fill();
     wheel(ctx, p.x - 1, p.y + 20, 7, 22);
     wheel(ctx, p.x + p.w - 6, p.y + 20, 7, 22);
@@ -696,6 +823,148 @@ const PROPS = {
     ctx.fillStyle = '#7bb75e';
     ctx.beginPath(); ctx.arc(cx - r * 0.2, cy - r * 0.25, r * 0.3, 0, Math.PI * 2); ctx.fill();
   },
+  conferenceTable(ctx, p) {
+    const o = OUTLINE_OFFICE;
+    for (const [fx, fy] of [[0.12, 0.15], [0.12, 0.85], [0.88, 0.15], [0.88, 0.85], [0.35, 0.08], [0.65, 0.08], [0.35, 0.92], [0.65, 0.92]]) {
+      const cx = p.x + p.w * fx - 8;
+      const cy = p.y + p.h * fy - 8;
+      ctx.fillStyle = o;
+      rr(ctx, cx - 1, cy - 1, 18, 18, 3); ctx.fill();
+      ctx.fillStyle = '#e8eef4';
+      rr(ctx, cx, cy, 16, 16, 3); ctx.fill();
+    }
+    box(ctx, { x: p.x + 16, y: p.y + 16, w: p.w - 32, h: p.h - 32 }, '#1e3a5f', '#152a45', { outline: o, radius: 6 });
+  },
+  filingCabinet(ctx, p) {
+    const t = box(ctx, p, '#9aa7b5', '#6a7684', { outline: OUTLINE_OFFICE });
+    ctx.strokeStyle = 'rgba(40,50,60,0.45)';
+    ctx.lineWidth = 1;
+    const vertical = p.h > p.w;
+    if (vertical) {
+      for (let y = p.y + 20; y < p.y + p.h - 4; y += 22) {
+        ctx.beginPath(); ctx.moveTo(t.x + 3, y); ctx.lineTo(t.x + t.w - 3, y); ctx.stroke();
+        ctx.fillStyle = '#c9d2db';
+        ctx.fillRect(t.x + t.w / 2 - 4, y + 6, 8, 3);
+      }
+    } else {
+      for (let x = p.x + 18; x < p.x + p.w - 4; x += 28) {
+        ctx.beginPath(); ctx.moveTo(x, t.y + 2); ctx.lineTo(x, p.y + p.h); ctx.stroke();
+      }
+    }
+  },
+  planter(ctx, p) {
+    box(ctx, p, '#6b7580', '#4a5460', { outline: OUTLINE_OFFICE, d: 5, radius: 2 });
+    const cx = p.x + p.w / 2;
+    const cy = p.y + p.h / 2 - 2;
+    ctx.fillStyle = '#3d6b30';
+    ctx.beginPath(); ctx.arc(cx, cy, Math.min(p.w, p.h) * 0.28, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5c9a46';
+    ctx.beginPath(); ctx.arc(cx - 3, cy - 2, Math.min(p.w, p.h) * 0.18, 0, Math.PI * 2); ctx.fill();
+  },
+  execDesk(ctx, p) {
+    const t = box(ctx, p, '#e8e0d4', '#b8a890', { outline: OUTLINE_OFFICE, d: 8 });
+    ctx.fillStyle = '#1a2430';
+    rr(ctx, p.x + p.w / 2 - 14, p.y + p.h - 10, 28, 10, 4); ctx.fill();
+    ctx.fillStyle = '#2a3544';
+    rr(ctx, p.x + 18, t.y + 8, 40, 24, 2); ctx.fill();
+    ctx.fillStyle = '#5ad4ff';
+    ctx.fillRect(p.x + 21, t.y + 11, 34, 16);
+  },
+  coffeeCounter(ctx, p) {
+    const t = box(ctx, p, '#d8dde3', '#8a939e', { outline: OUTLINE_OFFICE });
+    ctx.fillStyle = '#4a5560';
+    rr(ctx, p.x + 16, t.y + 6, 36, t.h - 10, 3); ctx.fill();
+    ctx.fillStyle = '#c45c3a';
+    rr(ctx, p.x + 60, t.y + 8, 28, t.h - 12, 2); ctx.fill();
+    ctx.fillStyle = '#eef2f5';
+    ctx.beginPath(); ctx.arc(p.x + 120, t.y + t.h / 2, 8, 0, Math.PI * 2); ctx.fill();
+  },
+  roundTable(ctx, p) {
+    const cx = p.x + p.w / 2;
+    const cy = p.y + p.h / 2;
+    const r = Math.min(p.w, p.h) / 2;
+    ctx.fillStyle = OUTLINE_OFFICE;
+    ctx.beginPath(); ctx.arc(cx, cy, r + 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c9b8a0';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e8dcc8';
+    ctx.beginPath(); ctx.arc(cx, cy, r - 5, 0, Math.PI * 2); ctx.fill();
+  },
+  workstation(ctx, p) {
+    const t = box(ctx, p, '#eef1f4', '#b0bac4', { outline: OUTLINE_OFFICE, d: 6 });
+    ctx.fillStyle = '#1e2a36';
+    rr(ctx, p.x + 10, t.y + 6, 36, 22, 2); ctx.fill();
+    ctx.fillStyle = '#5ad4ff';
+    ctx.fillRect(p.x + 13, t.y + 8, 30, 16);
+    ctx.fillStyle = '#243040';
+    ctx.beginPath(); ctx.arc(p.x + p.w - 14, p.y + p.h - 6, 9, 0, Math.PI * 2); ctx.fill();
+  },
+  partition(ctx, p) {
+    ctx.fillStyle = OUTLINE_OFFICE;
+    ctx.fillRect(p.x - 1, p.y - 1, p.w + 2, p.h + 2);
+    ctx.fillStyle = '#2a9d8f';
+    ctx.fillRect(p.x, p.y, p.w, p.h);
+    ctx.fillStyle = 'rgba(180,230,240,0.35)';
+    ctx.fillRect(p.x + 2, p.y + 4, Math.max(2, p.w - 4), p.h - 8);
+  },
+  receptionDesk(ctx, p) {
+    const t = box(ctx, p, '#e8eef4', '#9aa7b5', { outline: OUTLINE_OFFICE, d: 8, radius: 4 });
+    ctx.fillStyle = '#5ad4ff';
+    ctx.fillRect(p.x + p.w / 2 - 20, t.y + 8, 40, 18);
+    ctx.fillStyle = '#1e2a36';
+    ctx.fillRect(p.x + p.w / 2 - 18, t.y + 10, 36, 14);
+  },
+  sofaBlue(ctx, p) {
+    ctx.fillStyle = OUTLINE_OFFICE;
+    rr(ctx, p.x - 1.5, p.y - 1.5, p.w + 3, p.h + 3, 6); ctx.fill();
+    ctx.fillStyle = '#1e3a5f';
+    rr(ctx, p.x, p.y, p.w, p.h, 5); ctx.fill();
+    ctx.fillStyle = '#2c5282';
+    rr(ctx, p.x, p.y, p.w, p.h - 6, 5); ctx.fill();
+  },
+  coffeeTable(ctx, p) {
+    box(ctx, p, '#d4c4a8', '#9a8a70', { outline: OUTLINE_OFFICE, d: 5, radius: 3 });
+  },
+  hvac(ctx, p) {
+    const t = box(ctx, p, '#8a939e', '#5c6670', { outline: OUTLINE_OFFICE, d: 6 });
+    ctx.strokeStyle = 'rgba(30,40,50,0.35)';
+    ctx.lineWidth = 2;
+    for (let y = t.y + 6; y < t.y + t.h - 4; y += 8) {
+      ctx.beginPath(); ctx.moveTo(t.x + 6, y); ctx.lineTo(t.x + t.w - 6, y); ctx.stroke();
+    }
+  },
+  bollard(ctx, p) {
+    const cx = p.x + p.w / 2;
+    const cy = p.y + p.h / 2;
+    ctx.fillStyle = OUTLINE_OFFICE;
+    ctx.beginPath(); ctx.arc(cx, cy, p.w / 2 + 1, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f0d45a';
+    ctx.beginPath(); ctx.arc(cx, cy, p.w / 2 - 1, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#2a3038';
+    ctx.beginPath(); ctx.arc(cx, cy, p.w / 4, 0, Math.PI * 2); ctx.fill();
+  },
+  parkedCar(ctx, p) {
+    ctx.fillStyle = OUTLINE_OFFICE;
+    rr(ctx, p.x - 1, p.y - 1, p.w + 2, p.h + 2, 8); ctx.fill();
+    ctx.fillStyle = '#5a6570';
+    rr(ctx, p.x, p.y, p.w, p.h, 7); ctx.fill();
+    ctx.fillStyle = '#7a8694';
+    rr(ctx, p.x, p.y, p.w, p.h - 6, 7); ctx.fill();
+    ctx.fillStyle = '#2a3544';
+    rr(ctx, p.x + 16, p.y + 6, p.w - 40, p.h - 16, 3); ctx.fill();
+  },
+  whiteboard(ctx, p) {
+    const t = box(ctx, p, '#eef3f7', '#8a96a2', { outline: OUTLINE_OFFICE, d: 5, radius: 2 });
+    ctx.fillStyle = '#2a9d8f';
+    ctx.fillRect(t.x + 8, t.y + 4, t.w - 16, 3);
+    ctx.strokeStyle = 'rgba(40,60,80,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(t.x + 14, t.y + 14);
+    ctx.lineTo(t.x + t.w * 0.45, t.y + t.h - 8);
+    ctx.lineTo(t.x + t.w - 12, t.y + 12);
+    ctx.stroke();
+  },
 };
 
 function drawProp(ctx, w) {
@@ -719,24 +988,28 @@ export function buildStaticLayers(level, walls, scale) {
   const floor = makeCanvas(level, scale);
   const rand = rng(1337);
   const f = floor.ctx;
+  const corporate = isCorporate(level);
+  const earlyDecor = corporate
+    ? ['asphalt', 'sidewalk', 'loadingBay', 'parkingStripe', 'curbYellow']
+    : ['driveway', 'path', 'flowerbed'];
   drawExterior(f, level, rand);
   for (const d of level.decor) {
-    if (['driveway', 'path', 'flowerbed'].includes(d.type)) DECOR[d.type](f, d, rand);
+    if (earlyDecor.includes(d.type)) DECOR[d.type]?.(f, d, rand);
   }
-  drawHedgeBorder(f, level.bounds);
+  if (!corporate) drawHedgeBorder(f, level.bounds);
   for (const room of level.rooms) {
     const draw = FLOORS[room.floor] || FLOORS.wood;
     clipRect(f, room, () => draw(f, room, rand));
   }
   for (const d of level.decor) {
-    if (!['driveway', 'path', 'flowerbed'].includes(d.type)) DECOR[d.type]?.(f, d, rand);
+    if (!earlyDecor.includes(d.type)) DECOR[d.type]?.(f, d, rand);
   }
   drawPlinth(f, level.artifact);
   drawRoomLabels(f, level);
   drawShadows(f, walls, level.footprint, scale, level);
 
   const solids = makeCanvas(level, scale);
-  drawWalls(solids.ctx, walls);
+  drawWalls(solids.ctx, walls, level);
   for (const w of walls) if (w.kind === 'prop') drawProp(solids.ctx, w);
 
   return { floor: floor.c, solids: solids.c };

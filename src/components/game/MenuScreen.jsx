@@ -16,6 +16,9 @@ export default function MenuScreen({
   onJoin,
   localPlayers = 4,
   setLocalPlayers,
+  localLevelId,
+  setLocalLevelId,
+  levels = [],
 }) {
   return (
     <main
@@ -74,6 +77,23 @@ export default function MenuScreen({
               </select>
               <span>One keyboard · shared screen</span>
             </label>
+            {levels.length > 0 && setLocalLevelId && (
+              <label className="local-player-choice level-select-choice">
+                TEST LEVEL{" "}
+                <select
+                  aria-label="Test level select"
+                  value={localLevelId}
+                  onChange={(e) => setLocalLevelId(e.target.value)}
+                >
+                  {levels.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.label ||
+                        `${l.campaignIndex} · ${l.shortName || l.name}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
           </section>
           <MissionIntel />
         </div>

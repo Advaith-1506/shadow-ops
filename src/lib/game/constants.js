@@ -1,9 +1,16 @@
-import { ACTIVE_LEVEL } from './levels/index.js';
+import { getActiveLevel } from './levels/index.js';
 
-// ─── World bounds (from the active level) ─────────────────────────────────────
-export const CANVAS_W = ACTIVE_LEVEL.bounds.w;
-export const CANVAS_H = ACTIVE_LEVEL.bounds.h;
+// ─── World bounds (from the active level; updated via applyLevel) ─────────────
+const initial = getActiveLevel().bounds;
+export let CANVAS_W = initial.w;
+export let CANVAS_H = initial.h;
 export const TILE = 32;
+
+export function syncCanvasFromLevel(level) {
+  const b = level?.bounds || getActiveLevel().bounds;
+  CANVAS_W = b.w;
+  CANVAS_H = b.h;
+}
 
 // ─── Game rules ───────────────────────────────────────────────────────────────
 export const MAX_ALARM = 100;

@@ -2,6 +2,8 @@ import React, { useCallback, useRef, useState, useEffect } from "react";
 import { createShadowState } from "@/lib/game/mission";
 import { clearKeys, clearTouchInput, setTouchInput } from "@/lib/game/input";
 import { CANVAS_H, CANVAS_W } from "@/lib/game/constants";
+import { applyLevel, listLevels } from "@/lib/game/mapData";
+import { DEFAULT_LEVEL_ID } from "@/lib/game/levels/index.js";
 import { parseJoinLocation } from "@/lib/party/invitations";
 import MenuScreen from "@/components/game/MenuScreen";
 import LobbyScreen from "@/components/game/LobbyScreen";
@@ -16,6 +18,7 @@ import { useGameRuntime } from "@/hooks/useGameRuntime";
 
 export default function Game() {
   const [localPlayers, setLocalPlayers] = useState(4);
+  const [localLevelId, setLocalLevelId] = useState(DEFAULT_LEVEL_ID);
   const initial = useRef(parseJoinLocation(window.location));
   const [screen, setScreen] = useState(initial.current.kind ? "lobby" : "menu");
   const [entry, setEntry] = useState("join");
@@ -64,6 +67,7 @@ export default function Game() {
     canvasRef,
     containerRef,
     screenRef,
+    screen,
     setScreen,
     stateRef,
     networkRef: net.networkRef,
@@ -101,6 +105,7 @@ export default function Game() {
   const startLocal = () => {
     net.cleanupNetwork();
     net.resetLobbyUi();
+    applyLevel(localLevelId);
     stateRef.current = createShadowState(
       [
         { id: 1, nickname: "Local Hacker", role: "Hacker" },
@@ -137,6 +142,9 @@ export default function Game() {
         <MenuScreen
           localPlayers={localPlayers}
           setLocalPlayers={setLocalPlayers}
+          localLevelId={localLevelId}
+          setLocalLevelId={setLocalLevelId}
+          levels={listLevels()}
           onStart={startLocal}
           onInstructions={() => transition("instructions")}
           onHost={() => {
@@ -182,8 +190,6 @@ export default function Game() {
       >
         <canvas
           ref={canvasRef}
-          width={CANVAS_W}
-          height={CANVAS_H}
           aria-label={
             viewMode === "display"
               ? "Shared mission display"

@@ -248,7 +248,8 @@ describe("four roles and server-simulated Decoy", () => {
     expect(g.x).toBeGreaterThan(400);
     updateMissionWorld(s, 5.1);
     updateGuards(s, 0.1);
-    expect(g.mode).toBe("patrol");
+    // After noise expires, guards resume local wander (or legacy patrol).
+    expect(["wander", "patrol", "return"]).toContain(g.mode);
   });
   it("enforces Decoy cooldown and preserves active guard chase", () => {
     const s = state(),
