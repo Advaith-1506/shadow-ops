@@ -31,10 +31,11 @@ import {
   lineBlockedByRects,
 } from "./collision.js";
 import { computeGuardPath } from "./guardNav.js";
-import { LEVEL } from "./mapData.js";
 
+/** In-room wander + post-to-post roam (house and office). */
 function usesRoamGuards() {
-  return LEVEL.theme === "corporate";
+  // Live mission route tests pin classic patrols for deterministic openings.
+  return !globalThis.__SHADOW_OPS_FORCE_PATROL__;
 }
 
 // ─── Guards ───────────────────────────────────────────────────────────────────

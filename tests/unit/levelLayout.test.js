@@ -198,18 +198,31 @@ describe("Maple Row Safehouse layout", () => {
     }
   });
 
-  it("guards complete their patrol loops without getting stuck", () => {
+  it("guards roam without getting stuck in walls", () => {
     const s = fresh();
     s.players = [];
-    const visited = new Map(s.guards.map((g) => [g.id, new Set([g.patrolIdx])]));
+    const start = new Map(s.guards.map((g) => [g.id, { x: g.x, y: g.y }]));
+    const modes = new Map(s.guards.map((g) => [g.id, new Set([g.mode])]));
     for (let t = 0; t < 120 * 30; t += 1) {
       updateGuards(s, 1 / 30);
-      for (const g of s.guards) visited.get(g.id).add(g.patrolIdx);
+      for (const g of s.guards) modes.get(g.id).add(g.mode);
     }
     const solids = solidsFor(s);
     for (const g of s.guards) {
-      expect(visited.get(g.id).size, g.id).toBe(g.patrol.length);
-      expect(solids.some((w) => circleOverlapsRect(g.x, g.y, GUARD_R - 2, w.x, w.y, w.w, w.h))).toBe(false);
+      const from = start.get(g.id);
+      const moved = Math.hypot(g.x - from.x, g.y - from.y);
+      expect(moved, g.id).toBeGreaterThan(8);
+      expect(
+        [...modes.get(g.id)].some((m) =>
+          ["wander", "roam", "return"].includes(m),
+        ),
+        g.id,
+      ).toBe(true);
+      expect(
+        solids.some((w) =>
+          circleOverlapsRect(g.x, g.y, GUARD_R - 2, w.x, w.y, w.w, w.h),
+        ),
+      ).toBe(false);
     }
   });
 
