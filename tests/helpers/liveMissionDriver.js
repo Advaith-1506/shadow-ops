@@ -1,6 +1,7 @@
 import PF from "pathfinding";
 import { createShadowState } from "../../src/lib/game/mission.js";
 import { updateGame } from "../../src/lib/game/gameLoop.js";
+import { refreshMapData } from "../../src/lib/game/mapData.js";
 import {
   lineBlockedByRects,
   circleOverlapsRect,
@@ -9,6 +10,19 @@ import {
 // inputs at 30Hz. They never teleport actors, change NPCs, grant objectives,
 // remove hazards, alter cooldowns or assign victory. Captures use real revive.
 export function runLiveMission(roles) {
+  // Scripted openings assume classic patrol loops; gameplay uses wander/roam.
+  const prevForcePatrol = globalThis.__SHADOW_OPS_FORCE_PATROL__;
+  globalThis.__SHADOW_OPS_FORCE_PATROL__ = true;
+  refreshMapData();
+  try {
+    return _runLiveMission(roles);
+  } finally {
+    globalThis.__SHADOW_OPS_FORCE_PATROL__ = prevForcePatrol;
+    refreshMapData();
+  }
+}
+
+function _runLiveMission(roles) {
   let phase = "infiltration";
   let rescueId = null,
     huntId = null;

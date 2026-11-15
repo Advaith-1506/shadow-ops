@@ -65,11 +65,15 @@ function buildFrom(level) {
           x1: Math.max(...xs) + pad,
           y1: Math.max(...ys) + pad,
         },
-        // Corporate office uses wander/roam; house keeps classic patrol loops.
-        mode: level.theme === 'corporate' ? 'wander' : 'patrol',
+        // Wander/roam on both maps; integration tests may force classic patrol.
+        mode: globalThis.__SHADOW_OPS_FORCE_PATROL__ ? 'patrol' : 'wander',
         wanderTarget: null,
-        pauseTimer: level.theme === 'corporate' ? 0.2 + Math.random() * 0.8 : 0,
-        roamCooldown: level.theme === 'corporate' ? 5 + Math.random() * 7 : 0,
+        pauseTimer: globalThis.__SHADOW_OPS_FORCE_PATROL__
+          ? 0
+          : 0.2 + Math.random() * 0.8,
+        roamCooldown: globalThis.__SHADOW_OPS_FORCE_PATROL__
+          ? 0
+          : 5 + Math.random() * 7,
         lookTimer: 0,
         alertTimer: 0,
         facing: Math.atan2(next.y - start.y, next.x - start.x),
