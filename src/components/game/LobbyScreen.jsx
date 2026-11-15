@@ -220,11 +220,6 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
               <MissionBriefing players={players} />
               {host && (
                 <>
-                  <p className="ops-copy">
-                    Duo: Hacker + Assassin. Trio: add Scout OR Decoy. Full
-                    Squad: all four unique roles. Each selected role unlocks a
-                    required mission objective.
-                  </p>
                   <button
                     className="ops-primary deploy-button"
                     disabled={!canStart}
@@ -232,17 +227,6 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
                   >
                     DEPLOY SQUAD
                   </button>
-                  {!canStart && (
-                    <p className="ops-copy">
-                      {!composition.valid
-                        ? composition.message
-                        : "Every operative must be connected and ready."}
-                      {composition.missing.length > 0 &&
-                        ` Missing: ${composition.missing.join(", ")}.`}
-                      {composition.duplicates.length > 0 &&
-                        ` Duplicate roles: ${composition.duplicates.join(", ")}.`}
-                    </p>
-                  )}
                 </>
               )}
             </section>
