@@ -31,6 +31,11 @@ import {
   lineBlockedByRects,
 } from "./collision.js";
 import { computeGuardPath } from "./guardNav.js";
+import { LEVEL } from "./mapData.js";
+
+function usesRoamGuards() {
+  return LEVEL.theme === "corporate";
+}
 
 // ─── Guards ───────────────────────────────────────────────────────────────────
 export function updateGuards(state, dt) {
@@ -55,14 +60,14 @@ export function updateGuards(state, dt) {
         guard.path = null;
       }
       if (guard.mode === "investigate" && !noise && !current) {
-        guard.mode = "wander";
+        guard.mode = usesRoamGuards() ? "wander" : "patrol";
         guard.investigation = null;
         guard.noiseId = null;
         guard.path = null;
         guard.wanderTarget = null;
       }
     }
-    _updateGuardIntent(guard, dt, state);
+    if (usesRoamGuards()) _updateGuardIntent(guard, dt, state);
     _patrolGuard(guard, dt, solids, state.crates);
     _separateGuardFromCrates(guard, state.crates, solids);
     _guardDetection(guard, state, dt, blockers);
@@ -281,14 +286,16 @@ function _patrolGuard(guard, dt, solids, crates) {
     }
     if (guard.mode === "investigate") return;
     if (guard.mode === "chase") {
-      guard.mode = "return";
+      guard.mode = usesRoamGuards() ? "return" : "patrol";
       guard.chaseTarget = null;
-      guard.wanderTarget = guard.post || guard.patrol[0];
+      guard.wanderTarget = usesRoamGuards()
+        ? guard.post || guard.patrol[0]
+        : null;
       guard.path = null;
       return;
     }
     // Wander/roam/return targets are refreshed by _updateGuardIntent.
-    if (guard.wanderTarget) {
+    if (usesRoamGuards() && guard.wanderTarget) {
       guard.wanderTarget = null;
       guard.path = null;
       return;
@@ -325,14 +332,18 @@ function _patrolGuard(guard, dt, solids, crates) {
           return;
         }
         if (guard.mode === "chase") {
-          guard.mode = "return";
+          guard.mode = usesRoamGuards() ? "return" : "patrol";
           guard.chaseTarget = null;
-          guard.wanderTarget = guard.post || guard.patrol[0];
+          guard.wanderTarget = usesRoamGuards()
+            ? guard.post || guard.patrol[0]
+            : null;
         } else if (guard.mode === "roam" || guard.mode === "return") {
           guard.mode = "return";
           guard.wanderTarget = guard.post || guard.patrol[0];
-        } else {
+        } else if (usesRoamGuards()) {
           guard.wanderTarget = _pickInHome(guard);
+        } else {
+          guard.patrolIdx = _chooseNextPatrolIdx(guard, crates);
         }
         guard.path = null;
         guard.stuckTimer = 0;
@@ -390,9 +401,11 @@ function _guardDetection(guard, state, dt, blockers) {
     guard.mode = "chase";
     guard.chaseTarget = { x: bestVisible.x, y: bestVisible.y };
   } else if (guard.mode === "chase" && guard.alertTimer <= 0) {
-    guard.mode = "return";
+    guard.mode = usesRoamGuards() ? "return" : "patrol";
     guard.chaseTarget = null;
-    guard.wanderTarget = guard.post || guard.patrol?.[0] || null;
+    guard.wanderTarget = usesRoamGuards()
+      ? guard.post || guard.patrol?.[0] || null
+      : null;
     guard.path = null;
   }
 }

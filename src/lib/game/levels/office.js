@@ -276,6 +276,17 @@ export const OFFICE = {
   pressurePlates: [],
 
   mission: {
+    // Cooperative anchors reuse existing office guards, doors, and open floor.
+    coop: {
+      captainId: 'g6',
+      electronicDoorId: 'door_be',
+      networkCameraId: 'cam_corridor_m',
+      reconZone: { x: 700, y: 700, room: 'Open Office' },
+      hiddenNode: { x: 760, y: 640, room: 'Open Office' },
+      checkpointGuardId: 'g4',
+      checkpoint: { x: 700, y: 430, room: 'Main Corridor' },
+      distractionZone: { x: 1200, y: 780, room: 'Reception' },
+    },
     keys: [
       { id: 'ALPHA', x: 400, y: 290, room: 'Boardroom' },
       { id: 'BRAVO', x: 250, y: 920, room: 'Records' },
