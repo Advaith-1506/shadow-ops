@@ -29,7 +29,7 @@ Room codes are discoverable convenience identifiers, **not authentication secret
 - Room limit: **100**; player limit: **4**; extra-display limit: **4** per room.
 - Stale inputs expire after **250ms**. Input packets do not advance simulation time.
 - Outgoing snapshots are skipped when socket buffering exceeds 1MB.
-- Only the authenticated host starts/resets; all players must be connected/ready, with a Hacker and a different role. Role changes clear ready status.
+- Only the authenticated host starts/resets; all players must be connected/ready with unique roles: Duo Hacker + Assassin; Trio adds Scout or Decoy; Full Squad requires all four. Role changes clear ready status.
 - A display or slot-free host sending player actions is rejected. A client cannot declare victory, set score, bypass vault requirements or nominate a remote Decoy position. Decoy noise spawns at the authoritative player position and guards choose valid investigation behavior server-side; a live chase takes priority.
 
 These controls mitigate ordinary action abuse, not distributed denial of service. There is no per-IP connection quota, Internet account service or fog-of-war enforcement. Full snapshots expose world/enemy information to modified clients.
@@ -55,3 +55,11 @@ Private credentials are not deliberately logged. Do not add raw message logging.
 Run `npm run test:run`. Tests exercise actual WebSocket host, display and four-player connections, unauthorized actions, token isolation/rotation, duplicate-controller rejection, refresh/lobby reservation, authoritative state consistency, Decoy behavior and existing mission/ability restrictions. Unit tests cover normalized multitouch input, release safety, short taps, invite construction and session storage. See [QA.md](QA.md) for browser evidence and the manual device checklist.
 
 Report issues in this repository without active credentials or private data. Required upstream and dependency acknowledgments remain in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSE](LICENSE).
+
+## Dynamic mission authority
+
+The server calls the shared deterministic mission generator at deployment. Its deeply frozen configuration fixes map anchors, participants, role ownership, objective conditions and dependency edges for the match. Mutable objective progress comes only from simulation events, and the same configuration/progress is broadcast to players and authorized displays. Reconnection resumes the existing actor and mission; it cannot regenerate objectives or change a role mid-match.
+
+Assassin credentials require a real, in-range, line-of-sight captain takedown and available cooldown. Both shared keys accept any assigned operative through range/LOS-validated Interact, with idempotent pickup and no client inventory writes. The assigned Hacker must separately open the designated electronic door and override the designated camera network using in-range System Override; completion follows actual persistent door/network state changes. The protected terminal still requires Hacker. Scout discovery requires the assigned Scout's fresh pulse, proximity to the recon zone and the hidden node's detection radius. A Decoy checkpoint requires noise placed at the authoritative actor position in the active zone, prerequisite completion, the intended guard's actual investigation/path movement and clearance, and a separate Hacker/Assassin relay interaction during the window. Stuns and chases cannot substitute for investigation. The terminal additionally requires a live different-role helper on the support pad. Vault/extraction recheck the fixed roster and all required role contributions.
+
+Objective records include status, prerequisites, visibility, completion condition, timestamp and contributors. There is no accepted `objective_complete`, discovery, guard-state, mission-config or win packet. Full snapshots still expose world/config information to modified clients: hidden presentation is not cryptographic fog of war. Knowing a hidden node location does not satisfy the server's Scout event requirement.

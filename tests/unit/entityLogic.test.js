@@ -83,4 +83,29 @@ describe("entityLogic", () => {
     expect(s.alarm).toBeGreaterThan(90);
     expect(s.alarm).toBeGreaterThan(lowAlarm);
   });
+
+  it("guard vision detects only in front, even at close range", () => {
+    const s = baseState();
+    s.players[0].x = 60;
+    s.players[0].y = 100;
+    s.guards = [{
+      id: "g1",
+      x: 100,
+      y: 100,
+      patrol: [{ x: 100, y: 100 }],
+      patrolIdx: 0,
+      mode: "patrol",
+      alertTimer: 0,
+      facing: 0,
+    }];
+
+    updateGuards(s, 0.1);
+    expect(s.alarm).toBe(0);
+    expect(s.players[0].detected).toBe(0);
+
+    s.players[0].x = 140;
+    updateGuards(s, 0.1);
+    expect(s.alarm).toBeGreaterThan(0);
+    expect(s.players[0].detected).toBeGreaterThan(0);
+  });
 });

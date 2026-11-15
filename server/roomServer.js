@@ -1,6 +1,7 @@
 import { WebSocketServer } from "ws";
 import { randomBytes, randomInt } from "node:crypto";
 import { createShadowState, ROLES } from "../src/lib/game/mission.js";
+import { validateComposition } from "../src/lib/game/missionConfig.js";
 import { updateGame } from "../src/lib/game/gameLoop.js";
 const KEYS = ["up", "down", "left", "right", "interact", "ability"];
 const EMPTY = Object.fromEntries(KEYS.map((k) => [k, false]));
@@ -331,11 +332,8 @@ export function createRoomServer({
         const players = [...r.players.values()];
         if (players.length < 2 || !players.every((p) => p.ready && p.ws))
           return error(ws, "Need 2–4 connected, ready players");
-        if (
-          !players.some((p) => p.role === "Hacker") ||
-          !players.some((p) => p.role !== "Hacker")
-        )
-          return error(ws, "Need a Hacker and a different role");
+        const composition = validateComposition(players);
+        if (!composition.valid) return error(ws, composition.message);
         r.state = createShadowState(roster(r));
         broadcast(r, "game_start", {
           playerIds: r.state.players.map((p) => p.id),

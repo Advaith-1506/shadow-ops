@@ -1,38 +1,41 @@
 import React from "react";
 import RoleCards from "./RoleCards";
+import { validateComposition } from "@/lib/game/missionConfig";
 import PartyInvite from "./PartyInvite";
+import { CommandHeader, ROLE_ICONS, commandKeyCapture } from "./CommandUI";
+import MissionBriefing from "./MissionBriefing";
 export default function LobbyScreen({ net, onBack, entry = "join" }) {
   const { players, kind, myPlayerId, hostId, roomCode } = net;
   const me = players.find((p) => p.id === myPlayerId);
   const host = kind === "host" || (kind === "player" && myPlayerId === hostId);
+  const composition = validateComposition(players);
   const canStart =
-    players.length >= 2 &&
-    players.every((p) => p.ready && p.connected) &&
-    players.some((p) => p.role === "Hacker") &&
-    players.some((p) => p.role !== "Hacker");
+    composition.valid && players.every((p) => p.ready && p.connected);
   return (
-    <main className="ops-shell ops-lobby">
+    <main
+      onKeyDownCapture={commandKeyCapture}
+      className="ops-shell ops-lobby command-ui command-lobby"
+    >
       <div className="ops-grid" />
       <section
         className={`ops-panel party-lobby ${roomCode && host ? "host-lobby" : ""}`}
       >
-        <p className="ops-eyebrow">
-          SHADOW OPS 2.0 /{" "}
-          {kind === "display"
-            ? "SHARED DISPLAY"
-            : entry === "host"
-              ? "PARTY COMMAND"
-              : "SQUAD CONNECTION"}
-        </p>
-        <h1>
-          {roomCode
-            ? host
+        <CommandHeader
+          title={
+            roomCode
+              ? "SQUAD LOBBY"
+              : entry === "host"
+                ? "HOST GAME"
+                : "JOIN THE OPERATION"
+          }
+          subtitle={
+            roomCode
               ? "YOUR PHONES. ONE MISSION."
-              : "ASSEMBLE SQUAD"
-            : entry === "host"
-              ? "HOST PARTY MODE"
-              : "JOIN THE OPERATION"}
-        </h1>
+              : entry === "host"
+                ? "Establish a shared-screen operation."
+                : "Your squad is waiting. Join the operation."
+          }
+        />
         {!roomCode ? (
           <>
             <p className="ops-copy">
@@ -151,14 +154,27 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
                   { length: net.lanMaxPlayers },
                   (_, i) => players[i] || { id: `empty-${i}` },
                 ).map((p, i) => (
-                  <div key={p.id} className="party-slot">
-                    <span className="slot-number">0{i + 1}</span>
+                  <div
+                    key={p.id}
+                    className={`party-slot ${p.ready ? "slot-ready" : ""} ${!p.connected && p.nickname ? "slot-disconnected" : ""}`}
+                  >
+                    <span className="slot-number">
+                      {p.role
+                        ? React.createElement(ROLE_ICONS[p.role], { size: 23 })
+                        : `0${i + 1}`}
+                    </span>
                     <span>
                       <b>
                         {p.nickname || "Waiting for a phone…"}
                         {p.id === myPlayerId ? " / YOU" : ""}
+                        {p.id === hostId ? " · HOST" : ""}
                       </b>
-                      <small>{p.role || "Scan to join"}</small>
+                      <small>
+                        {p.role || "Scan to join"}
+                        {p.nickname
+                          ? ` · ${p.connected ? "CONNECTED" : "DISCONNECTED"}`
+                          : ""}
+                      </small>
                     </span>
                     <strong className={p.ready ? "ops-live" : ""}>
                       {!p.nickname
@@ -201,12 +217,13 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
                   Read-only display · waiting for the host to deploy.
                 </p>
               )}
+              <MissionBriefing players={players} />
               {host && (
                 <>
                   <p className="ops-copy">
-                    Encourage one of each role for four players. Duplicates are
-                    welcome. A Hacker and one different role are required; two
-                    players can complete the mission.
+                    Duo: Hacker + Assassin. Trio: add Scout OR Decoy. Full
+                    Squad: all four unique roles. Each selected role unlocks a
+                    required mission objective.
                   </p>
                   <button
                     className="ops-primary deploy-button"
@@ -217,8 +234,13 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
                   </button>
                   {!canStart && (
                     <p className="ops-copy">
-                      Need 2–4 connected, ready players with a Hacker + a
-                      different role.
+                      {!composition.valid
+                        ? composition.message
+                        : "Every operative must be connected and ready."}
+                      {composition.missing.length > 0 &&
+                        ` Missing: ${composition.missing.join(", ")}.`}
+                      {composition.duplicates.length > 0 &&
+                        ` Duplicate roles: ${composition.duplicates.join(", ")}.`}
                     </p>
                   )}
                 </>
@@ -226,18 +248,20 @@ export default function LobbyScreen({ net, onBack, entry = "join" }) {
             </section>
           </div>
         )}
-        <p role="status" className="ops-copy">
-          {net.netStatus}
-          {net.kind === "host"
-            ? " · Host authorized · shared screen · no player slot"
-            : ""}
-        </p>
-        {net.netError && (
-          <p role="alert" className="ops-error">
-            {net.netError}
+        <footer className="lobby-footer">
+          <p role="status" className="ops-copy">
+            {net.netStatus}
+            {net.kind === "host"
+              ? " · Host authorized · shared screen · no player slot"
+              : ""}
           </p>
-        )}
-        <button onClick={onBack}>← LEAVE / MAIN MENU</button>
+          {net.netError && (
+            <p role="alert" className="ops-error">
+              {net.netError}
+            </p>
+          )}
+          <button onClick={onBack}>← LEAVE / MAIN MENU</button>
+        </footer>
       </section>
     </main>
   );

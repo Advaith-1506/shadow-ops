@@ -40,6 +40,7 @@ const state = () =>
   createShadowState([
     { id: 1, role: "Hacker", nickname: "Byte" },
     { id: 2, role: "Decoy", nickname: "Echo" },
+    { id: 3, role: "Assassin", nickname: "Blade" },
   ]);
 describe("local QR invitations and LAN endpoints", () => {
   it("builds a player URL containing no private credentials", () => {
@@ -207,16 +208,16 @@ describe("active browsing-session reconnect storage", () => {
   });
 });
 describe("four roles and server-simulated Decoy", () => {
-  it("offers four distinct roles without requiring all four for mission progress", () => {
+  it("offers four distinct roles and requires selected Decoy contribution", () => {
     expect(ROLES).toEqual(["Assassin", "Hacker", "Scout", "Decoy"]);
     const s = state();
     s.mission.keys.forEach((k) => (k.collected = true));
     Object.assign(s.players[0], s.mission.terminal);
     Object.assign(s.players[1], s.mission.support);
     updateMissionPlayer(s, s.players[0], { interact: true }, 0.03);
-    expect(s.mission.securityOff).toBe(true);
+    expect(s.mission.securityOff).toBe(false);
     expect(objectiveSummary(s).find((o) => o.id === "security").status).toBe(
-      "complete",
+      "blocked",
     );
   });
   it("changes guard target, paths toward noise, and expires back to patrol", () => {
@@ -285,7 +286,7 @@ describe("four roles and server-simulated Decoy", () => {
     Object.assign(s.players[1], s.mission.support);
     expect(objectiveSummary(s).find((o) => o.id === "security")).toMatchObject({
       status: "blocked",
-      label: expect.stringContaining("Echo"),
+      label: expect.stringContaining("support pad"),
     });
   });
 });

@@ -30,6 +30,7 @@ export const CARRY_SLOW_HEAVY  = 45;
 // ─── Guards ───────────────────────────────────────────────────────────────────
 export const GUARD_SPEED         = 78;   // px / sec
 export const GUARD_DETECT_R      = 80;   // px – sight radius
+export const GUARD_ARC_DEG       = 110;  // full width of the forward vision cone
 export const GUARD_TOUCH_R       = 18;   // px – contact radius
 export const GUARD_ALARM_RATE    = 18;   // alarm / sec while in sight
 export const GUARD_TOUCH_ALARM   = 35;   // instant alarm on touch

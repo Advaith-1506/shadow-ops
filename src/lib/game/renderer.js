@@ -12,7 +12,7 @@
  */
 
 import {
-  GUARD_DETECT_R, GUARD_TOUCH_R, CAM_DETECT_R, CAM_ARC_DEG, VAN_INTERACT_R,
+  GUARD_DETECT_R, GUARD_ARC_DEG, CAM_DETECT_R, CAM_ARC_DEG, VAN_INTERACT_R,
 } from './constants.js';
 import { LEVEL } from './mapData.js';
 import { installRoundRect } from './canvasPolyfill.js';
@@ -20,11 +20,10 @@ import { buildStaticLayers } from './levelArt.js';
 import { OBJECTIVE_COLORS, ROLE_GLYPH, missionStageId, playerColor } from './palette.js';
 
 function supportPadLabel() {
-  return LEVEL.theme === 'corporate' ? 'OVERRIDE PLATE' : 'SUPPORT PAD';
+  return LEVEL.theme === 'corporate' ? 'OVERRIDE PLATE' : 'TEAMMATE STAND HERE';
 }
 
 const OUTLINE = '#2a2019';
-const GUARD_ARC_DEG = 110; // matches entityLogic guard cone
 const SUPPORT_R = 44;      // matches mission support-pad range
 
 let staticCache = { key: '', layers: null };
@@ -227,22 +226,17 @@ function _renderVision(ctx, state) {
   const blockers = blockersFor(state);
   const alarmFactor = Math.min(1, Math.max(0, (state.alarm || 0) / 100));
   const farR = GUARD_DETECT_R * (1 + 0.55 * alarmFactor);
-  const nearR = Math.max(52, GUARD_TOUCH_R + 24) + 18 * alarmFactor;
   const half = (GUARD_ARC_DEG * Math.PI) / 180 / 2;
 
   for (const g of state.guards) {
     if (g.stunned > 0) continue;
     const f = Number.isFinite(g.facing) ? g.facing : 0;
-    const pts = [];
-    const push = (a, r) => {
-      const d = castRay(g.x, g.y, a, r, blockers);
+    const pts = [[g.x, g.y]];
+    const push = (a) => {
+      const d = castRay(g.x, g.y, a, farR, blockers);
       pts.push([g.x + Math.cos(a) * d, g.y + Math.sin(a) * d]);
     };
-    push(f - half, nearR);
-    for (let i = 0; i <= 30; i += 1) push(f - half + (2 * half * i) / 30, farR);
-    push(f + half, nearR);
-    const back = Math.PI * 2 - 2 * half;
-    for (let i = 1; i < 36; i += 1) push(f + half + (back * i) / 36, nearR);
+    for (let i = 0; i <= 30; i += 1) push(f - half + (2 * half * i) / 30);
 
     const chasing = g.mode === 'chase';
     const grad = ctx.createRadialGradient(g.x, g.y, 4, g.x, g.y, farR);
@@ -264,7 +258,7 @@ function _renderVision(ctx, state) {
     ctx.stroke();
   }
 
-  if (state.mission?.securityOff) return;
+  if (state.mission?.securityOff || state.mission?.cameraNetworkOff) return;
   const camHalf = (CAM_ARC_DEG * Math.PI) / 180 / 2;
   for (const c of state.cameras) {
     if (c.disabled > 0) continue;
@@ -380,7 +374,7 @@ function _renderLasers(ctx, state, tick) {
 function _renderObjectives(ctx, state, tick, stage) {
   const m = state.mission;
   for (const k of m.keys) {
-    if (k.collected) continue;
+    if (k.collected || k.method === 'captain') continue;
     const bob = Math.sin(tick * 3 + k.x) * 2;
     ctx.save();
     circle(ctx, k.x, k.y, 16 + 3 * pulse(tick, 4));
@@ -399,6 +393,48 @@ function _renderObjectives(ctx, state, tick, stage) {
     ctx.restore();
   }
 
+  if (m.config) {
+    const mark = (point, text, color) => {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 2;
+      circle(ctx, point.x, point.y, 20);
+      ctx.stroke();
+      ctx.font = "bold 10px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(text, point.x, point.y - 25);
+      ctx.restore();
+    };
+    const captain = state.guards.find(
+      (g) => g.id === m.config.anchors.captainId,
+    );
+    if (captain && !m.objectives.find(o=>o.id==="credential")?.completedBy)
+      mark(captain, "ASSASSIN · CAPTAIN", "#ffa78b");
+    if (m.recon) {
+      mark(
+        m.config.anchors.reconZone,
+        m.recon.discovered ? "RECON COMPLETE" : "SCOUT · PULSE HERE",
+        "#7ff0b6",
+      );
+      if (m.recon.discovered)
+        mark(m.config.anchors.hiddenNode, "CONTROL NODE REVEALED", "#7ff0b6");
+    }
+    if (m.checkpoint && !m.checkpoint.cleared) {
+      mark(
+        m.config.anchors.distractionZone,
+        "DECOY · NOISE THEN RETREAT",
+        "#d1a2ff",
+      );
+      mark(
+        m.config.anchors.checkpoint,
+        m.checkpoint.windowRemaining > 0
+          ? `RELAY OPEN ${Math.ceil(m.checkpoint.windowRemaining)}s`
+          : "CHECKPOINT · HACKER / ASSASSIN",
+        "#65d7ff",
+      );
+    }
+  }
   const t = m.terminal;
   ctx.save();
   const termCol = m.securityOff ? '#6fe39a' : OBJECTIVE_COLORS.terminal;
@@ -518,7 +554,7 @@ function _renderLegacyProps(ctx, state) {
 // ─── Cameras ──────────────────────────────────────────────────────────────────
 function _renderCameras(ctx, state, tick) {
   for (const c of state.cameras) {
-    const off = state.mission?.securityOff || c.disabled > 0;
+    const off = state.mission?.securityOff || state.mission?.cameraNetworkOff || c.disabled > 0;
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(c.angle);
@@ -723,9 +759,9 @@ function _renderLabels(ctx, state, tick, stage, scale) {
 
   if (m) {
     for (const k of m.keys) {
-      if (!k.collected) label(ctx, `KEY ${k.id}`, k.x, k.y - 24 * scale, OBJECTIVE_COLORS.key, scale);
+      if (!k.collected && k.method !== 'captain') label(ctx, `KEY ${k.id}`, k.x, k.y - 24 * scale, OBJECTIVE_COLORS.key, scale);
     }
-    label(ctx, m.securityOff ? 'SECURITY OFF' : 'TERMINAL', m.terminal.x, m.terminal.y - 24 * scale,
+    label(ctx, m.securityOff ? 'SECURITY OFF' : 'HACKER · INTERACT HERE', m.terminal.x, m.terminal.y - 24 * scale,
       m.securityOff ? '#6fe39a' : OBJECTIVE_COLORS.terminal, scale);
     if (!m.securityOff) {
       label(ctx, supportPadLabel(), m.support.x, m.support.y - 52 * scale, OBJECTIVE_COLORS.support, scale);
@@ -747,7 +783,7 @@ function _renderLabels(ctx, state, tick, stage, scale) {
   }
 
   for (const c of state.cameras) {
-    if (c.disabled > 0 && !m?.securityOff) {
+    if (c.disabled > 0 && !m?.securityOff && !m?.cameraNetworkOff) {
       label(ctx, `CAM OFF ${Math.ceil(c.disabled)}s`, c.x, c.y - 16 * scale, '#6fe39a', scale * 0.85);
     }
   }

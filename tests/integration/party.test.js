@@ -121,17 +121,16 @@ it("never grants administrative rights to a phone joining by room code", async (
   expect(phone.welcome.sessionToken).not.toBe(welcome.sessionToken);
   expect(phone.welcome.displayKey).toBeUndefined();
 });
-it("allows duplicate roles while preserving required Hacker cooperation", async () => {
+it("rejects duplicate roles and missing Assassin even when all players ready", async () => {
   const { host, welcome, room } = await party();
   const a = await join(welcome.roomCode, "Hacker"),
     b = await join(welcome.roomCode, "Decoy"),
     c = await join(welcome.roomCode, "Decoy");
-  await start(host, [a, b, c]);
-  expect(room.state.players.map((p) => p.role)).toEqual([
-    "Hacker",
-    "Decoy",
-    "Decoy",
-  ]);
+  for (const p of [a, b, c]) send(p.ws, "ready", { ready: true });
+  await pause();
+  send(host, "host_start");
+  expect((await read(host, "join_error")).message).toMatch(/Hacker, Assassin/);
+  expect(room.state).toBeNull();
 });
 it("reserves identity and role across lobby refresh and rotates private credentials", async () => {
   const { welcome, room } = await party();
@@ -199,7 +198,7 @@ it("rejects malformed nicknames, roles, tokens and coordinates", async () => {
 it("clears inputs on disconnect, freezes and resumes a started mission", async () => {
   const { host, welcome, room } = await party();
   const a = await join(welcome.roomCode, "Hacker"),
-    b = await join(welcome.roomCode, "Decoy");
+    b = await join(welcome.roomCode, "Assassin");
   await start(host, [a, b]);
   send(b.ws, "client_input", { input: { right: true, ability: true } });
   await pause();
@@ -223,7 +222,7 @@ it("clears inputs on disconnect, freezes and resumes a started mission", async (
 it("returns the same squad to lobby only on host authorization after mission end", async () => {
   const { host, welcome, room } = await party();
   const a = await join(welcome.roomCode, "Hacker"),
-    b = await join(welcome.roomCode, "Scout");
+    b = await join(welcome.roomCode, "Assassin");
   await start(host, [a, b]);
   send(host, "lobby_reset");
   expect((await read(host, "join_error")).message).toMatch(/active/);
@@ -245,4 +244,90 @@ it("ages out abandoned lobby reservations after 30 seconds", async () => {
   time += 31000;
   await pause();
   expect(room.players.size).toBe(0);
+});
+it.each([
+  ["Hacker", "Assassin"],
+  ["Hacker", "Assassin", "Scout"],
+  ["Hacker", "Assassin", "Decoy"],
+  ["Hacker", "Assassin", "Scout", "Decoy"],
+])("starts only fixed valid composition %j", async (...roles) => {
+  const { host, welcome, room } = await party(),
+    phones = [];
+  for (const role of roles) phones.push(await join(welcome.roomCode, role));
+  await start(host, phones);
+  expect(room.state.mission.config.participants.map((p) => p.role)).toEqual(
+    roles,
+  );
+  for (const phone of phones) {
+    const initial = await read(phone.ws, "game_start");
+    expect(initial.state.mission.config).toEqual(room.state.mission.config);
+    expect(
+      initial.state.mission.objectives.every((o) => o.status !== "complete"),
+    ).toBe(true);
+  }
+});
+it("synchronizes a legitimate role event and preserves it across reconnect", async () => {
+  const { host, welcome, room } = await party();
+  const hacker = await join(welcome.roomCode, "Hacker"),
+    assassin = await join(welcome.roomCode, "Assassin");
+  await start(host, [hacker, assassin]);
+  // Network fixture places Hacker near ALPHA; completion still goes through
+  // authenticated button input and the authoritative 30Hz simulation.
+  Object.assign(room.state.players[0], {
+    x: room.state.mission.keys[0].x,
+    y: room.state.mission.keys[0].y,
+  });
+  send(hacker.ws, "client_input", { input: { interact: true } });
+  await pause(80);
+  Object.assign(room.state.players[0], {
+    x: room.state.mission.keys[1].x,
+    y: room.state.mission.keys[1].y,
+  });
+  await pause(500);
+
+  expect(
+    room.state.mission.objectives.find((o) => o.id === "shared_keys").status,
+  ).toBe("complete");
+  const config = room.state.mission.config;
+  for (const client of [host, hacker.ws, assassin.ws]) {
+    let state;
+    for (let i = 0; i < 20; i++) {
+      state = (await read(client, "snapshot")).state;
+      if (
+        state.mission.objectives.find((o) => o.id === "shared_keys").status ===
+        "complete"
+      )
+        break;
+    }
+    expect(
+      state.mission.objectives.find((o) => o.id === "shared_keys").completedBy,
+    ).toBe(1);
+  }
+  hacker.ws.close();
+  await once(hacker.ws, "close");
+  await pause();
+  const resumed = await client();
+  send(resumed, "resume", {
+    roomCode: welcome.roomCode,
+    token: hacker.welcome.sessionToken,
+  });
+  await read(resumed, "joined_room");
+  const restored = (await read(resumed, "game_start")).state;
+  expect(restored.mission.config).toEqual(config);
+  expect(
+    restored.mission.objectives.find((o) => o.id === "shared_keys").status,
+  ).toBe("complete");
+  for (const [type, data] of [
+    ["objective_complete", { id: "recon" }],
+    ["key_pickup", { id: "ALPHA" }],
+    ["client_input", { input: { keyId: "BRAVO" } }],
+    ["client_input", { input: { objective: "complete" } }],
+    ["select_role", { role: "Scout" }],
+  ]) {
+    send(resumed, type, data);
+    expect((await read(resumed, "join_error")).message).toMatch(
+      /schema|Lobby action/,
+    );
+  }
+  expect(room.state.players[0].role).toBe("Hacker");
 });

@@ -7,7 +7,7 @@
  *        96   120          500 520                920 940          1208 1232
  *   y=40  ┌────┬─────────────┬──────────────────────┬────────────────┐
  *         │    │  KITCHEN    D   LIVING ROOM        D   STUDY        │
- *         │    │  (ALPHA)    │   fireplace, sofa    │   (BRAVO)      │
+ *         │    │  (ALPHA)    │   fireplace, sofa    │                │
  *   y=304 └────┴──[pantry]───┤                      ├──────────┬─hall┤
  *    YARD      │  GARAGE     D   bookshelf          V  VAULT   │laser│
  *    (van,     D  (car)      │                      │ (DIAMOND)│ hall│
@@ -189,6 +189,18 @@ export const SAFEHOUSE = {
   ],
 
   mission: {
+    // Role objectives reuse reachable open floor and existing guards. No wall,
+    // furniture, spawn, extraction, camera or patrol geometry is replaced.
+    coop: {
+      captainId: 'g6',
+      electronicDoorId: 'door_pantry',
+      networkCameraId: 'cam_living',
+      reconZone: { x: 312, y: 380, room: 'Garage' },
+      hiddenNode: { x: 400, y: 360, room: 'Garage' },
+      checkpointGuardId: 'g2',
+      checkpoint: { x: 560, y: 430, room: 'Living Room' },
+      distractionZone: { x: 840, y: 430, room: 'Living Room' },
+    },
     keys: [
       { id: 'ALPHA', x: 164,  y: 136, room: 'Kitchen' },
       { id: 'BRAVO', x: 1170, y: 230, room: 'Study' },
